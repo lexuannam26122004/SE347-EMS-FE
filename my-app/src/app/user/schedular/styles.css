@@ -1,0 +1,126 @@
+.fc {
+    border: none; /* 8px border cho toàn bộ lịch */
+    font-size: 14px; /* Kích thước chữ */
+    border-radius: 8px; /* Bo góc để phù hợp với Paper */
+    color: var(--text-color);
+}
+
+.fc .fc-col-header-cell-cushion {
+    display: inline-block;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+}
+
+.fc-event {
+    margin: 0px 4px 4px 4px !important; /* Khoảng cách giữa các sự kiện */
+    font-size: 13px; /* Kích thước chữ */
+    border-radius: 7px;
+}
+
+.fc-header-toolbar {
+    margin: 0 !important;
+}
+
+/* Giới hạn chiều cao của các ô ngày khi có quá nhiều sự kiện */
+.fc-daygrid-day.fc-has-events {
+    overflow: hidden;
+}
+
+.fc-col-header-cell {
+    border-right: none !important;
+    border-left: none !important;
+}
+
+.fc-daygrid-day-top {
+    padding: 8px 8px 0 0;
+}
+/* Loại bỏ border ngoài của toàn bộ phần tử FullCalendar */
+.fc-scrollgrid {
+    border-left: none !important; /* Loại bỏ border ngoài */
+    border-right: none !important; /* Loại bỏ border ngoài */
+    border-bottom: none !important; /* Loại bỏ border ngoài */
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-right: none !important; /* Loại bỏ border */
+}
+
+/* Loại bỏ border-bottom của thẻ <td> cuối cùng trong mỗi hàng ngày */
+.fc-theme-standard td:last-child {
+    border-bottom: none !important;
+}
+
+.fc-day-future .fc-daygrid-day {
+    height: 63px !important; /* Chiều cao của mỗi ô ngày */
+}
+
+.fc-event-time {
+    font-size: 13px; /* Kích thước chữ */
+    font-weight: bold;
+    flex-shrink: 0; /* Không cho phép thu nhỏ */
+}
+
+.fc-event-main-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.fc-event-title {
+    font-size: 13px; /* Kích thước chữ */
+    white-space: nowrap;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-daygrid-event {
+    /*background-color: #4caf50; /* Màu nền cho sự kiện chỉ kéo dài 1 ngày */
+    font-size: 13px;
+    border-radius: 7px;
+    padding: 1.25px 7px; /* Padding trong sự kiện */
+}
+
+.fc-event.fc-event-draggable {
+    border: none !important;
+}
+
+:root {
+    --fc-small-font-size: 14px;
+    --fc-page-bg-color: #fff;
+    --fc-neutral-bg-color: rgba(208, 208, 208, 0.3);
+    --fc-neutral-text-color: #808080;
+    --fc-border-color: rgba(145 158 171 / 0.16);
+
+    --fc-button-text-color: #e91c1c;
+    --fc-button-bg-color: #1c86ef;
+    --fc-button-border-color: #2c3e50;
+    --fc-button-hover-bg-color: #1e2b37;
+    --fc-button-hover-border-color: #1a252f;
+    --fc-button-active-bg-color: #1a252f;
+    --fc-button-active-border-color: #151e27;
+
+    --fc-event-bg-color: #d83790;
+    --fc-event-border-color: #3788d8;
+    --fc-event-text-color: #fff;
+    --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
+
+    --fc-more-link-bg-color: #d0d0d0;
+    --fc-more-link-text-color: inherit;
+
+    --fc-event-resizer-thickness: 8px;
+    --fc-event-resizer-dot-total-width: 8px;
+    --fc-event-resizer-dot-border-width: 1px;
+
+    --fc-non-business-color: rgba(215, 215, 215, 0.3);
+    --fc-bg-event-color: rgb(143, 223, 130);
+    --fc-bg-event-opacity: 0.3;
+    --fc-highlight-color: rgba(188, 232, 241, 0.3);
+    --fc-today-bg-color: var(--today-color);
+    --fc-now-indicator-color: red;
+}
