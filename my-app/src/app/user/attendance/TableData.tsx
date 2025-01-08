@@ -40,8 +40,9 @@ import { ITimekeeping } from '@/models/Timekeeping'
 // ]
 
 function convertTimeFormat(time: string): string {
+    if (!time) return 'N/A'
     // Tách chuỗi thời gian thành giờ, phút và giây
-    const [hours = 0, minutes = 0, seconds = 0] = time.split(':').map(Number)
+    const [hours = 0, minutes = 0, seconds = 0] = time?.split(':').map(part => Math.floor(Number(part))) || [0, 0, 0]
 
     // Format từng phần thành chuỗi 2 chữ số
     const formattedHours = String(hours).padStart(2, '0')
@@ -92,6 +93,7 @@ function TableErrorReport({ attendanceData }: IProps) {
         <TableContainer
             sx={{
                 maxHeight: '540px',
+                height: 'auto',
                 scrollbarGutter: 'stable',
                 '&::-webkit-scrollbar': {
                     width: '7px',
@@ -202,21 +204,6 @@ function TableErrorReport({ attendanceData }: IProps) {
                             </TableSortLabel>
                         </TableCell>
 
-                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                            <Typography
-                                sx={{
-                                    fontWeight: 'bold',
-                                    color: 'var(--text-color)',
-                                    fontSize: '16px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                {t('COMMON.ATTENDANCE.OVERTIME')}
-                            </Typography>
-                        </TableCell>
-
                         <TableCell sx={{ borderColor: 'var(--border-color)', width: '70px' }}>
                             <Typography
                                 sx={{
@@ -318,7 +305,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                                     fontWeight: 'bold'
                                                 }}
                                             >
-                                                {row.CheckInTime}
+                                                {convertTimeFormat(row.CheckInTime)}
                                             </Box>
                                             -
                                             <Box
@@ -327,7 +314,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                                     fontWeight: 'bold'
                                                 }}
                                             >
-                                                {row.CheckOutTime}
+                                                {convertTimeFormat(row.CheckOutTime)}
                                             </Box>
                                         </Box>
                                     </Box>
@@ -353,30 +340,10 @@ function TableErrorReport({ attendanceData }: IProps) {
                                             whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {convertTimeFormat(row.WorkingHours)}
+                                        {row.TotalHours * 60} {t('COMMON.USER.MINUTES')}
                                     </Typography>
                                 </TableCell>
 
-                                <TableCell
-                                    sx={{
-                                        borderStyle: 'dashed',
-                                        borderColor: 'var(--border-color)'
-                                    }}
-                                >
-                                    <Typography
-                                        sx={{
-                                            color: '#2ef2d2',
-                                            fontSize: '16px',
-                                            fontStyle: 'italic',
-                                            maxWidth: '280px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
-                                        }}
-                                    >
-                                        {convertTimeFormat(row.Overtime)}
-                                    </Typography>
-                                </TableCell>
                                 <TableCell
                                     sx={{
                                         borderStyle: 'dashed',

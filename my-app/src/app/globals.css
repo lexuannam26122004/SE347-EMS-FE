@@ -134,6 +134,7 @@ body {
     --loader0: #132025;
     --loader1: #0f3132;
     --roles: rgb(255, 255, 255);
+    --hover-ellipsis: #223341;
 }
 
 .light {
@@ -245,6 +246,7 @@ body {
     --loader0: #cdf0ed;
     --loader1: #9aebdf;
     --roles: rgb(134, 90, 200);
+    --hover-ellipsis: #f0f2f5;
 }
 
 body {

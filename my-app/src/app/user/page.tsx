@@ -52,7 +52,6 @@ const DetailModal = () => {
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
                     zIndex: -1
                 }}
             />
@@ -60,8 +59,7 @@ const DetailModal = () => {
             <Box
                 sx={{
                     width: '100%',
-                    borderRadius: '15px',
-                    margin: '25px auto'
+                    borderRadius: '15px'
                 }}
             >
                 <Box
@@ -73,7 +71,7 @@ const DetailModal = () => {
                         '&::-webkit-scrollbar-corner': {
                             borderRadius: '10px'
                         },
-                        border: '1px solid #e0e0e0'
+                        boxShadow: 'var(--box-shadow-paper)'
                     }}
                 >
                     <Box
@@ -100,7 +98,10 @@ const DetailModal = () => {
                             }}
                         >
                             <Avatar
-                                src='https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                                src={
+                                    'https://localhost:44381/' + user?.AvatarPath ||
+                                    'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
+                                }
                                 alt='Avatar'
                                 sx={{
                                     width: '100%',

@@ -1,6 +1,6 @@
 import { Box, IconButton, InputLabel, Paper, Tooltip, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     SelectChangeEvent,
     TextField,
@@ -30,124 +30,8 @@ import { IEventGetAll, IFilterEvent } from '@/models/Event'
 import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers'
 import { toZonedTime, format } from 'date-fns-tz'
 import formatDateToTime from '@/utils/formatDateToTime'
-
-export const eventData: IEventGetAll[] = [
-    {
-        Id: 1,
-        Title: 'New Year Celebration',
-        StartDate: '2024-01-01T00:00:00',
-        EndDate: '2024-01-01T23:59:59',
-        IsHoliday: true,
-        Description: 'Celebration of the New Year.',
-        Color: '#FF5733',
-        AllDay: true
-    },
-    {
-        Id: 2,
-        Title: 'Team Meeting',
-        StartDate: '2024-01-05T10:00:00',
-        EndDate: '2024-01-05T12:00:00',
-        IsHoliday: false,
-        Description: 'Monthly team meeting.',
-        Color: '#33C4FF',
-        AllDay: false
-    },
-    {
-        Id: 3,
-        Title: 'Company Retreat',
-        StartDate: '2024-01-15T09:00:00',
-        EndDate: '2024-01-16T17:00:00',
-        IsHoliday: false,
-        Description: 'Annual company retreat.',
-        Color: '#4CAF50',
-        AllDay: false
-    },
-    {
-        Id: 4,
-        Title: "Valentine's Day",
-        StartDate: '2024-02-14T00:00:00',
-        EndDate: '2024-02-14T23:59:59',
-        IsHoliday: true,
-        Description: "Celebration of Valentine's Day.",
-        Color: '#FF69B4',
-        AllDay: true
-    },
-    {
-        Id: 5,
-        Title: 'Project Deadline',
-        StartDate: '2024-03-01T08:00:00',
-        EndDate: '2024-03-01T23:59:59',
-        IsHoliday: false,
-        Description: 'Final deadline for project submission.',
-        Color: '#FFC300',
-        AllDay: false
-    },
-    {
-        Id: 6,
-        Title: 'Team Building Activity',
-        StartDate: '2024-03-10T14:00:00',
-        EndDate: '2024-03-10T18:00:00',
-        IsHoliday: false,
-        Description: 'Outdoor team-building games and activities.',
-        Color: '#7D3C98',
-        AllDay: false
-    },
-    {
-        Id: 7,
-        Title: 'Easter Holiday',
-        StartDate: '2024-03-31T00:00:00',
-        EndDate: '2024-03-31T23:59:59',
-        IsHoliday: true,
-        Description: 'Easter Sunday celebration.',
-        Color: '#FF7F50',
-        AllDay: true
-    },
-    {
-        Id: 8,
-        Title: 'Conference Presentation',
-        StartDate: '2024-04-15T09:00:00',
-        EndDate: '2024-04-15T11:00:00',
-        IsHoliday: false,
-        Description: 'Presenting at the annual tech conference.',
-        Color: '#2980B9',
-        AllDay: false
-    },
-    {
-        Id: 9,
-        Title: 'Labor Day',
-        StartDate: '2024-05-01T00:00:00',
-        EndDate: '2024-05-01T23:59:59',
-        IsHoliday: true,
-        Description: 'International Labor Day holiday.',
-        Color: '#E74C3C',
-        AllDay: true
-    },
-    {
-        Id: 10,
-        Title: 'Summer Vacation',
-        StartDate: '2024-06-15T00:00:00',
-        EndDate: '2024-06-20T23:59:59',
-        IsHoliday: false,
-        Description: 'Family summer vacation.',
-        Color: '#F39C12',
-        AllDay: true
-    }
-]
-
-// interface IGetAll {
-//     avatarPath: string
-//     fullname: string
-//     count: number
-//     employeeID: string
-//     roles: string[]
-// }
-
-const responseData = {
-    Data: {
-        TotalRecords: eventData.length,
-        Records: eventData
-    }
-}
+import { useSearchEventQuery } from '@/services/EventService'
+import debounce from 'lodash.debounce'
 
 const IOSSwitch = styled((props: SwitchProps) => (
     <Switch focusVisibleClassName='.Mui-focusVisible' disableRipple {...props} />
@@ -228,40 +112,82 @@ const colors = ['#00a76f', '#8e33ff', '#00b8d9', '#003768', '#22c55e', '#ffcc00'
 
 function Page() {
     const { t } = useTranslation('common')
-
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
-    const [type] = useState(0)
-    const [value, setValue] = useState(currentMonth)
+    const [type, setType] = useState(0)
     const [keyword, setKeyword] = useState('')
     const [filter, setFilter] = useState<IFilterEvent>({
-        pageSize: 7,
+        pageSize: 10,
         startDate: dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'), // Đầu tháng với giờ
         endDate: dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'), // Cuối tháng với giờ
         pageNumber: 1
     })
-    const [rowsPerPage] = useState('10')
-    const [from] = useState(1)
-    const [to] = useState(5)
-    const [selectedEvent, setSelectedEvent] = useState<IEventGetAll | null>(null)
 
-    const handleSearchKeyword = () => {
-        console.log(value)
+    const [page, setPage] = useState(1)
+    const [rowsPerPage] = useState('10')
+    const [from, setFrom] = useState(1)
+    const [to, setTo] = useState(10)
+    const [selectedEvent, setSelectedEvent] = useState<IEventGetAll | null>(null)
+    const { data: responseData, refetch, isFetching } = useSearchEventQuery(filter)
+
+    const eventData = responseData?.Data.Records as IEventGetAll[]
+
+    useEffect(() => {
+        if (!isFetching && responseData?.Data) {
+            const from = (page - 1) * Number(rowsPerPage) + Math.min(1, eventData.length)
+            setFrom(from)
+
+            const to = Math.min(eventData.length + (page - 1) * Number(rowsPerPage), totalRecords)
+            setTo(to)
+        }
+    }, [isFetching, responseData, page, rowsPerPage])
+
+    const debouncedSetFilter = useCallback(
+        debounce(value => {
+            setFilter(prev => ({
+                ...prev,
+                keyword: value,
+                pageNumber: 1
+            }))
+        }, 100),
+        []
+    )
+
+    const handleSearchKeyword = value => {
+        setPage(1)
+        setKeyword(value)
+        debouncedSetFilter(value)
     }
 
-    //const notifyData = responseData?.Data.Records as IEventGetAll[]
+    useEffect(() => {
+        setFilter(prev => {
+            return {
+                ...prev,
+                pageSize: Number(rowsPerPage)
+            }
+        })
+    }, [rowsPerPage])
+
+    useEffect(() => {
+        refetch()
+    }, [filter])
+
+    useEffect(() => {
+        refetch()
+    }, [])
 
     const totalRecords = (responseData?.Data.TotalRecords as number) || 0
 
-    // const handleTypeChange = (event: SelectChangeEvent<number>) => {
-    //     setType(event.target.value as number)
-    // }
-
     const handleValueChange = (event: SelectChangeEvent<number>) => {
-        setValue(event.target.value as number)
+        const value = event.target.value as number
+        setType(value)
+        setPage(1)
+        setFilter(prev => {
+            return {
+                ...prev,
+                pageNumber: 1,
+                isHoliday: value === 1 ? true : value === 2 ? false : undefined
+            }
+        })
     }
-
-    const [page, setPage] = useState(1)
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
         setPage(newPage)
@@ -311,12 +237,13 @@ function Page() {
                         <DatePicker
                             label={t('COMMON.USER.START_DATE')}
                             value={dayjs(filter.startDate)}
-                            onChange={value =>
+                            onChange={value => {
                                 setFilter({
                                     ...filter,
                                     startDate: convertToVietnamTime(value?.toDate() || new Date())
                                 })
-                            }
+                                setPage(1)
+                            }}
                             sx={{
                                 width: '100%',
                                 '& .MuiInputBase-root': {
@@ -353,13 +280,14 @@ function Page() {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             label={t('COMMON.USER.END_DATE')}
-                            value={dayjs(filter.startDate)}
-                            onChange={value =>
+                            value={dayjs(filter.endDate)}
+                            onChange={value => {
                                 setFilter({
                                     ...filter,
-                                    startDate: convertToVietnamTime(value?.toDate() || new Date())
+                                    endDate: convertToVietnamTime(value?.toDate() || new Date())
                                 })
-                            }
+                                setPage(1)
+                            }}
                             sx={{
                                 width: '100%',
                                 '& .MuiInputBase-root': {
@@ -407,7 +335,7 @@ function Page() {
                         variant='outlined'
                         required
                         value={keyword}
-                        onChange={e => setKeyword(e.target.value)}
+                        onChange={e => handleSearchKeyword(e.target.value)}
                         sx={{
                             color: 'var(--text-color)',
                             padding: '0px',
@@ -432,9 +360,6 @@ function Page() {
                             '& .MuiOutlinedInput-root.Mui-focused fieldset': {
                                 borderColor: 'var(--selected-field-color)'
                             }
-                        }}
-                        onKeyDown={() => {
-                            handleSearchKeyword()
                         }}
                         slotProps={{
                             input: {
@@ -496,7 +421,8 @@ function Page() {
                         <InputLabel id='select-label'>{t('COMMON.USER_SCHEDULAR.FILTER_LABEL')}</InputLabel>
                         <Select
                             label={t('COMMON.USER_SCHEDULAR.FILTER_LABEL')}
-                            defaultValue={type === 0 ? currentMonth : currentYear}
+                            defaultValue={0}
+                            value={type}
                             onChange={handleValueChange}
                             sx={{
                                 '&:hover .MuiOutlinedInput-notchedOutline': {
@@ -597,124 +523,137 @@ function Page() {
                         margin: '18px 12px'
                     }}
                 >
-                    <Box
-                        sx={{
-                            height: '100%',
-                            padding: '12px 5px 12px 12px',
-                            overflow: 'auto',
-                            scrollbarGutter: 'stable',
-                            '&::-webkit-scrollbar': {
-                                width: '7px',
-                                height: '7px'
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: 'var(--scrollbar-color)',
-                                borderRadius: '10px'
-                            }
-                        }}
-                    >
-                        {eventData.map((event, index) => (
-                            <Box
-                                key={index}
-                                sx={{
-                                    '&:hover': {
-                                        backgroundColor: 'var(--hover-color)'
-                                    },
-                                    borderRadius: '10px',
-                                    padding: '12px 8px',
-                                    display: 'flex',
-                                    justifyContent: 'left',
-                                    position: 'relative',
-                                    alignItems: 'center'
-                                }}
-                            >
+                    {eventData && eventData.length !== 0 && (
+                        <Box
+                            sx={{
+                                height: '100%',
+                                padding: '12px 5px 12px 12px',
+                                overflow: 'auto',
+                                scrollbarGutter: 'stable',
+                                '&::-webkit-scrollbar': {
+                                    width: '7px',
+                                    height: '7px'
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'var(--scrollbar-color)',
+                                    borderRadius: '10px'
+                                }
+                            }}
+                        >
+                            {eventData.map((event, index) => (
                                 <Box
+                                    key={index}
                                     sx={{
-                                        backgroundColor: event.Color,
-                                        borderRadius: '8px',
-                                        width: '40px',
-                                        height: '30px',
-                                        mr: '12px'
+                                        '&:hover': {
+                                            backgroundColor: 'var(--hover-color)'
+                                        },
+                                        borderRadius: '10px',
+                                        padding: '12px 8px',
+                                        display: 'flex',
+                                        justifyContent: 'left',
+                                        position: 'relative',
+                                        alignItems: 'center'
                                     }}
-                                />
-
-                                <Box>
-                                    <Typography
-                                        sx={{
-                                            color: 'var(--text-color)',
-                                            fontWeight: 'bold',
-                                            fontSize: '16px'
-                                        }}
-                                    >
-                                        {event.Title}
-                                    </Typography>
+                                >
                                     <Box
                                         sx={{
+                                            backgroundColor: event.Color,
+                                            borderRadius: '8px',
+                                            width: '40px',
+                                            height: '30px',
+                                            mr: '12px'
+                                        }}
+                                    />
+
+                                    <Box sx={{ flex: 1, overflow: 'hidden', mr: '5px' }}>
+                                        <Typography
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                fontWeight: 'bold',
+                                                fontSize: '16px',
+                                                width: '100%',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}
+                                        >
+                                            {event.Title}
+                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                gap: '5px',
+                                                color: '#858494',
+                                                fontSize: '14px',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            <Typography
+                                                sx={{
+                                                    color: '#858494',
+                                                    fontSize: '14px'
+                                                }}
+                                            >
+                                                {formatDateToTime(event.StartDate)}
+                                            </Typography>
+                                            {t('COMMON.STAT_NOTIFY.TO')}
+                                            <Typography
+                                                sx={{
+                                                    color: '#858494',
+                                                    fontSize: '14px'
+                                                }}
+                                            >
+                                                {formatDateToTime(event.EndDate)}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                    <Box
+                                        sx={{
+                                            ml: 'auto',
                                             display: 'flex',
-                                            gap: '5px',
-                                            color: '#858494',
-                                            fontSize: '14px',
-                                            alignItems: 'center'
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px'
                                         }}
                                     >
-                                        <Typography
+                                        {event.IsHoliday && (
+                                            <Tooltip title={t('COMMON.STAT_NOTIFY.HOLIDAY')}>
+                                                <Star
+                                                    size={16}
+                                                    style={{
+                                                        cursor: 'default',
+                                                        color: '#FFAA00',
+                                                        fill: '#FFAA00',
+                                                        verticalAlign: 'middle'
+                                                    }}
+                                                />
+                                            </Tooltip>
+                                        )}
+
+                                        <Box
+                                            display='flex'
+                                            alignItems='center'
+                                            justifyContent='center'
                                             sx={{
-                                                color: '#858494',
-                                                fontSize: '14px'
+                                                ml: 'auto',
+                                                color: '#00d100',
+                                                borderRadius: '50%',
+                                                width: '42px',
+                                                height: '42px',
+                                                '&:hover': {
+                                                    cursor: 'pointer',
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
                                             }}
+                                            onClick={() => setSelectedEvent(event)}
                                         >
-                                            {formatDateToTime(event.StartDate)}
-                                        </Typography>
-                                        {t('COMMON.STAT_NOTIFY.TO')}
-                                        <Typography
-                                            sx={{
-                                                color: '#858494',
-                                                fontSize: '14px'
-                                            }}
-                                        >
-                                            {formatDateToTime(event.EndDate)}
-                                        </Typography>
+                                            <Eye />
+                                        </Box>
                                     </Box>
                                 </Box>
-                                {event.IsHoliday && (
-                                    <Tooltip title={t('COMMON.STAT_NOTIFY.HOLIDAY')}>
-                                        <Star
-                                            size={16}
-                                            style={{
-                                                cursor: 'default',
-                                                position: 'absolute',
-                                                right: '60px',
-                                                color: '#FFAA00',
-                                                fill: '#FFAA00',
-                                                verticalAlign: 'middle',
-                                                marginRight: '6px'
-                                            }}
-                                        />
-                                    </Tooltip>
-                                )}
-
-                                <Box
-                                    display='flex'
-                                    alignItems='center'
-                                    justifyContent='center'
-                                    sx={{
-                                        ml: 'auto',
-                                        color: '#00d100',
-                                        borderRadius: '50%',
-                                        width: '42px',
-                                        height: '42px',
-                                        '&:hover': {
-                                            cursor: 'pointer',
-                                            backgroundColor: 'var(--hover-color)'
-                                        }
-                                    }}
-                                    onClick={() => setSelectedEvent(event)}
-                                >
-                                    <Eye />
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
+                            ))}
+                        </Box>
+                    )}
                 </Box>
 
                 <Box display='flex' alignItems='center' justifyContent='space-between' padding='0px 24px 20px'>

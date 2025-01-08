@@ -6,16 +6,19 @@ import NotificationsPage from '@/app/admin/notification/page'
 import { usePathname } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
 import { countNewNotificationSelector, countNewNotificationSlice } from '@/redux/slices/countNewNotificationSlice'
-import { useGetCountIsNewQuery } from '@/services/NotificationsService'
-import { userId } from '@/utils/globalVariables'
+import { useGetCountIsNewQuery } from '@/services/UserNotificationsService'
 
-const NotificationMenu = () => {
+interface Props {
+    isUser?: boolean
+}
+
+const NotificationMenu = ({ isUser }: Props) => {
     const pathname = usePathname()
     const anchorRef = useRef<HTMLDivElement | null>(null)
     const [open, setOpen] = useState(false)
     const [hover, setHover] = useState(false)
     const dispatch = useDispatch()
-    const { data: response, isFetching } = useGetCountIsNewQuery(userId)
+    const { data: response, isFetching } = useGetCountIsNewQuery()
 
     const unreadCount = useSelector(countNewNotificationSelector)
 
@@ -67,17 +70,17 @@ const NotificationMenu = () => {
         <Box>
             <Badge
                 badgeContent={unreadCount}
+                variant='dot'
                 color='error'
                 max={99}
                 invisible={unreadCount === 0}
                 sx={{
                     userSelect: 'none',
                     '& .MuiBadge-badge': {
-                        padding: '0 5px',
-                        right: 4,
-                        top: 4,
+                        right: 9,
+                        top: 9,
                         backgroundColor: 'red',
-                        fontSize: '12px'
+                        fontSize: '10px'
                     }
                 }}
             >
@@ -89,16 +92,17 @@ const NotificationMenu = () => {
                         padding: '6px',
                         borderRadius: '50%',
                         ...(hover && {
-                            backgroundColor: 'var(--hover-color)',
-                            borderColor: 'var(--hover-color)'
+                            backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                            borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                         }),
+                        color: isUser === true ? '#fff' : 'var(--text-color)',
                         ...(open && {
-                            backgroundColor: 'var(--hover-color)',
-                            borderColor: 'var(--hover-color)'
+                            backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                            borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                         }),
                         '&:hover': {
-                            backgroundColor: 'var(--hover-color)',
-                            borderColor: 'var(--hover-color)'
+                            backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                            borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                         }
                     }}
                 >

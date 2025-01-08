@@ -1,8 +1,8 @@
 import { MessageCircleMore } from 'lucide-react'
 import { Box, Tooltip, TextField, IconButton } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Close as CloseIcon, Send as SendIcon } from '@mui/icons-material'
-import { useCreateMessageMutation, useGetAllMessageQuery } from '@/services/MessageService'
+import { useCreateMessageMutation, useGetMeMessageQuery } from '@/services/MessageService'
 import { IMessageGetAll } from '@/models/Message'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
@@ -30,13 +30,23 @@ export default function ChatButton() {
     const [type, setType] = useState(true)
 
     const [createMessage] = useCreateMessageMutation()
-    const { data: responseData } = useGetAllMessageQuery()
+    const { data: responseData, refetch } = useGetMeMessageQuery()
     const messageData = (responseData?.Data as IMessageGetAll[]) || []
+
+    useEffect(() => {
+        refetch()
+    }, [responseData])
 
     const handleToggleChat = () => {
         setIsOpen(true)
         setIsAppear(false)
     }
+
+    useEffect(() => {
+        if (!isAppear && boxRef.current) {
+            boxRef.current.scrollTop = boxRef.current.scrollHeight
+        }
+    }, [isAppear, messageData])
 
     const handleCloseChat = () => {
         setIsOpen(false)
@@ -113,6 +123,23 @@ export default function ChatButton() {
         }
     }
 
+    const boxRef = useRef(null) // Tạo tham chiếu đến Box
+
+    useEffect(() => {
+        // Cuộn xuống cuối khi mở Box hoặc khi messageData thay đổi
+        if (boxRef.current) {
+            boxRef.current.scrollTop = boxRef.current.scrollHeight // Cuộn xuống cuối
+        }
+    }, [messageData])
+
+    const [clickedMessage, setClickedMessage] = useState(null)
+    const handleClickMessage = id => {
+        setClickedMessage(id)
+        setTimeout(() => {
+            setClickedMessage(null) // Ẩn sau 5 giây
+        }, 5000)
+    }
+
     // Hàm phân tích cảm xúc
     // const analyzeSentiment = async message => {
     //     try {
@@ -169,7 +196,7 @@ export default function ChatButton() {
                         animation: `${isAppear ? 'slideUp' : 'slideDown'} 0.5s ease forwards`
                     }}
                 >
-                    <Tooltip title='Chat với chúng tôi' placement='left'>
+                    <Tooltip title='Chia sẻ cảm xúc' placement='left'>
                         <Box
                             sx={{
                                 width: '50px',
@@ -223,7 +250,7 @@ export default function ChatButton() {
                             alignItems: 'center'
                         }}
                     >
-                        Chat với chúng tôi
+                        Chia sẻ cảm xúc
                         <IconButton onClick={handleCloseChat} sx={{ color: 'white' }}>
                             <CloseIcon />
                         </IconButton>
@@ -231,6 +258,7 @@ export default function ChatButton() {
 
                     {/* Chat content */}
                     <Box
+                        ref={boxRef} // Gắn ref vào Box chứa tin nhắn
                         sx={{
                             flex: 1,
                             padding: 2,
@@ -241,10 +269,19 @@ export default function ChatButton() {
                         }}
                     >
                         {messageData.map((message, index) => (
-                            <Tooltip title={formatDate(message.CreatedAt)} key={index}>
+                            <Box
+                                key={index}
+                                sx={{
+                                    position: 'relative', // Để định vị thời gian
+                                    display: 'flex',
+                                    flexDirection: 'column', // Bố cục theo cột
+                                    alignItems: message.Type === true ? 'flex-end' : 'flex-start' // Canh theo loại tin nhắn
+                                }}
+                                onClick={() => handleClickMessage(index)} // Xử lý click
+                            >
+                                {/* Tin nhắn */}
                                 <Box
                                     sx={{
-                                        alignSelf: message.Type === true ? 'flex-end' : 'flex-start',
                                         backgroundColor: message.Type === true ? 'var(--button-color)' : '#f1f1f1',
                                         color: message.Type === true ? 'white' : 'black',
                                         borderRadius: '12px',
@@ -256,7 +293,30 @@ export default function ChatButton() {
                                 >
                                     {message.Content}
                                 </Box>
-                            </Tooltip>
+
+                                {/* Thời gian (hiển thị nếu được click) */}
+                                {clickedMessage === index && (
+                                    <Box
+                                        sx={{
+                                            position: 'absolute',
+                                            top: '100%', // Hiển thị ngay bên dưới tin nhắn
+                                            left: message.Type === true ? 'auto' : '0', // Canh trái/phải theo loại tin nhắn
+                                            right: message.Type === true ? '0' : 'auto', // Canh phải/trái theo loại tin nhắn
+                                            marginTop: '3px', // Cách box tin nhắn 3px
+                                            backgroundColor: '#f9f9f9',
+                                            color: '#333',
+                                            borderRadius: '4px',
+                                            fontSize: '12px',
+                                            padding: '2px 8px',
+                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                            whiteSpace: 'nowrap',
+                                            zIndex: 10 // Đảm bảo hiển thị phía trên các phần tử khác
+                                        }}
+                                    >
+                                        {formatDate(message.CreatedAt)}
+                                    </Box>
+                                )}
+                            </Box>
                         ))}
                     </Box>
 

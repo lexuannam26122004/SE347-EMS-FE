@@ -6,8 +6,7 @@ import ColorModeIconDropdown from './ColorModeIconDropdown'
 import LanguageMenu from './LanguageMenu'
 import NotificationMenu from './NotificationMenu'
 import AvatarMenu from './AvatarMenu'
-import Search from './Search'
-import { Box, Divider, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { usePathname } from 'next/navigation'
 import { usePathMaps } from '@/utils/usePathMaps'
 export default function Header() {
@@ -57,13 +56,13 @@ export default function Header() {
                 ) : (
                     <Box> </Box>
                 )}
-                <Box className='flex items-center gap-4'>
-                    <Search />
+                <Box className='flex items-center gap-3'>
+                    {/* <Search />
                     <Divider
                         orientation='vertical'
                         flexItem
                         sx={{ width: '1.5px', mr: 1, ml: 1, borderColor: 'var(--border-color)' }}
-                    />
+                    /> */}
                     <LanguageMenu />
                     <ColorModeIconDropdown />
                     <NotificationMenu />

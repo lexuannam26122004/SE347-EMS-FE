@@ -4,15 +4,18 @@ import { Button, Typography, Box } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useGetAuthMeQuery } from '@/services/AuthService'
 
 const Custom403Page: FC = () => {
     const router = useRouter()
     const { t } = useTranslation('common')
 
+    const { data: responseData } = useGetAuthMeQuery()
+    const data = responseData?.Data
     const handleClick = () => {
-        router.push('/admin')
+        if (data?.IsAdmin) router.push('/admin')
+        else router.push('/user')
     }
-
     return (
         <Box
             sx={{

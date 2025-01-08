@@ -12,6 +12,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers'
 import { styled } from '@mui/material/styles'
 import { SwitchProps } from '@mui/material/Switch'
+import { DatePicker } from '@mui/x-date-pickers'
 import {
     Paper,
     Dialog,
@@ -41,6 +42,9 @@ import { useSearchEventQuery } from '@/services/EventService'
 import { IEventGetAll, IFilterEvent } from '@/models/Event'
 import { parseISO } from 'date-fns'
 import ListEvent from './ListEvent'
+import { subDays } from 'date-fns'
+import { toZonedTime, format } from 'date-fns-tz'
+import Loading from '@/components/Loading'
 
 const IOSSwitch = styled((props: SwitchProps) => (
     <Switch focusVisibleClassName='.Mui-focusVisible' disableRipple {...props} />
@@ -114,6 +118,26 @@ interface Event {
     color: string
 }
 
+const convertToVietnamTime = (date: Date) => {
+    console.log(date)
+
+    // Đảm bảo date là hợp lệ
+    if (isNaN(date.getTime())) {
+        throw new Error('Invalid Date')
+    }
+
+    // Múi giờ Việt Nam
+    const timeZone = 'Asia/Ho_Chi_Minh'
+
+    // Chuyển thời gian từ UTC sang thời gian theo múi giờ Việt Nam
+    const vietnamTime = toZonedTime(date, timeZone)
+
+    // Định dạng thời gian theo kiểu ISO (YYYY-MM-DDTHH:mm:ss)
+    const formattedDate = format(vietnamTime, "yyyy-MM-dd'T'HH:mm:ss")
+
+    return formattedDate // Trả về thời gian đã được định dạng
+}
+
 const colors = ['#00a76f', '#8e33ff', '#00b8d9', '#003768', '#22c55e', '#ffcc00', '#ff5630', '#7a0916']
 
 const MyCalendar = () => {
@@ -126,7 +150,7 @@ const MyCalendar = () => {
         keyword: ''
     })
 
-    const { data: responseData, refetch } = useSearchEventQuery(filter)
+    const { data: responseData, isLoading, refetch } = useSearchEventQuery(filter)
 
     const eventData = responseData?.Data.Records as IEventGetAll[]
 
@@ -176,13 +200,20 @@ const MyCalendar = () => {
     const handleEventClick = (info: any) => {
         const event = info.event
 
+        let endTime = event.end
+
+        if (convertToVietnamTime(endTime).endsWith('T00:00:00')) {
+            endTime = subDays(endTime, 1)
+            endTime.setHours(23, 59, 0, 0)
+        }
+
         setNewEvent({
             id: event.id,
             title: event.title,
             description: event.extendedProps.description || '',
             start: event.start,
             isHoliday: event.extendedProps.isHoliday || false,
-            end: event.end,
+            end: endTime,
             allDay: event.allDay || false,
             color: event.backgroundColor || '#00a76f'
         })
@@ -224,13 +255,17 @@ const MyCalendar = () => {
     }
 
     const paperRef = useRef(null)
-    const [paperHeight, setPaperHeight] = useState(0)
+    const [paperHeight, setPaperHeight] = useState(500)
 
     useEffect(() => {
-        if (paperRef.current) {
+        if (paperRef.current && isLoading === false) {
             setPaperHeight(paperRef.current.offsetHeight)
         }
-    }, [])
+    }, [isLoading, events])
+
+    if (isLoading) {
+        return <Loading />
+    }
 
     return (
         <Box
@@ -695,107 +730,219 @@ const MyCalendar = () => {
                             label={t('COMMON.CALENDAR.ALL_DAY')}
                         />
 
-                        <Box>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker
-                                    label='Ngày bắt đầu'
-                                    value={dayjs(newEvent.start)}
-                                    viewRenderers={{
-                                        hours: renderTimeViewClock,
-                                        minutes: renderTimeViewClock,
-                                        seconds: renderTimeViewClock
-                                    }}
-                                    slotProps={{
-                                        textField: {
-                                            inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
+                        {newEvent.allDay === true && (
+                            <Box>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label={t('COMMON.USER.START_DATE')}
+                                        value={dayjs(newEvent.start)}
+                                        onChange={value =>
+                                            setNewEvent({ ...newEvent, start: value?.toDate() || new Date() })
                                         }
-                                    }}
-                                    sx={{
-                                        width: '100%',
-                                        '& .MuiInputAdornment-root': {
-                                            pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
-                                        },
-                                        '& .MuiInputBase-root': {
-                                            color: 'var(--text-color)'
-                                        },
-                                        '& .MuiInputLabel-root': {
-                                            color: 'var(--text-label-color)'
-                                        },
-                                        '& .MuiOutlinedInput-notchedOutline': {
-                                            borderRadius: '8px',
-                                            borderColor: 'var(--border-dialog)'
-                                        },
-                                        '& .MuiSvgIcon-root': {
-                                            color: 'var(--text-label-color)' // Màu của icon (lịch)
-                                        },
-                                        '& .MuiOutlinedInput-root': {
-                                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                                borderColor: 'var(--hover-field-color)' // Màu viền khi hover
-                                            },
-                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                        slotProps={{
+                                            textField: {
+                                                inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
                                             }
-                                        },
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: 'var(--selected-field-color)'
-                                        }
-                                    }}
-                                />
-                            </LocalizationProvider>
-                        </Box>
+                                        }}
+                                        sx={{
+                                            width: '100%',
+                                            '& .MuiInputAdornment-root': {
+                                                pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
+                                            },
+                                            '& .MuiInputBase-root': {
+                                                color: 'var(--text-color)'
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'var(--text-label-color)'
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '8px',
+                                                borderColor: 'var(--border-dialog)'
+                                            },
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                                }
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'var(--selected-field-color)'
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                        )}
 
-                        <Box
-                            sx={{
-                                mt: '26px'
-                            }}
-                        >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker
-                                    label='Ngày kết thúc'
-                                    value={dayjs(newEvent.end)}
-                                    viewRenderers={{
-                                        hours: renderTimeViewClock,
-                                        minutes: renderTimeViewClock,
-                                        seconds: renderTimeViewClock
-                                    }}
-                                    slotProps={{
-                                        textField: {
-                                            inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
+                        {newEvent.allDay === false && (
+                            <Box>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker
+                                        label={t('COMMON.USER.START_DATE')}
+                                        value={dayjs(newEvent.start)}
+                                        onChange={value =>
+                                            setNewEvent({ ...newEvent, start: value?.toDate() || new Date() })
                                         }
-                                    }}
-                                    sx={{
-                                        width: '100%',
-                                        '& .MuiInputAdornment-root': {
-                                            pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
-                                        },
-                                        '& .MuiInputBase-root': {
-                                            color: 'var(--text-color)'
-                                        },
-                                        '& .MuiInputLabel-root': {
-                                            color: 'var(--text-label-color)'
-                                        },
-                                        '& .MuiOutlinedInput-notchedOutline': {
-                                            borderRadius: '8px',
-                                            borderColor: 'var(--border-dialog)'
-                                        },
-                                        '& .MuiSvgIcon-root': {
-                                            color: 'var(--text-label-color)' // Màu của icon (lịch)
-                                        },
-                                        '& .MuiOutlinedInput-root': {
-                                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                                borderColor: 'var(--hover-field-color)' // Màu viền khi hover
-                                            },
-                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                        viewRenderers={{
+                                            hours: renderTimeViewClock,
+                                            minutes: renderTimeViewClock,
+                                            seconds: renderTimeViewClock
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
                                             }
-                                        },
-                                        '& .MuiInputLabel-root.Mui-focused': {
-                                            color: 'var(--selected-field-color)'
+                                        }}
+                                        sx={{
+                                            width: '100%',
+                                            '& .MuiInputAdornment-root': {
+                                                pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
+                                            },
+                                            '& .MuiInputBase-root': {
+                                                color: 'var(--text-color)'
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'var(--text-label-color)'
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '8px',
+                                                borderColor: 'var(--border-dialog)'
+                                            },
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                                }
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'var(--selected-field-color)'
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                        )}
+
+                        {newEvent.allDay === false && (
+                            <Box
+                                sx={{
+                                    mt: '26px'
+                                }}
+                            >
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker
+                                        label={t('COMMON.USER.END_DATE')}
+                                        value={dayjs(newEvent.end)}
+                                        onChange={value =>
+                                            setNewEvent({ ...newEvent, end: value?.toDate() || new Date() })
                                         }
-                                    }}
-                                />
-                            </LocalizationProvider>
-                        </Box>
+                                        viewRenderers={{
+                                            hours: renderTimeViewClock,
+                                            minutes: renderTimeViewClock,
+                                            seconds: renderTimeViewClock
+                                        }}
+                                        slotProps={{
+                                            textField: {
+                                                inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
+                                            }
+                                        }}
+                                        sx={{
+                                            width: '100%',
+                                            '& .MuiInputAdornment-root': {
+                                                pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
+                                            },
+                                            '& .MuiInputBase-root': {
+                                                color: 'var(--text-color)'
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'var(--text-label-color)'
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '8px',
+                                                borderColor: 'var(--border-dialog)'
+                                            },
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                                }
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'var(--selected-field-color)'
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                        )}
+
+                        {newEvent.allDay === true && (
+                            <Box
+                                sx={{
+                                    mt: '26px'
+                                }}
+                            >
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label={t('COMMON.USER.END_DATE')}
+                                        value={dayjs(newEvent.end)}
+                                        onChange={value =>
+                                            setNewEvent({ ...newEvent, end: value?.toDate() || new Date() })
+                                        }
+                                        slotProps={{
+                                            textField: {
+                                                inputProps: { onKeyDown: e => e.preventDefault(), readOnly: true } // Vô hiệu hóa sự kiện bàn phím
+                                            }
+                                        }}
+                                        sx={{
+                                            width: '100%',
+                                            '& .MuiInputAdornment-root': {
+                                                pointerEvents: 'none' // Vô hiệu hóa sự kiện click trên icon
+                                            },
+                                            '& .MuiInputBase-root': {
+                                                color: 'var(--text-color)'
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: 'var(--text-label-color)'
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderRadius: '8px',
+                                                borderColor: 'var(--border-dialog)'
+                                            },
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                                }
+                                            },
+                                            '& .MuiInputLabel-root.Mui-focused': {
+                                                color: 'var(--selected-field-color)'
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
+                        )}
 
                         {newEvent.isHoliday === false && (
                             <Box sx={{ marginTop: '25px', ml: '1px', display: 'flex', gap: '16px' }}>

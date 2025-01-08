@@ -5,7 +5,11 @@ import { MoonIcon, SunIcon } from '@radix-ui/react-icons'
 import Box from '@mui/material/Box'
 import { useTheme } from 'next-themes'
 
-export default function ColorModeIconDropdown() {
+interface Props {
+    isUser?: boolean
+}
+
+export default function ColorModeIconDropdown({ isUser }: Props) {
     const { resolvedTheme, setTheme } = useTheme()
     const handleClick = () => {
         setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
@@ -21,11 +25,12 @@ export default function ColorModeIconDropdown() {
                     height: '40px',
                     borderRadius: '50%',
                     display: 'flex',
+                    color: isUser === true ? '#fff' : 'var(--text-color)',
                     alignItems: 'center',
                     justifyContent: 'center',
                     '&:hover': {
-                        backgroundColor: 'var(--hover-color)',
-                        borderColor: 'var(--hover-color)'
+                        backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                        borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                     }
                 }}
             >

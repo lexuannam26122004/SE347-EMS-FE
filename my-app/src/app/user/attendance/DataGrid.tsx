@@ -13,7 +13,9 @@ interface DataGridProps {
 
 function convertTimeFormat(time: string): string {
     // Tách chuỗi thời gian thành giờ, phút và giây
-    const [hours = 0, minutes = 0, seconds = 0] = time.split(':').map(Number)
+    if (!time) return 'N/A'
+
+    const [hours = 0, minutes = 0, seconds = 0] = time?.split(':').map(part => Math.floor(Number(part))) || [0, 0, 0]
 
     // Format từng phần thành chuỗi 2 chữ số
     const formattedHours = String(hours).padStart(2, '0')
@@ -34,7 +36,8 @@ function DataGrid(props: DataGridProps) {
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '30px',
-                height: '540px',
+                maxHeight: '540px',
+                height: 'auto',
                 padding: '0 28px 0 35px',
                 scrollbarGutter: 'stable',
                 '&::-webkit-scrollbar': {
@@ -201,7 +204,7 @@ function DataGrid(props: DataGridProps) {
                                 {t('COMMON.USER.CHECK_IN_TIME')}
                             </Typography>
                             <Typography sx={{ mt: '5px', fontSize: '16px', color: '#ffbc42', fontWeight: 'bold' }}>
-                                {row.CheckInTime}
+                                {convertTimeFormat(row.CheckInTime)}
                             </Typography>
                         </Box>
                         <Box>
@@ -209,10 +212,10 @@ function DataGrid(props: DataGridProps) {
                                 {t('COMMON.USER.CHECK_OUT_TIME')}
                             </Typography>
                             <Typography sx={{ mt: '5px', fontSize: '16px', color: '#ff7373', fontWeight: 'bold' }}>
-                                {row.CheckOutTime}
+                                {convertTimeFormat(row.CheckOutTime)}
                             </Typography>
                         </Box>
-                        <Box>
+                        {/* <Box>
                             <Typography sx={{ fontSize: '14px', color: 'var(--sub-title-color)' }}>
                                 {t('COMMON.USER.OVERTIME')}
                             </Typography>
@@ -227,7 +230,7 @@ function DataGrid(props: DataGridProps) {
                             >
                                 {convertTimeFormat(row.Overtime)}
                             </Typography>
-                        </Box>
+                        </Box> */}
                     </Box>
                 </Box>
             ))}

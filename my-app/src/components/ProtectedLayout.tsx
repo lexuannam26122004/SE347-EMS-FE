@@ -39,6 +39,11 @@ const getUserData = async router => {
 
         const userData = await userResponse.json()
 
+        if (userData.Data.IsAdmin === false) {
+            router.push('/403')
+            return null
+        }
+
         if (userData.Data) {
             return userData.Data.MenuLeft
         } else {

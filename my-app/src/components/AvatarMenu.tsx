@@ -13,14 +13,20 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 // import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
-import { ChevronDown, CalendarClock, ChevronUp, User } from 'lucide-react'
+import { ChevronDown, CalendarClock, ChevronUp, User, BriefcaseBusiness, ScanBarcode } from 'lucide-react'
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+// import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
+import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 import { PencilLine } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { keyframes } from '@emotion/react'
 import { useGetAuthMeQuery } from '@/services/AuthService'
+import { authSelector } from '@/redux/slices/authSlice'
+import { useSelector } from 'react-redux'
+import { useCheckoutMutation } from '@/services/UserAttendanceService'
+import { useToast } from '@/hooks/useToast'
+import Loading from '@/components/Loading'
 
 const rotate = keyframes`
     0% {
@@ -32,11 +38,14 @@ const rotate = keyframes`
 `
 
 const AvatarMenu = () => {
+    const toast = useToast()
     const pathName = usePathname()
     const router = useRouter()
     const { t } = useTranslation('common')
     const anchorRef = useRef<HTMLDivElement | null>(null)
     const [open, setOpen] = useState(false)
+
+    const [checkout] = useCheckoutMutation()
 
     const [avatarPath, setAvatarPath] = useState('')
     const [fullName, setFullName] = useState('')
@@ -87,14 +96,50 @@ const AvatarMenu = () => {
         router.push('/admin/notification/create')
     }
 
+    const handleCreateTasks = () => {
+        setOpen(false)
+        router.push('/admin/tasks/create')
+    }
+
     const handlePersonal = () => {
         setOpen(false)
         router.push('/user')
     }
 
+    const handleAdmin = () => {
+        setOpen(false)
+        router.push('/admin')
+    }
+
+    const handleChangePassword = () => {
+        setOpen(false)
+        router.push('/change-password')
+    }
+
     const handleSchedular = () => {
         setOpen(false)
         router.push('/user/schedular')
+    }
+
+    const attendanceId = sessionStorage.getItem('AttendanceId')
+
+    const handleCheckOut = async () => {
+        try {
+            const attendance = sessionStorage.getItem('AttendanceId')
+            if (attendance) {
+                await checkout(Number(attendance)).unwrap() // Chuyển từ string sang number
+                toast('Chấm công ra thành công!', 'success')
+                sessionStorage.removeItem('AttendanceId')
+            } else {
+                toast('Lỗi khi chấm công hết giờ', 'error')
+            }
+        } catch (error) {
+            if (error.status === 400) {
+                toast('Phiên đăng nhập không hợp lệ!', 'error')
+            } else {
+                toast('Lỗi khi chấm công hết giờ', 'error')
+            }
+        }
     }
 
     // const handleCreateTasks = () => {
@@ -107,6 +152,12 @@ const AvatarMenu = () => {
         sessionStorage.removeItem('auth_token')
         refetch()
         router.push('/login')
+    }
+
+    const menuLeft = useSelector(authSelector)
+
+    if (menuLeft === null || menuLeft === undefined) {
+        return <Loading />
     }
 
     return (
@@ -240,8 +291,8 @@ const AvatarMenu = () => {
                                     id='avatar-menu'
                                     onKeyDown={handleListKeyDown}
                                     sx={{
-                                        borderRadius: '6px',
-                                        minWidth: '208px'
+                                        borderRadius: '8px',
+                                        minWidth: '200px'
                                     }}
                                 >
                                     {/* <MenuItem sx={{ padding: '8px', cursor: 'default' }}>
@@ -275,7 +326,8 @@ const AvatarMenu = () => {
                                             onClick={handlePersonal}
                                             sx={{
                                                 color: 'var(--text-color)',
-                                                borderRadius: '6px',
+                                                borderRadius: '8px',
+                                                padding: '9px 12px',
                                                 '&:hover': {
                                                     backgroundColor: 'var(--hover-color)'
                                                 }
@@ -286,38 +338,79 @@ const AvatarMenu = () => {
                                         </MenuItem>
                                     )}
 
-                                    <MenuItem
-                                        onClick={handleCreateNotification}
-                                        sx={{
-                                            color: 'var(--text-color)',
-                                            borderRadius: '6px',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--hover-color)'
-                                            }
-                                        }}
-                                    >
-                                        <PencilLine style={{ marginRight: '16px' }} />
-                                        {t('COMMON.AVATAR_MENU.CREATE_NOTIFICATION')}
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={handleSchedular}
-                                        sx={{
-                                            color: 'var(--text-color)',
-                                            borderRadius: '6px',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--hover-color)'
-                                            }
-                                        }}
-                                    >
-                                        <CalendarClock style={{ marginRight: '16px' }} />
-                                        {t('COMMON.SIDEBAR.SCHEDULAR')}
-                                    </MenuItem>
+                                    {pathName.includes('/user') && data.IsAdmin === true && (
+                                        <MenuItem
+                                            onClick={handleAdmin}
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                borderRadius: '8px',
+                                                padding: '9px 12px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
+                                            }}
+                                        >
+                                            <User style={{ marginRight: '16px' }} />
+                                            {t('COMMON.AVATAR_MENU.PAGE_ADMIN')}
+                                        </MenuItem>
+                                    )}
 
-                                    {/* <MenuItem
+                                    {attendanceId && attendanceId != '1' && (
+                                        <MenuItem
+                                            onClick={handleCheckOut}
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
+                                            }}
+                                        >
+                                            <ScanBarcode style={{ marginRight: '16px' }} />
+                                            {t('COMMON.AVATAR_MENU.CHECK_OUT')}
+                                        </MenuItem>
+                                    )}
+
+                                    {menuLeft['Notifications']?.IsAllowCreate && (
+                                        <MenuItem
+                                            onClick={handleCreateNotification}
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
+                                            }}
+                                        >
+                                            <PencilLine style={{ marginRight: '16px' }} />
+                                            {t('COMMON.AVATAR_MENU.CREATE_NOTIFICATION')}
+                                        </MenuItem>
+                                    )}
+
+                                    {pathName.includes('/admin') && (
+                                        <MenuItem
+                                            onClick={handleSchedular}
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
+                                            }}
+                                        >
+                                            <CalendarClock style={{ marginRight: '16px' }} />
+                                            {t('COMMON.SIDEBAR.SCHEDULAR')}
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem
                                         onClick={handleCreateTasks}
                                         sx={{
                                             color: 'var(--text-color)',
-                                            borderRadius: '6px',
+                                            padding: '9px 12px',
+                                            borderRadius: '8px',
                                             '&:hover': {
                                                 backgroundColor: 'var(--hover-color)'
                                             }
@@ -325,12 +418,13 @@ const AvatarMenu = () => {
                                     >
                                         <BriefcaseBusiness style={{ marginRight: '16px' }} />
                                         {t('COMMON.SIDEBAR.CREATETASKS')}
-                                    </MenuItem> */}
+                                    </MenuItem>
+
                                     {/* <MenuItem
                                         onClick={handleClose}
                                         sx={{
                                             color: 'var(--text-color)',
-                                            borderRadius: '6px',
+                                            borderRadius: '8px',
                                             '&:hover': {
                                                 backgroundColor: 'var(--hover-color)'
                                             }
@@ -340,24 +434,25 @@ const AvatarMenu = () => {
                                         {t('COMMON.AVATAR_MENU.LOGIN_HISTORY')}
                                     </MenuItem> */}
                                     <MenuItem
-                                        onClick={handleClose}
+                                        onClick={handleChangePassword}
                                         sx={{
                                             color: 'var(--text-color)',
-                                            borderRadius: '6px',
+                                            padding: '9px 12px',
+                                            borderRadius: '8px',
                                             '&:hover': {
                                                 backgroundColor: 'var(--hover-color)'
                                             }
                                         }}
                                     >
-                                        <SettingsOutlinedIcon sx={{ mr: 2 }} />
-                                        {t('COMMON.AVATAR_MENU.SETTINGS')}
+                                        <VpnKeyOutlinedIcon sx={{ mr: 2 }} />
+                                        {t('COMMON.AVATAR_MENU.CHANGE_PASSWORD')}
                                     </MenuItem>
                                     {/* 
                                     <MenuItem
                                         onClick={handleClose}
                                         sx={{
                                             color: 'var(--text-color)',
-                                            borderRadius: '6px',
+                                            borderRadius: '8px',
                                             '&:hover': {
                                                 backgroundColor: 'var(--hover-color)'
                                             }
@@ -371,7 +466,8 @@ const AvatarMenu = () => {
                                         onClick={handleLogout}
                                         sx={{
                                             color: 'var(--text-color)',
-                                            borderRadius: '6px',
+                                            padding: '9px 12px',
+                                            borderRadius: '8px',
                                             '&:hover': {
                                                 backgroundColor: 'var(--hover-color)'
                                             }

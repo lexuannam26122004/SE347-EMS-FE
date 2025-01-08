@@ -19,11 +19,11 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 
 function getStatusBgColor(status: string): string {
-    if (status === 'Rejected') {
+    if (status === '3') {
         return 'var(--bg-danger-color)'
-    } else if (status === 'Pending') {
+    } else if (status === '0') {
         return 'var(--bg-warning-color)'
-    } else if (status === 'Resolved') {
+    } else if (status === '2') {
         return 'var(--bg-success-color)'
     } else {
         return 'var(--bg-closed-color)'
@@ -31,11 +31,11 @@ function getStatusBgColor(status: string): string {
 }
 
 function getStatusTextColor(status: string): string {
-    if (status === 'Rejected') {
+    if (status === '3') {
         return 'var(--text-danger-color)'
-    } else if (status === 'Pending') {
+    } else if (status === '0') {
         return 'var(--text-warning-color)'
-    } else if (status === 'Resolved') {
+    } else if (status === '2') {
         return 'var(--text-success-color)'
     } else {
         return 'var(--text-closed-color)'
@@ -67,50 +67,33 @@ function getStatusTextColor(status: string): string {
 // }
 
 interface IGetAllErrorReport {
-    Id: number
-    FullNameReported: string
-    AvatarReportedPath: string
-    EmployeeIdReported: string
-    ReportedDate: string
-    Type: string
-    TypeId: string
-    Description: string
-    Status: string
-    AvatarResolvedPath: string
-    FullNameResolved: string | null
-    ResolvedDate: string | null
+    Id: number | null
+    ReportedBy: string | null
+    ReportedDate: Date
+    Type: number | null
+    TypeId: string | null
+    Description: string | null
+    Status: string | null
+    ResolvedBy: string | null
+    ResolvedDate: Date | null
     ResolutionDetails: string | null
+    ReportedFullName: string | null
+    ReportedId: string | null
+    ReportedAvatarPath: string | null
+    ResolvedFullName: string | null
+    ResolvedId: string | null
+    ResolvedAvatarPath: string | null
 }
 
 interface IProps {
     errorsData: IGetAllErrorReport[]
     totalRecords: number
     type: number
+
+    onSort: (property: string) => void
 }
 
-const avatars = [
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-1.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-2.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-4.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-5.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-6.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-7.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-8.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-9.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-10.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-11.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-12.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-13.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-14.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-15.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-16.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-17.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-18.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-19.webp'
-]
-
-function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
+function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
     const { t } = useTranslation('common')
     const router = useRouter()
     const [selected, setSelected] = useState<number[]>([])
@@ -120,7 +103,6 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
     const [orderBy, setOrderBy] = useState<string>('')
     // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
     const [openModal, setOpenModal] = useState(false)
-
     // const handleClickDetail = (config: IGetAllSysConfiguration) => {
     //     setSelectedConfig(config)
     //     setOpenModal(true)
@@ -146,6 +128,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
     ])
 
     const handleSort = (property: string) => {
+        onSort(property)
         if (orderBy === property) {
             setOrder(order === 'asc' ? 'desc' : 'asc')
         } else {
@@ -200,7 +183,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                         color: 'var(--text-color)',
                                         fontSize: '16px',
                                         overflow: 'hidden',
-                                        maxWidth: '260px',
+                                        //maxWidth: '200px',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap'
                                     }}
@@ -230,7 +213,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                         color: 'var(--text-color)',
                                         fontSize: '16px',
                                         textAlign: 'center',
-                                        maxWidth: '280px',
+                                        //maxWidth: '280px',
                                         overflow: 'hidden',
                                         ml: '8px',
                                         textOverflow: 'ellipsis',
@@ -257,7 +240,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                     sx={{
                                         fontWeight: 'bold',
                                         color: 'var(--text-color)',
-                                        maxWidth: '400px',
+                                        //maxWidth: '400px',
                                         fontSize: '16px',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
@@ -349,7 +332,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                     fontSize: '16px',
                                     overflow: 'hidden',
                                     textAlign: 'center',
-                                    maxWidth: '280px',
+                                    //maxWidth: '280px',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap'
                                 }}
@@ -389,8 +372,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                 mt: '-2px'
                                             }}
                                             src={
-                                                row.AvatarReportedPath ||
-                                                avatars[row.Id] ||
+                                                row?.ReportedAvatarPath ||
                                                 'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                             }
                                         />
@@ -400,13 +382,13 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                 sx={{
                                                     color: 'var(--text-color)',
                                                     fontSize: '16px',
-                                                    maxWidth: '260px',
+                                                    //: '200px',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
                                                     whiteSpace: 'nowrap'
                                                 }}
                                             >
-                                                {row.FullNameReported}
+                                                {row?.ReportedFullName}
                                             </Typography>
                                             <Typography
                                                 sx={{
@@ -418,7 +400,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                     whiteSpace: 'nowrap'
                                                 }}
                                             >
-                                                {row.EmployeeIdReported}
+                                                {row?.ReportedId}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -427,7 +409,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                 <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <Box
                                         sx={{
-                                            color: '#6bd6eb',
+                                            color: getStatusBgColor(row?.Status),
                                             fontSize: '15px',
                                             overflow: 'hidden',
                                             borderRadius: '8px',
@@ -436,12 +418,12 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                             padding: '5px',
-                                            maxWidth: '280px',
+                                            //maxWidth: '280px',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {row.Type}
+                                        {t(String(row?.Type))}
                                     </Box>
                                 </TableCell>
 
@@ -450,13 +432,13 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                         sx={{
                                             color: 'var(--text-color)',
                                             fontSize: '16px',
-                                            maxWidth: '280px',
+                                            //maxWidth: '280px',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {formatDate(row.ReportedDate)}
+                                        {formatDate(row?.ReportedDate?.toString())}
                                     </Typography>
                                 </TableCell>
 
@@ -466,16 +448,16 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                             borderRadius: '8px',
                                             padding: '5px',
                                             display: 'flex',
-                                            minWidth: '100px',
+                                            //minWidth: '100px',
                                             justifyContent: 'center',
-                                            backgroundColor: getStatusBgColor(row.Status)
+                                            backgroundColor: getStatusBgColor(row?.Status)
                                         }}
                                     >
                                         <Typography
                                             sx={{
                                                 fontSize: '15px',
                                                 overflow: 'hidden',
-                                                color: getStatusTextColor(row.Status),
+                                                color: getStatusTextColor(row?.Status),
                                                 width: 'auto',
                                                 fontWeight: 'bold',
                                                 display: 'inline-block',
@@ -483,12 +465,18 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {row.Status}
+                                            {row?.Status === '1'
+                                                ? 'In Progress'
+                                                : row?.Status === '2'
+                                                  ? 'Resolved'
+                                                  : row?.Status === '3'
+                                                    ? 'Rejected'
+                                                    : 'Pending'}
                                         </Typography>
                                     </Box>
                                 </TableCell>
 
-                                {row.FullNameResolved && type >= 3 && (
+                                {type >= 3 && (
                                     <TableCell sx={{ borderColor: 'var(--border-color)', padding: '0 16px' }}>
                                         <Box
                                             sx={{
@@ -499,7 +487,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                         >
                                             <Avatar
                                                 src={
-                                                    row.AvatarReportedPath ||
+                                                    row?.ResolvedAvatarPath ||
                                                     'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                                 }
                                             />
@@ -509,13 +497,13 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                     sx={{
                                                         color: 'var(--text-color)',
                                                         fontSize: '16px',
-                                                        maxWidth: '260px',
+                                                        //maxWidth: '260px',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.FullNameReported}
+                                                    {row?.ResolvedFullName}
                                                 </Typography>
                                                 <Typography
                                                     sx={{
@@ -526,26 +514,26 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.EmployeeIdReported}
+                                                    {row?.ResolvedId}
                                                 </Typography>
                                             </Box>
                                         </Box>
                                     </TableCell>
                                 )}
 
-                                {row.ResolvedDate && type >= 3 && (
+                                {type >= 3 && (
                                     <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                         <Typography
                                             sx={{
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
-                                                maxWidth: '280px',
+                                                //maxWidth: '280px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {formatDate(row.ResolvedDate)}
+                                            {formatDate(row?.ResolvedDate?.toString())}
                                         </Typography>
                                     </TableCell>
                                 )}
@@ -554,7 +542,7 @@ function TableErrorReport({ errorsData, totalRecords, type }: IProps) {
                                     sx={{
                                         padding: '16px 24px',
                                         borderColor: 'var(--border-color)',
-                                        width: '146px',
+                                        //width: '146px',
                                         cursor: 'pointer'
                                     }}
                                 >

@@ -13,6 +13,8 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LanguageMenu from '@/components/LanguageMenu'
 import ColorModeIconDropdown from '@/components/ColorModeIconDropdown'
+import { useGetAuthMeQuery } from '@/services/AuthService'
+import { useCreateAttendanceUserMutation } from '@/services/UserAttendanceService'
 
 const LoginForm: React.FC = () => {
     const [email, setEmail] = useState('')
@@ -23,6 +25,7 @@ const LoginForm: React.FC = () => {
     const router = useRouter()
     const { t } = useTranslation('common')
     const [showPassword, setShowPassword] = React.useState(false)
+    const [createAttendanceUser] = useCreateAttendanceUserMutation()
 
     const handleClickShowPassword = () => setShowPassword(show => !show)
 
@@ -38,6 +41,9 @@ const LoginForm: React.FC = () => {
         router.push('/')
     }
 
+    const { data: responseData, refetch } = useGetAuthMeQuery()
+    const infoData = responseData?.Data
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmit(true)
@@ -52,6 +58,9 @@ const LoginForm: React.FC = () => {
         }
 
         try {
+            const responseIP = await fetch('https://api.ipify.org?format=json')
+            const IPdata = await responseIP.json()
+
             const response = await fetch('https://localhost:44381/api/Auth/Login', {
                 method: 'POST',
                 headers: {
@@ -65,13 +74,33 @@ const LoginForm: React.FC = () => {
             if (response.ok) {
                 const token = data.Data.auth_token
                 sessionStorage.setItem('auth_token', token)
-                router.push('/admin')
-                toast('Đăng nhập thành công!', 'success')
+                try {
+                    const responseAttendance = await createAttendanceUser(IPdata.ip).unwrap()
+
+                    await refetch()
+
+                    if (infoData !== null) {
+                        if (infoData?.IsAdmin === false) {
+                            router.push('/user')
+                        } else {
+                            router.push('/admin')
+                        }
+                    } else {
+                        return
+                    }
+
+                    sessionStorage.setItem('AttendanceId', responseAttendance.Data.Id)
+                    toast('Đăng nhập thành công!', 'success')
+                } catch (error) {
+                    console.error('Lỗi từ API:', error)
+                    sessionStorage.removeItem('auth_token')
+                    toast('Tên tài khoản hoặc mật khẩu không đúng!', 'error')
+                }
             } else {
                 toast(data?.message || 'Đăng nhập thất bại!', 'error')
             }
         } catch {
-            toast('Đã xảy ra lỗi. Vui lòng thử lại sau!', 'error')
+            //toast('Đã xảy ra lỗi. Vui lòng thử lại sau!', 'error')
         } finally {
             setIsLoading(false)
         }
@@ -370,7 +399,7 @@ const LoginForm: React.FC = () => {
                         >
                             <FormControl sx={{ width: '100%' }} variant='outlined'>
                                 <InputLabel
-                                    {...(isSubmit && password === '' && { error: true })}
+                                    {...(isSubmit && (password === '' || password.length < 8) && { error: true })}
                                     htmlFor='outlined-adornment-password'
                                     sx={{
                                         color: 'var(--text-label-color)',
@@ -394,7 +423,7 @@ const LoginForm: React.FC = () => {
                                         }
                                     }}
                                     id='outlined-adornment-password'
-                                    {...(isSubmit && password === '' && { error: true })}
+                                    {...(isSubmit && (password === '' || password.length < 8) && { error: true })}
                                     autoComplete='off' // Ngăn tự động điền
                                     type={showPassword ? 'text' : 'password'}
                                     tabIndex={1}
@@ -451,10 +480,13 @@ const LoginForm: React.FC = () => {
                                     margin: '3px auto 0 12px',
                                     width: 'auto',
                                     fontSize: '12px',
-                                    visibility: isSubmit && password === '' ? 'visible' : 'hidden'
+                                    visibility:
+                                        isSubmit && (password === '' || password.length < 8) ? 'visible' : 'hidden'
                                 }}
                             >
-                                {t('COMMON.TEXTFIELD.REQUIRED')}
+                                {password === ''
+                                    ? t('COMMON.TEXTFIELD.REQUIRED')
+                                    : t('COMMON.CHANGE_PASSWORD.LEAST_8_CHARACTERS')}
                             </Typography>
                         </Box>
 

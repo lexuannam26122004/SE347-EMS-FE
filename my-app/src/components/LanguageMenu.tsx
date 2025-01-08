@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '@/providers/LanguageProvider'
 
-const LanguageMenu = () => {
+interface Props {
+    isUser?: boolean
+}
+
+const LanguageMenu = ({ isUser }: Props) => {
     const { t } = useTranslation('common')
     const anchorRef = useRef<HTMLDivElement | null>(null)
     const [open, setOpen] = useState(false)
@@ -51,17 +55,18 @@ const LanguageMenu = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    color: isUser === true ? '#fff' : 'var(--text-color)',
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
                     cursor: 'pointer',
                     '&:hover': {
-                        backgroundColor: 'var(--hover-color)',
-                        borderColor: 'var(--hover-color)'
+                        backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                        borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                     },
                     ...(open && {
-                        backgroundColor: 'var(--hover-color)',
-                        borderColor: 'var(--hover-color)'
+                        backgroundColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)',
+                        borderColor: isUser === true ? '#5ce2c2' : 'var(--hover-color)'
                     })
                 }}
             >

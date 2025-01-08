@@ -4,6 +4,7 @@ import { Box, Paper, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { useTheme } from 'next-themes'
+import { useStatsQuery } from '@/services/UserAttendanceService'
 
 const getLastWeekDays = () => {
     const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -18,19 +19,40 @@ const getLastWeekDays = () => {
     return weekDays
 }
 
+function convertTimeFormat(time: string): string {
+    // Tách chuỗi thời gian thành giờ, phút và giây
+    if (!time) return 'N/A'
+
+    const [hours = 0, minutes = 0, seconds = 0] = time?.split(':').map(part => Math.floor(Number(part))) || [0, 0, 0]
+
+    // Format từng phần thành chuỗi 2 chữ số
+    const formattedHours = String(hours).padStart(2, '0')
+    const formattedMinutes = String(minutes).padStart(2, '0')
+    const formattedSeconds = String(seconds).padStart(2, '0')
+
+    // Kết quả format thành hh:mm:ss
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+}
+
 const colors = ['#00a76f', '#00b8d9', '#ff5630', '#f83696', '#ffab00', '#b863f0']
 
 function Page() {
     const { t } = useTranslation('common')
-    const countLogin = 120
-    const checkInTimeCurrent = '07:00'
-    const isValidCurrent = false
 
-    const timeIn = 2
-    const invalid = 1
-    const countLoginPercent = 10
+    const currentDate = '2025-01-08'
+
+    const { data: responseStat } = useStatsQuery(currentDate)
+    const stats = responseStat?.Data
+
+    const countLogin = stats?.CountLogin
+    const checkInTimeCurrent = convertTimeFormat(stats?.Attendance?.CheckInTime)
+    const isValidCurrent = stats?.Attendance?.Status
+
+    const timeIn = convertTimeFormat(stats?.TimeCheckIn)
+    const invalid = stats?.CountInvalid
+    const countLoginPercent = 20
     // const checkInTimePercent = 5
-    const invalidPercent = -2
+    const invalidPercent = -30
     const timeInPercent = 1
     const { theme } = useTheme()
 

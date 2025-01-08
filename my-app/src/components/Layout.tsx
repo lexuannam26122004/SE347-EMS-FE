@@ -4,17 +4,7 @@ import React from 'react'
 import Sidebar, { SidebarItem, TypographyItem } from '@/components/Sidebar'
 import { Box, Divider } from '@mui/material'
 import { Building2, Wallet } from 'lucide-react'
-import {
-    ShieldCheck,
-    Calendar,
-    Home,
-    ScrollText,
-    Landmark,
-    Gift,
-    Scale,
-    CalendarClock,
-    SlidersHorizontal
-} from 'lucide-react'
+import { ShieldCheck, Home, ScrollText, Landmark, Gift, Scale, CalendarClock, SlidersHorizontal } from 'lucide-react'
 import { ChartNoAxesCombined, Users, FileSignature, Stethoscope, Award, CalendarX } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Header from './Header'
@@ -266,23 +256,23 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     <SidebarItem
                         icon={<Gift />}
                         text={t('Phúc lợi')}
-                        route='/admin/benefit'
-                        active={pathname === '/admin/benefit'}
+                        //route='/admin/benefit'
+                        //active={pathname === '/admin/benefit'}
                     >
-                        {/* {menuLeft['/admin/benefit'].IsAllowView && (
+                        {menuLeft['/admin/benefit'].IsAllowView && (
                             <SidebarItem
                                 icon={<ChartNoAxesCombined />}
                                 text={t('Danh sách phúc lợi')}
                                 route='/admin/benefit'
                             />
-                        )} */}
-                        {/* {menuLeft['/admin/benefit/add-employee-benefits'].IsAllowView && (
+                        )}
+                        {menuLeft['/admin/benefit/add-employee-benefits'].IsAllowView && (
                             <SidebarItem
                                 icon={<ChartNoAxesCombined />}
                                 text={t('Phúc lợi nhân viên')}
                                 route='/admin/benefit/add-employee-benefits'
                             />
-                        )} */}
+                        )}
                     </SidebarItem>
                 )}
                 {menuLeft['Discipline'].IsAllowView && (
@@ -293,12 +283,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         active={pathname === '/admin/discipline'}
                     />
                 )}
-                <SidebarItem
+                {/* <SidebarItem
                     icon={<Calendar />}
                     text={t('COMMON.SIDEBAR.HOLIDAY')}
                     route='/admin/holiday'
                     active={pathname === '/admin/holiday'}
-                />
+                /> */}
                 {menuLeft['Configuration'].IsAllowView && (
                     <SidebarItem
                         icon={<SlidersHorizontal />}

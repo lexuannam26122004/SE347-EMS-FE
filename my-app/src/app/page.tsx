@@ -3,38 +3,37 @@ import { Box } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 
-
 const sections = [
-    { label: 'Trang chủ', scrollPercentage: 0 },       
-    { label: 'Giới thiệu', scrollPercentage: 30 },     
-    { label: 'Lợi ích', scrollPercentage: 60 },        
-    { label: 'Liên hệ', scrollPercentage: 100 }         
-];
+    { label: 'Trang chủ', scrollPercentage: 0 },
+    { label: 'Giới thiệu', scrollPercentage: 30 },
+    { label: 'Lợi ích', scrollPercentage: 60 },
+    { label: 'Liên hệ', scrollPercentage: 100 }
+]
 
 const Navbar: React.FC = () => {
-    const [isVisible, setIsVisible] = useState(true);
-    const [prevScrollPos, setPrevScrollPos] = useState(0);
-    const router = useRouter();
+    const [isVisible, setIsVisible] = useState(true)
+    const [prevScrollPos, setPrevScrollPos] = useState(0)
+    const router = useRouter()
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollPos = window.pageYOffset;
-            setIsVisible(currentScrollPos <= prevScrollPos);
-            setPrevScrollPos(currentScrollPos);
-        };
+            const currentScrollPos = window.pageYOffset
+            setIsVisible(currentScrollPos <= prevScrollPos)
+            setPrevScrollPos(currentScrollPos)
+        }
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [prevScrollPos]);
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [prevScrollPos])
 
     const handleScrollToSection = (percentage: number) => {
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const targetScrollPos = (scrollHeight * percentage) / 100;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
+        const targetScrollPos = (scrollHeight * percentage) / 100
         window.scrollTo({
             top: targetScrollPos,
             behavior: 'smooth'
-        });
-    };
+        })
+    }
 
     return (
         <div
@@ -125,8 +124,8 @@ const Navbar: React.FC = () => {
                 </button>
             </div>
         </div>
-    );
-};
+    )
+}
 
 export default function Home() {
     return (
@@ -141,5 +140,5 @@ export default function Home() {
         >
             <Navbar />
         </Box>
-    );
+    )
 }
