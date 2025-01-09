@@ -1,112 +1,90 @@
 'use client'
-import {
-    Box,
-    //Select,
-    //Pagination,
-    Typography,
-    // MenuItem,
-    //SelectChangeEvent,
-    Paper
 
-    //Checkbox,
-    //TableRow,
-    //TableBody,
-    //Table,
-    //TableCell,
-    //TableHead,
-    //TableContainer,
-    //Button,
-    //TextField,
-    //InputAdornment,
-    //IconButton,
-    //Tooltip,
-    //TableSortLabel,
-    //Chip
-} from '@mui/material'
-import { AlarmClock } from 'lucide-react'
+export interface IFilter {
+    isActive?: boolean
+    createdDate?: Date
+    createdBy?: string
+    pageSize?: number
+    pageNumber?: number
+    sortBy?: string
+    isDescending?: boolean
+    keyword?: string
+    name?: string
+}
 
+import { Box, Typography, Paper, Button, MenuItem, Select, Pagination, SelectChangeEvent } from '@mui/material'
+import { AlarmClock, CirclePlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useGetAllWorkingRulesQuery } from '@/services/UserWorkingRulesService'
+import { IWorkingRulesGetAll } from '@/models/WorkingRules'
+import Loading from '@/components/Loading'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 function WorkingRolesPage() {
     const { t } = useTranslation('common')
+    const router = useRouter()
+    const [page, setPage] = useState(1)
+    const [rowsPerPage, setRowsPerPage] = useState('10')
+    const [from, setFrom] = useState(1)
+    const [to, setTo] = useState(10)
 
-    const data = [
-        {
-            Id: '01',
-            Content: 'Công ty yêu cầu nhân viên đến đúng giờ làm việc, không được phép đi muộn.',
-            Note: 'Quy định này giúp duy trì kỷ luật trong công ty.'
-        },
-        {
-            Id: '02',
-            Content: 'Nhân viên phải mặc đồng phục công ty trong giờ làm việc.',
-            Note: 'Điện thoại cá nhân có thể gây xao nhãng công việc.'
-        },
-        {
-            Id: '03',
-            Content: 'Không được phép sử dụng điện thoại cá nhân trong giờ làm việc trừ khi có việc gấp.',
-            Note: 'Các nhân viên phải tuân thủ quy trình báo cáo công việc định kỳ.'
-        },
-        {
-            Id: '04',
-            Content: 'Các nhân viên phải tuân thủ quy trình báo cáo công việc định kỳ.',
-            Note: 'Báo cáo giúp quản lý dễ dàng theo dõi tiến độ công việc.'
-        },
-        {
-            Id: '05',
-            Content: 'Tất cả nhân viên phải tham gia các cuộc họp định kỳ hàng tuần.',
-            Note: 'Cuộc họp giúp đảm bảo thông tin được cập nhật đầy đủ cho toàn bộ nhân viên.'
-        },
-        {
-            Id: '06',
-            Content: 'Nhân viên cần giữ gìn vệ sinh nơi làm việc và khu vực chung.',
-            Note: 'Vệ sinh nơi làm việc giúp tạo môi trường làm việc sạch sẽ và chuyên nghiệp.'
-        },
-        {
-            Id: '07',
-            Content: 'Nhân viên phải thông báo trước khi nghỉ phép hoặc vắng mặt.',
-            Note: 'Thông báo kịp thời giúp bộ phận nhân sự sắp xếp công việc hợp lý.'
-        },
-        {
-            Id: '08',
-            Content: 'Các nhân viên không được phép tiết lộ thông tin công ty cho bên ngoài.',
-            Note: 'Thông tin công ty cần được bảo mật để tránh rủi ro cho tổ chức.'
-        },
-        {
-            Id: '09',
-            Content: 'Mỗi nhân viên cần hoàn thành các nhiệm vụ được giao đúng thời hạn.',
-            Note: 'Hoàn thành đúng hạn giúp công ty duy trì hiệu quả công việc.'
-        },
-        {
-            Id: '10',
-            Content: 'Nhân viên cần báo cáo với cấp trên về các vấn đề phát sinh trong công việc.',
-            Note: 'Việc báo cáo sớm giúp xử lý nhanh chóng các tình huống phát sinh.'
-        },
-        {
-            Id: '11',
-            Content: 'Nhân viên cần tuân thủ các chỉ thị về an toàn lao động trong quá trình làm việc.',
-            Note: 'An toàn lao động là ưu tiên hàng đầu để bảo vệ sức khỏe nhân viên.'
-        },
-        {
-            Id: '12',
-            Content: 'Nhân viên không được phép sử dụng rượu bia trong giờ làm việc.',
-            Note: 'Sử dụng rượu bia trong công ty sẽ làm giảm năng suất công việc và ảnh hưởng đến kỷ luật.'
-        },
-        {
-            Id: '13',
-            Content: 'Các nhân viên phải báo cáo tình hình công việc với phòng ban vào cuối mỗi tháng.',
-            Note: 'Báo cáo công việc hàng tháng giúp đánh giá hiệu quả công việc của từng phòng ban.'
-        },
-        {
-            Id: '14',
-            Content: 'Nhân viên phải tham gia các khóa đào tạo nâng cao kỹ năng khi công ty tổ chức.',
-            Note: 'Đào tạo giúp nhân viên nâng cao trình độ chuyên môn và hiệu quả công việc.'
-        },
-        {
-            Id: '15',
-            Content: 'Mọi nhân viên phải có trách nhiệm với các tài sản công ty được giao.',
-            Note: 'Việc bảo quản tài sản công ty giúp duy trì sự phát triển bền vững cho công ty.'
+    const [filter, setFilter] = useState<IFilter>({
+        pageSize: 10,
+        pageNumber: 1,
+        isDescending: false
+    })
+
+    const { data: responseData, isFetching, refetch, isLoading: LoadingDepartment } = useGetAllWorkingRulesQuery(filter)
+    const data = responseData?.Data.Records as IWorkingRulesGetAll[]
+    const totalRecords = responseData?.Data.TotalRecords as number
+
+    const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage)
+        setFilter(prev => {
+            return {
+                ...prev,
+                pageNumber: newPage
+            }
+        })
+    }
+
+    const handleName = (Type: string) => {
+        setPage(1)
+        setFilter(prev => {
+            return {
+                ...prev,
+                name: Type
+            }
+        })
+    }
+
+    const handleChangeRowsPerPage = (event: SelectChangeEvent) => {
+        const newRowsPerPage = event.target.value as string
+        setRowsPerPage(newRowsPerPage)
+        setPage(1)
+        setFilter(prev => ({
+            ...prev,
+            pageSize: Number(newRowsPerPage),
+            pageNumber: 1
+        }))
+    }
+
+    useEffect(() => {
+        if (!isFetching && responseData?.Data) {
+            const from = (page - 1) * Number(rowsPerPage) + 1
+            setFrom(from)
+
+            const to = Math.min(page * Number(rowsPerPage), totalRecords)
+            setTo(to)
         }
-    ]
+    }, [isFetching, responseData, page, rowsPerPage])
+
+    useEffect(() => {
+        refetch()
+    }, [page, rowsPerPage, filter])
+
+    if (LoadingDepartment) return <Loading />
 
     return (
         <Box>
@@ -125,9 +103,7 @@ function WorkingRolesPage() {
                         width: '100%',
                         height: '500px',
                         backgroundImage: 'url(/images/backgroundWorkingRules.svg)',
-                        position: 'relative',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundSize: '100%'
+                        position: 'relative'
                     }}
                 >
                     <img
@@ -206,6 +182,7 @@ function WorkingRolesPage() {
                                 </Typography>
                             </Box>
                         </Box>
+
                         <Box
                             sx={{
                                 display: 'flex',
@@ -216,19 +193,53 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName(null)}
                         >
-                            {/*<Chip
-                                label='Minh'
+                            <Box>
+                                <AlarmClock size={30} color='white' />
+                            </Box>
+                            <Box
                                 sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
+                                    width: '200px',
+                                    height: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}
-                            ></Chip>
-                            */}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontWeight: 'bold',
+                                        fontSize: '15px',
+                                        lineHeight: 1,
+                                        textAlign: 'center',
+                                        paddingRight: '15px',
+                                        color: 'white'
+                                    }}
+                                >
+                                    Tất cả
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                                backgroundColor: 'rgb(79,38,141)',
+                                height: '50px',
+                                width: '200px',
+                                borderRadius: '25px',
+                                paddingLeft: '10px',
+                                gap: '15px',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => handleName('1')}
+                        >
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -265,19 +276,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('2')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -314,19 +317,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('3')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -363,19 +358,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('4')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -412,19 +399,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('5')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -461,19 +440,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('6')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -510,19 +481,11 @@ function WorkingRolesPage() {
                                 width: '200px',
                                 borderRadius: '25px',
                                 paddingLeft: '10px',
-                                gap: '15px'
+                                gap: '15px',
+                                cursor: 'pointer'
                             }}
+                            onClick={() => handleName('7')}
                         >
-                            {/*<Chip
-                                label='Minh'
-                                sx={{
-                                    '& .MuiChip-label': {
-                                        fontSize: '15px', // Đặt cỡ chữ theo ý muốn
-                                        fontWeight: 'bold' // (Tùy chọn) Đặt kiểu chữ đậm
-                                    }
-                                }}
-                            ></Chip>
-                            */}
                             <Box>
                                 <AlarmClock size={30} color='white' />
                             </Box>
@@ -545,8 +508,7 @@ function WorkingRolesPage() {
                                         color: 'white'
                                     }}
                                 >
-                                    Bảo quản <br />
-                                    tài sản
+                                    Bảo quản tài sản
                                 </Typography>
                             </Box>
                         </Box>
@@ -561,7 +523,7 @@ function WorkingRolesPage() {
                                         justifyContent: 'flex-start',
                                         height: '100%',
                                         gap: '24px',
-                                        //border: '2px solid var(--bg-all-color1)',
+                                        border: '2px solid var(--bg-all-color1)',
                                         borderRadius: '15px'
                                     }}
                                 >
@@ -569,8 +531,9 @@ function WorkingRolesPage() {
                                         sx={{
                                             padding: '1px 10px 1px 10px',
                                             backgroundColor: 'rgb(79,38,141)',
-                                            borderRadius: '15px',
+                                            borderRadius: '13px',
                                             display: 'flex',
+                                            width: '100px',
                                             alignItems: 'center',
                                             justifyContent: 'center'
                                         }}
@@ -589,13 +552,10 @@ function WorkingRolesPage() {
                                         sx={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            width: '100%',
-                                            mt: '24px',
-                                            mb: '24px',
-                                            mr: '50px'
+                                            width: '100%'
                                         }}
                                     >
-                                        <Box sx={{ textAlign: 'justify' }}>
+                                        <Box sx={{ textAlign: 'left' }}>
                                             <Box>
                                                 <Typography
                                                     sx={{
@@ -616,6 +576,114 @@ function WorkingRolesPage() {
                                 </Box>
                             </Box>
                         ))}
+
+                        <Box display='flex' alignItems='center' justifyContent='space-between' padding='15px'>
+                            <Box display='flex' alignItems='center'>
+                                <Typography
+                                    sx={{
+                                        mr: '10px',
+                                        color: 'var(--text-color)',
+                                        fontSize: '16px',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {t('COMMON.PAGINATION.ROWS_PER_PAGE')}
+                                </Typography>
+                                <Select
+                                    id='select'
+                                    sx={{
+                                        width: '71px',
+                                        padding: '5px',
+                                        color: 'var(--text-color)',
+                                        '& .MuiSelect-icon': {
+                                            color: 'var(--text-color)'
+                                        },
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--border-color)'
+                                        },
+                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--hover-color)'
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--selected-color)'
+                                        },
+                                        '& .MuiSelect-select': {
+                                            padding: '6px 32px 6px 10px'
+                                        }
+                                    }}
+                                    value={rowsPerPage}
+                                    defaultValue='5'
+                                    onChange={handleChangeRowsPerPage}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            elevation: 0,
+                                            sx: {
+                                                border: '1px solid var(--border-color)',
+                                                '& .MuiList-root': {
+                                                    backgroundColor: 'var(--background-color)',
+                                                    padding: '5px',
+                                                    '& .MuiMenuItem-root': {
+                                                        color: 'var(--text-color)',
+                                                        borderRadius: '4px',
+                                                        '&:hover': {
+                                                            backgroundColor: 'var(--hover-color)'
+                                                        },
+                                                        '&.Mui-selected': {
+                                                            backgroundColor: 'var(--selected-color)'
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }}
+                                >
+                                    {[5, 10, 20, 30, 40].map(value => (
+                                        <MenuItem key={value} value={value}>
+                                            {value}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <Typography
+                                    sx={{
+                                        ml: '30px',
+                                        color: 'var(--text-color)',
+                                        fontSize: '16px',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {t('COMMON.PAGINATION.FROM_TO', { from, to, totalRecords })}
+                                </Typography>
+                            </Box>
+                            <Pagination
+                                count={Math.ceil(totalRecords / Number(rowsPerPage))}
+                                page={page}
+                                onChange={handleChangePage}
+                                boundaryCount={1}
+                                siblingCount={2}
+                                variant='outlined'
+                                sx={{
+                                    color: 'var(--text-color)',
+                                    borderColor: 'var(--border-color)',
+                                    '& .MuiPaginationItem-root': {
+                                        color: 'var(--text-color)',
+                                        borderColor: 'var(--border-color)',
+                                        '&.Mui-selected': {
+                                            backgroundColor: 'var(--selected-color)',
+                                            color: 'var(--text-color)'
+                                        },
+                                        '&:hover': {
+                                            backgroundColor: 'var(--hover-color)',
+                                            borderColor: 'var(--hover-color)'
+                                        }
+                                    }
+                                }}
+                                color='primary'
+                            />
+                        </Box>
                     </Box>
                 </Box>
             </Paper>
