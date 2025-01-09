@@ -5,6 +5,7 @@
         "FROM_DATE": "From Date",
         "TO_DATE": "To Date",
         "ACTION": "Action",
+        "ALL": "All",
         "ORDER_NUMBER": "#",
         "SEARCH": "Search",
         "SEARCH_ANYTHING": "Search anything",
