@@ -63,12 +63,12 @@ function CreateConfigurationPage() {
 
     useEffect(() => {
         if (isSuccess === true) {
-            toast(t('Tạo phòng ban thàng công'), 'success')
+            toast(t('Cập nhật phòng ban thàng công'), 'success')
             fetch()
             reset()
         }
         if (isError === true) {
-            toast(t('Tạo phòng ban thất bại'), 'error')
+            toast(t('Cập nhật phòng ban thất bại'), 'error')
             fetch()
             reset()
         }
@@ -105,7 +105,7 @@ function CreateConfigurationPage() {
                 }}
             >
                 <Typography sx={{ fontWeight: 'bold', fontSize: '22px', color: 'var(--text-color)' }}>
-                    {t('Thêm phòng ban')}
+                    {t('Cập nhật phòng ban')}
                 </Typography>
 
                 <Box
@@ -201,7 +201,7 @@ function CreateConfigurationPage() {
                             <TextField
                                 {...params}
                                 variant='outlined'
-                                label={t('COMMON.CONTRACT.INFORMATIONMANAGER') + '*'}
+                                label={t('Thông tin trưởng phòng') + '*'}
                                 fullWidth
                                 error={isSubmit && departmentHeadId === ''}
                             />

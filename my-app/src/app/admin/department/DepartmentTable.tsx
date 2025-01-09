@@ -123,6 +123,17 @@ function DepartmentTable() {
         refetch()
     }, [page, rowsPerPage, keyword])
 
+    const handleSearchKeyword = () => {
+        setPage(1)
+        setFilter(prev => {
+            return {
+                ...prev,
+                keyword: keyword,
+                pageNumber: 1
+            }
+        })
+    }
+
     const handleDeleteClick = async (id: number) => {
         setOpenDialog(true)
         setSelectedRow(id)
@@ -228,6 +239,9 @@ function DepartmentTable() {
                                 }
                             }}
                             onChange={e => setKeyword(e.target.value)}
+                            onKeyDown={() => {
+                                handleSearchKeyword()
+                            }}
                             slotProps={{
                                 input: {
                                     startAdornment: (
@@ -726,7 +740,7 @@ function DepartmentTable() {
                                 }
                             }}
                         >
-                            {[1, 2, 3, 4, 5, 10, 20, 30, 40].map(value => (
+                            {[5, 10, 20, 30, 40].map(value => (
                                 <MenuItem key={value} value={value}>
                                     {value}
                                 </MenuItem>

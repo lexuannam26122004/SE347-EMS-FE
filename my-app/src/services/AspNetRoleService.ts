@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { IFilterRole } from '../models/AspNetRole'
+import { IFilterRole, IAspNetRoleCreate, IAspNetRoleUpdate } from '../models/AspNetRole'
 import { createBaseQuery } from './api'
 
 interface RoleResponse {
@@ -28,6 +28,34 @@ export const roleApi = createApi({
                 return `GetAll?${params.toString()}`
             }
         }),
+
+        createRoles: builder.mutation<void, IAspNetRoleCreate>({
+            query: roles => ({
+                url: 'Create',
+                method: 'POST',
+                body: roles
+            })
+        }),
+
+        getByIdRoles: builder.query<RoleResponse, string>({
+            query: id => `GetById?id=${id}`
+        }),
+
+        updateRoles: builder.mutation<void, IAspNetRoleUpdate>({
+            query: roles => ({
+                url: 'Update',
+                method: 'PUT',
+                body: roles
+            })
+        }),
+
+        changeStatus: builder.mutation<void, string>({
+            query: id => ({
+                url: `ChangeStatus/${id}`,
+                method: 'PUT'
+            })
+        }),
+
         getJsonRoleHasFunctions: builder.query<RoleResponse, string>({
             query: id => `GetJsonRoleHasFunctions?roleId=${id}`
         }),
@@ -41,4 +69,12 @@ export const roleApi = createApi({
     })
 })
 
-export const { useGetAllRolesQuery, useGetJsonRoleHasFunctionsQuery, useUpdateJsonRoleHasFunctionsMutation } = roleApi
+export const {
+    useGetAllRolesQuery,
+    useGetByIdRolesQuery,
+    useGetJsonRoleHasFunctionsQuery,
+    useUpdateJsonRoleHasFunctionsMutation,
+    useCreateRolesMutation,
+    useUpdateRolesMutation,
+    useChangeStatusMutation
+} = roleApi
