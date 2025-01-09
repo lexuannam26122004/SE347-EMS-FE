@@ -78,6 +78,7 @@ export const WorkingRulesApi = createApi({
                     if (filter.keyword) params.append('Keyword', filter.keyword)
                     if (filter.isDescending !== undefined) params.append('IsDescending', filter.isDescending.toString())
                     if (filter.sortBy) params.append('SortBy', filter.sortBy)
+                    if (filter.name) params.append('Name', filter.name)
                 }
                 return `Search?${params.toString()}`
             }

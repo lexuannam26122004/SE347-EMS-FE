@@ -56,6 +56,16 @@ function WorkingRolesPage() {
         })
     }
 
+    const handleName = (Type: string) => {
+        setPage(1)
+        setFilter(prev => {
+            return {
+                ...prev,
+                name: Type
+            }
+        })
+    }
+
     useEffect(() => {
         if (isSuccessDelete) {
             refetch()
@@ -85,7 +95,7 @@ function WorkingRolesPage() {
 
     useEffect(() => {
         refetch()
-    }, [page, rowsPerPage])
+    }, [page, rowsPerPage, filter])
 
     const handleDeleteClick = async (id: number) => {
         setOpenDialog(true)
@@ -224,6 +234,7 @@ function WorkingRolesPage() {
                                 </Typography>
                             </Box>
                         </Box>
+
                         <Box
                             sx={{
                                 display: 'flex',
@@ -237,6 +248,49 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName(null)}
+                        >
+                            <Box>
+                                <AlarmClock size={30} color='white' />
+                            </Box>
+                            <Box
+                                sx={{
+                                    width: '200px',
+                                    height: '50px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <Typography
+                                    sx={{
+                                        fontWeight: 'bold',
+                                        fontSize: '15px',
+                                        lineHeight: 1,
+                                        textAlign: 'center',
+                                        paddingRight: '15px',
+                                        color: 'white'
+                                    }}
+                                >
+                                    Tất cả
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                                backgroundColor: 'rgb(79,38,141)',
+                                height: '50px',
+                                width: '200px',
+                                borderRadius: '25px',
+                                paddingLeft: '10px',
+                                gap: '15px',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => handleName('1')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -277,6 +331,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('2')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -317,6 +372,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('3')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -357,6 +413,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('4')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -397,6 +454,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('5')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -437,6 +495,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('6')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -477,6 +536,7 @@ function WorkingRolesPage() {
                                 gap: '15px',
                                 cursor: 'pointer'
                             }}
+                            onClick={() => handleName('7')}
                         >
                             <Box>
                                 <AlarmClock size={30} color='white' />
@@ -523,7 +583,7 @@ function WorkingRolesPage() {
                                         sx={{
                                             padding: '1px 10px 1px 10px',
                                             backgroundColor: 'rgb(79,38,141)',
-                                            borderRadius: '15px',
+                                            borderRadius: '13px',
                                             display: 'flex',
                                             width: '100px',
                                             alignItems: 'center',
