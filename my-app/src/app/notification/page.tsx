@@ -1,7 +1,11 @@
 'use client'
 import { Box, Button, Paper, Typography, Skeleton, Menu, MenuItem } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { SearchForUser, useChangeAllReadMutation, useUpdateIsNewMutation } from '@/services/NotificationsService'
+import {
+    useSearchNotificationsForUserQuery,
+    useChangeAllReadMutation,
+    useUpdateIsNewMutation
+} from '@/services/UserNotificationsService'
 import { useState, useCallback, useEffect, ElementType } from 'react'
 import ListNotification from './ListNotifications'
 import { IFilterNotificationsForUserVModel } from '@/models/Notifications'
@@ -14,7 +18,6 @@ import { EllipsisIcon } from 'lucide-react'
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined'
 import { useRouter } from 'next/navigation'
 import { countNewNotificationSelector, countNewNotificationSlice } from '@/redux/slices/countNewNotificationSlice'
-import { userId } from '@/utils/globalVariables'
 
 interface INotificationsPageProps {
     menu?: boolean | undefined
@@ -28,32 +31,47 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
     const [notificationId, setNotificationId] = useState<number | null>(null)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const router = useRouter()
+    const [filter, setFilter] = useState<IFilterNotificationsForUserVModel>({})
     const [updateIsNew] = useUpdateIsNewMutation()
 
     const unreadCount = useSelector(countNewNotificationSelector)
 
+    const { data: dataResponse, refetch, isLoading: isLoadingNotify } = useSearchNotificationsForUserQuery(filter)
+
+    useEffect(() => {
+        if (!isLoadingNotify && dataResponse) {
+            dispatch(notificationsSlice.actions.updateNotifications(dataResponse?.Data.Records || []))
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 500)
+        }
+    }, [isLoadingNotify, dataResponse])
+
     useEffect(() => {
         try {
-            updateIsNew(userId).unwrap()
+            updateIsNew().unwrap()
             dispatch(countNewNotificationSlice.actions.resetCountNewNotification())
         } catch (err) {
             console.error('Failed to update notifications:', err)
         }
     }, [unreadCount])
 
-    const fetchNotifications = async (filter: IFilterNotificationsForUserVModel) => {
+    const fetchNotifications = useCallback(async () => {
         setIsLoading(true)
+
         try {
-            const dataResponse = await SearchForUser(filter)
-            dispatch(notificationsSlice.actions.updateNotifications(dataResponse?.Data.Records || []))
+            const result = await refetch()
+
+            const records = result?.data?.Data?.Records || []
+            dispatch(notificationsSlice.actions.updateNotifications(records))
         } catch (error) {
-            console.error('Failed to fetch notifications:', error)
+            console.error('Error in fetchNotifications:', error)
         } finally {
             setTimeout(() => {
                 setIsLoading(false)
             }, 500)
         }
-    }
+    }, [refetch, dispatch])
 
     const handleOpenNotification = () => {
         router.push('/admin/notification')
@@ -62,32 +80,34 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
 
     const notifications = useSelector(notificationsSelector)
 
-    const handleClick = useCallback((key: number) => {
-        setIsRead(key)
-    }, [])
+    const handleClick = useCallback(
+        async (key: number) => {
+            if (key === isRead) return // Nếu trạng thái giống nhau, không làm gì
 
-    const [changeAllRead] = useChangeAllReadMutation()
-
-    const handleClickMarkAll = useCallback(
-        async (userId: string) => {
-            await changeAllRead(userId).unwrap()
-            const updatedNotifications = notifications.map(notification => ({
-                ...notification,
-                IsRead: true
+            setIsRead(key) // Cập nhật trạng thái isRead
+            setFilter(prevFilter => ({
+                ...prevFilter,
+                isRead: key === 1 ? undefined : false
             }))
-            dispatch(notificationsSlice.actions.updateNotifications(updatedNotifications))
-            handleCloseEllipsis()
         },
-        [changeAllRead, notifications]
+        [isRead, fetchNotifications]
     )
 
     useEffect(() => {
-        const initialFilter: IFilterNotificationsForUserVModel = {
-            userId: userId,
-            isRead: isRead === 1 ? undefined : false
-        }
-        fetchNotifications(initialFilter)
-    }, [isRead])
+        fetchNotifications()
+    }, [filter])
+
+    const [changeAllRead] = useChangeAllReadMutation()
+
+    const handleClickMarkAll = useCallback(async () => {
+        await changeAllRead().unwrap()
+        const updatedNotifications = notifications.map(notification => ({
+            ...notification,
+            IsRead: true
+        }))
+        dispatch(notificationsSlice.actions.updateNotifications(updatedNotifications))
+        handleCloseEllipsis()
+    }, [changeAllRead, notifications])
 
     const totalRecords = notifications.length
 
@@ -96,9 +116,11 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
         ...(menu !== undefined ? {} : { elevation: 0 }),
         sx: {
             width: menu === undefined ? '700px' : '400px',
-            borderRadius: '12px',
+            borderRadius: '15px',
             backgroundColor: menu === false ? 'var(--background-color)' : 'transparent',
-            ...(menu === undefined ? { border: '1px solid var(--border-color)' } : {})
+            ...(menu === undefined
+                ? { backgroundColor: 'var(--background-item)', boxShadow: 'var(--box-shadow-paper)' }
+                : {})
         }
     }
 
@@ -124,7 +146,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                     display='flex'
                     justifyContent='space-between'
                     alignItems='center'
-                    sx={{ ...(menu === undefined ? { padding: '15px' } : { padding: '10px 8px 5px 15px' }) }}
+                    sx={{ ...(menu === undefined ? { padding: '24px' } : { padding: '10px 8px 5px 15px' }) }}
                 >
                     <Typography
                         variant='h5'
@@ -169,18 +191,26 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                             paper: {
                                 elevation: 0,
                                 sx: {
-                                    mt: 0.5,
+                                    transition: 'none',
+                                    backgroundImage:
+                                        'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODYpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAgMS44MTgxMmUtMDUpIHJvdGF0ZSgtNDUpIHNjYWxlKDEyMy4yNSkiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMDBCOEQ5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwQjhEOSIgc3RvcC1vcGFjaXR5PSIwIi8+CjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODcpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K)',
+                                    backgroundPosition: 'top right, bottom left',
+                                    backgroundSize: '50%, 50%',
+                                    backgroundRepeat: 'no-repeat',
+                                    backdropFilter: 'blur(20px)',
                                     border: '1px solid var(--border-color)',
-                                    borderRadius: '6px',
+                                    backgroundColor: 'var(--background-item)',
+                                    borderRadius: '10px',
+                                    mt: 0.5,
                                     padding: '0 8px'
                                 }
                             }
                         }}
                     >
                         <MenuItem
-                            onClick={() => handleClickMarkAll(userId)}
+                            onClick={() => handleClickMarkAll()}
                             sx={{
-                                borderRadius: '4px',
+                                borderRadius: '6px',
                                 color: 'var(--text-color)',
                                 '&:hover': {
                                     backgroundColor: 'var(--hover-color)'
@@ -193,7 +223,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                         <MenuItem
                             onClick={handleOpenNotification}
                             sx={{
-                                borderRadius: '4px',
+                                borderRadius: '6px',
                                 color: 'var(--text-color)',
                                 '&:hover': {
                                     backgroundColor: 'var(--hover-color)'
@@ -208,7 +238,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                 <Box
                     sx={{
                         display: 'flex',
-                        padding: '0 15px 15px',
+                        padding: '0 24px 24px',
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}
@@ -262,7 +292,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                         <Box>
                             <Button
                                 variant='outlined'
-                                onClick={() => handleClickMarkAll(userId)}
+                                onClick={() => handleClickMarkAll()}
                                 sx={{
                                     backgroundColor: 'transparent',
                                     color: 'var(--text-color)',
@@ -290,7 +320,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                             display: 'flex',
                             flexDirection: 'column',
                             width: '100%',
-                            padding: '7.5px 15px'
+                            padding: '17px 24px'
                         }}
                     >
                         {Array.from({ length: 7 }).map((_, index) => (
@@ -377,9 +407,7 @@ const NotificationsPage = ({ menu }: INotificationsPageProps) => {
                 ) : (
                     <Box
                         sx={{
-                            ...(menu === undefined
-                                ? { padding: '0px 7.5px 7.5px' }
-                                : { padding: '0px 0.5px 7.5px 7.5px' })
+                            ...(menu === undefined ? { padding: '0px 12px 12px' } : { padding: '0px 5.5px 12px 12px' })
                         }}
                     >
                         <ListNotification setNotificationId={setNotificationId} />

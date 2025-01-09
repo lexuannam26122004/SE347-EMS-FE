@@ -38,8 +38,10 @@ import {
 } from '@/redux/slices/selectedDepartmentsToNotifySlice'
 import { selectedRolesToNotifySelector, selectedRolesToNotifySlice } from '@/redux/slices/selectedRolesToNotifySlice'
 import UploadFiles from './UploadFiles'
+import { useToast } from '@/hooks/useToast'
 
 function CreateNotification() {
+    const toast = useToast()
     const { t } = useTranslation('common')
     const router = useRouter()
     const [typeNotification, setTypeNotification] = useState<string>('')
@@ -101,7 +103,15 @@ function CreateNotification() {
             TypeToNotify: typeReceiveNotify === 'Department_And_Role' ? 2 : typeReceiveNotify === 'All' ? 1 : 3
         }
 
-        await createNotification(data).unwrap()
+        try {
+            await createNotification(data).unwrap()
+        } catch (error) {
+            if ((error as any).status === 403) {
+                toast('Bạn không có quyền tạo. Vui lòng tải lại trang', 'error')
+            } else {
+                toast('Có lỗi xảy ra khi tạo thông báo. Vui lòng thử lại!' + error, 'error')
+            }
+        }
     }
 
     const handleSaveAndClose = async () => {
@@ -129,7 +139,15 @@ function CreateNotification() {
             TypeToNotify: typeReceiveNotify === 'Department_And_Role' ? 2 : typeReceiveNotify === 'All' ? 1 : 3
         }
 
-        await createNotification(data).unwrap()
+        try {
+            await createNotification(data).unwrap()
+        } catch (error) {
+            if ((error as any).status === 403) {
+                toast('Bạn không có quyền tạo. Vui lòng tải lại trang', 'error')
+            } else {
+                toast('Có lỗi xảy ra khi tạo thông báo. Vui lòng thử lại!' + error, 'error')
+            }
+        }
 
         router.push('/admin')
     }
@@ -342,6 +360,7 @@ function CreateNotification() {
                                             backgroundSize: '50%, 50%',
                                             backgroundRepeat: 'no-repeat',
                                             padding: '0 8px',
+                                            mt: 'px',
                                             backdropFilter: 'blur(20px)',
                                             borderRadius: '8px',
                                             backgroundColor: 'var(--background-item)',
@@ -353,7 +372,7 @@ function CreateNotification() {
                                                     backgroundColor: 'var(--hover-color)'
                                                 },
                                                 '&.Mui-selected': {
-                                                    backgroundColor: 'var(--selected-color)',
+                                                    backgroundColor: 'var(--background-selected-item)',
                                                     '&:hover': {
                                                         backgroundColor: 'var(--hover-color)'
                                                     }
@@ -369,9 +388,9 @@ function CreateNotification() {
                                 <MenuItem value={'Salary'}>{t('COMMON.NOTIFICATION_TYPE.SALARY')}</MenuItem>
                                 <MenuItem value={'Reward'}>{t('COMMON.NOTIFICATION_TYPE.REWARD')}</MenuItem>
                                 <MenuItem value={'Insurance'}>{t('COMMON.NOTIFICATION_TYPE.INSURANCE')}</MenuItem>
-                                <MenuItem value={'Holiday'}>{t('COMMON.NOTIFICATION_TYPE.HOLIDAY')}</MenuItem>
+                                <MenuItem value={'Holiday'}>{t('COMMON.NOTIFICATION_TYPE.EVENT')}</MenuItem>
                                 <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.DISCIPLINE')}</MenuItem>
-                                <MenuItem value={'Timekeeping'}>{t('COMMON.NOTIFICATION_TYPE.TIMEKEEPING')}</MenuItem>
+                                <MenuItem value={'Timekeeping'}>{t('COMMON.NOTIFICATION_TYPE.ATTENDANCE')}</MenuItem>
                             </Select>
                         </FormControl>
                         <Typography

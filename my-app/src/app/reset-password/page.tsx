@@ -25,7 +25,7 @@ const LoginForm: React.FC = () => {
     const [countdown, setCountdown] = useState(0)
 
     useEffect(() => {
-        let timer
+        let timer: any
         if (countdown > 0) {
             timer = setInterval(() => {
                 setCountdown(prev => {

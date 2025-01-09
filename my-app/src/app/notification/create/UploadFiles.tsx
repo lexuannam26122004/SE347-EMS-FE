@@ -144,6 +144,7 @@ function UploadFiles({ setFiles }: Props) {
                                             marginTop: '8px',
                                             display: '-webkit-box',
                                             WebkitBoxOrient: 'vertical',
+                                            width: '100%',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             WebkitLineClamp: 3

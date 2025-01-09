@@ -1,7 +1,7 @@
 import { INotificationsForUser } from '@/models/Notifications'
 import React, { useCallback, useState, useEffect } from 'react'
 import { Box, Typography, Avatar, Popper, MenuItem, styled } from '@mui/material'
-import { Ellipsis, Check, Trash2 } from 'lucide-react'
+import { Ellipsis, Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useChangeNotificationReadMutation, useDeleteNotificationMutation } from '@/services/NotificationsService'
 import { useDispatch, useSelector } from 'react-redux'
@@ -124,7 +124,7 @@ const NotificationsComponent = React.memo(({ setNotificationId }: ListNotificati
                 className='flex-1 flex items-center'
                 style={{
                     width: '100%',
-                    padding: '7.5px 0.5px 7.5px 7.5px'
+                    padding: '10px 0.5px 10px 12px'
                 }}
                 onClick={() => handleClickNotification(notification)}
             >
@@ -207,7 +207,7 @@ const NotificationsComponent = React.memo(({ setNotificationId }: ListNotificati
                     zIndex: 10,
                     border: '1px solid var(--border-color)',
                     '&:hover': {
-                        backgroundColor: 'var(--hover-color)'
+                        backgroundColor: 'var(--hover-ellipsis)'
                     }
                 }}
                 onClick={event => handleClick(event, notification)}
@@ -244,19 +244,40 @@ const NotificationsComponent = React.memo(({ setNotificationId }: ListNotificati
                         backgroundPosition: 'top right, bottom left',
                         backgroundSize: '50%, 50%',
                         backgroundRepeat: 'no-repeat',
+                        border: '1px solid var(--border-color)',
                         backdropFilter: 'blur(20px)',
                         backgroundColor: 'var(--background-item)',
-                        borderRadius: '15px'
+                        borderRadius: '10px'
                     }}
                 >
-                    <StyledMenuItem onClick={() => handleAction('mark')} onMouseDown={e => e.stopPropagation()}>
+                    <StyledMenuItem
+                        onClick={() => handleAction('mark')}
+                        onMouseDown={e => e.stopPropagation()}
+                        sx={{
+                            borderRadius: '6px'
+                        }}
+                    >
                         <Check style={{ color: 'var(--text-color)', width: '21px', margin: '0 10px 0 -2px' }} />
                         {selectedNotification?.IsRead
                             ? t('COMMON.NOTIFICATION.MENU.MARK_AS_UNREAD')
                             : t('COMMON.NOTIFICATION.MENU.MARK_AS_READ')}
                     </StyledMenuItem>
-                    <StyledMenuItem onClick={() => handleAction('delete')} onMouseDown={e => e.stopPropagation()}>
-                        <Trash2 style={{ color: 'var(--text-color)', width: '21px', margin: '-1px 10px 0 -2px' }} />
+                    <StyledMenuItem
+                        onClick={() => handleAction('delete')}
+                        onMouseDown={e => e.stopPropagation()}
+                        sx={{
+                            borderRadius: '6px',
+                            color: '#FF5630'
+                        }}
+                    >
+                        <img
+                            src='/images/trash.svg'
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                marginRight: '9px'
+                            }}
+                        />
                         {t('COMMON.NOTIFICATION.MENU.DELETE')}
                     </StyledMenuItem>
                 </Box>

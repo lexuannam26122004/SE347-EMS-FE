@@ -45,10 +45,11 @@ function NotificationModal({ notificationId, open, handleClose }: NotificationMo
                     maxWidth: '1000px',
                     position: 'absolute',
                     top: '50%',
+                    overflow: 'hidden',
                     left: '50%',
                     backgroundColor: 'var(--background-color)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    borderRadius: '15px',
                     transform: 'translate(-50%, -50%)'
                 }}
             >
@@ -128,7 +129,7 @@ function NotificationModal({ notificationId, open, handleClose }: NotificationMo
                         height: '85vh',
                         width: '100%',
                         flexGrow: 1,
-                        padding: '20px 3px 20px 10px',
+                        padding: '20px 12px 20px 19px',
                         borderWidth: '0px',
                         borderStyle: 'solid',
                         borderColor: 'divider',

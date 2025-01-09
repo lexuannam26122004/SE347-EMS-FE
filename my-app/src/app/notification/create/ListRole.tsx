@@ -21,7 +21,7 @@ function ListRole({ handleBefore, handleClose, handleSave, tempSelectedRole, set
     const { t } = useTranslation('common')
     const [showError, setShowError] = useState(false)
     const [showSkeleton, setShowSkeleton] = useState(true)
-    const { data: roleResponse, isFetching: isFetchingRole, isError: isErrorRole } = useGetAllRolesQuery()
+    const { data: roleResponse, isFetching: isFetchingRole, isError: isErrorRole } = useGetAllRolesQuery({})
     const roles = (roleResponse?.Data.Records as IAspNetRoleGetAll[]) || []
     const [filteredRoles, setFilteredRoles] = useState<IAspNetRoleGetAll[]>([])
     const [search, setSearch] = useState('')
