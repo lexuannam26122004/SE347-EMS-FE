@@ -16,7 +16,7 @@ export const rewardApi = createApi({
     baseQuery: createBaseQuery(apiPath),
     tagTypes: ['Reward'],
     endpoints: builder => ({
-        createBenefit: builder.mutation<void, ICreateReward>({
+        createReward: builder.mutation<void, ICreateReward>({
             query: benefit => ({
                 url: 'Create',
                 method: 'POST',
@@ -32,7 +32,7 @@ export const rewardApi = createApi({
             })
         }),
 
-        updateBenefit: builder.mutation<void, IUpdateReward>({
+        updateReward: builder.mutation<void, IUpdateReward>({
             query: benefit => ({
                 url: 'Update',
                 method: 'PUT',
@@ -47,7 +47,13 @@ export const rewardApi = createApi({
                 body: { Ids: ids }
             })
         }),
-        GetByIdBenefit: builder.query<RewardResponse, string>({
+        updateIsReceived: builder.mutation<void, number>({
+            query: id => ({
+                url: `UpdateIsReceived?Id=${id}`,
+                method: 'PUT'
+            })
+        }),
+        getByIdReward: builder.query<RewardResponse, number>({
             query: id => `GetById?id=${id}`
         }),
         getAllRewards: builder.query<RewardResponse, IFilterReward>({
@@ -74,7 +80,8 @@ export const {
     useGetAllRewardsQuery,
     useChangeStatusRewardMutation,
     useChangeStatusManyBenefitMutation,
-    useCreateBenefitMutation,
-    useGetByIdBenefitQuery,
-    useUpdateBenefitMutation
+    useCreateRewardMutation,
+    useUpdateRewardMutation,
+    useGetByIdRewardQuery,
+    useUpdateIsReceivedMutation
 } = rewardApi

@@ -13,18 +13,16 @@ import {
     //DialogActions
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Plus, SaveIcon, XIcon, Pencil, Ban, Trash2 } from 'lucide-react'
+import { Plus, SaveIcon, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import {
-    useCreateDisciplineMutation
-    //useDeleteBenefitTypeMutation
-} from '@/services/DisciplineService'
 import { useEffect, useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useToast } from '@/hooks/useToast'
 import { useGetAllUsersQuery } from '@/services/AspNetUserService'
 import { IAspNetUserGetAll } from '@/models/AspNetUser'
 import Loading from '@/components/Loading'
+import { useSearchParams } from 'next/navigation'
+import { useGetByIdDisciplineQuery, useUpdateDisciplineMutation } from '@/services/DisciplineService'
 
 function Page() {
     const { t } = useTranslation('common')
@@ -38,7 +36,21 @@ function Page() {
     const [note, setNote] = useState('')
     const [money, setMoney] = useState(0)
 
-    const [createDiscipline, { isSuccess, isLoading, isError }] = useCreateDisciplineMutation()
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id') ? parseInt(searchParams.get('id') as string) : 0
+
+    const [updateDiscipline, { isSuccess, isLoading, isError }] = useUpdateDisciplineMutation()
+    const { data: responseData, isFetching: isFetchingGetById, refetch } = useGetByIdDisciplineQuery(id)
+
+    const data = responseData?.Data
+    useEffect(() => {
+        if (!isFetchingGetById && data) {
+            setUserId(data.UserId)
+            setReason(data.Reason)
+            setNote(data.Note)
+            setMoney(data.Money || 0)
+        }
+    }, [data, isFetchingGetById])
 
     const handleSave = async () => {
         setIsSubmit(true)
@@ -51,14 +63,16 @@ function Page() {
             UserId: userId,
             Reason: reason,
             Note: note,
-            Money: money
+            Money: money,
+            Id: id
         }
-        await createDiscipline(data).unwrap()
+        await updateDiscipline(data).unwrap()
         setIsSubmit(false)
     }
 
     useEffect(() => {
         if (isSuccess) {
+            refetch()
             toast(t('Thành công'), 'success')
         }
         if (isError) {
@@ -68,7 +82,6 @@ function Page() {
 
     const handleSaveAndClose = async () => {
         await handleSave()
-
         if (userId === '') {
             return
         }
@@ -93,7 +106,7 @@ function Page() {
                 }}
             >
                 <Typography sx={{ fontWeight: 'bold', fontSize: '22px', color: 'var(--text-color)' }}>
-                    {t('Thêm kỷ luật')}
+                    Cập nhật khen thưởng
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px', mt: '24px' }}>
                     <Box

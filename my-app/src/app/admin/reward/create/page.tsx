@@ -16,25 +16,19 @@ import { useTranslation } from 'react-i18next'
 import { Plus, SaveIcon, XIcon, Pencil, Ban, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import {
-    useCreateBenefitMutation
+    useCreateRewardMutation
     //useDeleteBenefitTypeMutation
 } from '@/services/RewardService'
 import { useEffect, useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useToast } from '@/hooks/useToast'
-import { IBenefitGetAllType } from '@/models/Benefit'
 import { useGetAllUsersQuery } from '@/services/AspNetUserService'
 import { IAspNetUserGetAll } from '@/models/AspNetUser'
+import Loading from '@/components/Loading'
 
-function CreateBenefitPage() {
+function Page() {
     const { t } = useTranslation('common')
     const router = useRouter()
-    const [name, setName] = useState('')
-    const [contribution, setContribution] = useState<number | ''>('')
-    const [benefitTypeId, setBenefitTypeId] = useState<number | null>()
-
-    const [benefitTypeName, setBenefitTypeName] = useState('')
-    const [benefitTypeDescription, setBenefitTypeDescription] = useState<string | null>(null)
     const toast = useToast()
     const [isSubmit, setIsSubmit] = useState(false)
     const { data: userResponse, isLoading: isUsersLoading } = useGetAllUsersQuery()
@@ -44,21 +38,22 @@ function CreateBenefitPage() {
     const [note, setNote] = useState('')
     const [money, setMoney] = useState(0)
 
-    //const [openDialog, setOpenDialog] = useState(false)
-
-    const [createBenefit, { isSuccess, isLoading, isError }] = useCreateBenefitMutation()
+    const [createReward, { isSuccess, isLoading, isError }] = useCreateRewardMutation()
 
     const handleSave = async () => {
         setIsSubmit(true)
+
+        if (userId === '') {
+            return
+        }
 
         const data = {
             UserId: userId,
             Reason: reason,
             Note: note,
-            //BenefitContribution: Number(contribution),
             Money: money
         }
-        await createBenefit(data).unwrap()
+        await createReward(data).unwrap()
         setIsSubmit(false)
     }
 
@@ -73,8 +68,15 @@ function CreateBenefitPage() {
 
     const handleSaveAndClose = async () => {
         await handleSave()
+        if (userId === '') {
+            return
+        }
 
         router.push('/admin/reward')
+    }
+
+    if (isUsersLoading) {
+        return <Loading />
     }
 
     return (
@@ -92,8 +94,206 @@ function CreateBenefitPage() {
                 <Typography sx={{ fontWeight: 'bold', fontSize: '22px', color: 'var(--text-color)' }}>
                     {t('Thêm khen thưởng')}
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', mt: '20px' }}>
-                    <Autocomplete
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px', mt: '24px' }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '24px'
+                        }}
+                    >
+                        <Autocomplete
+                            componentsProps={{
+                                popper: {
+                                    sx: {
+                                        '& .MuiAutocomplete-option[aria-selected="true"]': {
+                                            backgroundColor: 'var(--background-selected-item)'
+                                        },
+                                        '& .MuiAutocomplete-paper': {
+                                            color: 'var(--text-color)',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '8px',
+                                            backgroundImage:
+                                                'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODYpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAgMS44MTgxMmUtMDUpIHJvdGF0ZSgtNDUpIHNjYWxlKDEyMy4yNSkiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMDBCOEQ5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwQjhEOSIgc3RvcC1vcGFjaXR5PSIwIi8+CjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODcpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K)',
+                                            backgroundPosition: 'top right, bottom left',
+                                            backgroundSize: '50%, 50%',
+                                            backgroundRepeat: 'no-repeat',
+                                            backdropFilter: 'blur(20px)',
+                                            backgroundColor: 'var(--background-item)'
+                                        },
+                                        '& .MuiAutocomplete-option:hover': {
+                                            backgroundColor: 'var(--hover-color) !important'
+                                        }
+                                    }
+                                }
+                            }}
+                            sx={{
+                                width: '65%',
+                                '& fieldset': {
+                                    borderRadius: '8px',
+                                    color: 'var(--text-color)',
+                                    borderColor: 'var(--border-color)'
+                                },
+                                '& .MuiInputBase-root': {
+                                    paddingRight: '0px'
+                                },
+                                '& .MuiInputBase-input': {
+                                    paddingRight: '12px',
+                                    color: 'var(--text-color)',
+                                    fontSize: '16px',
+                                    '&::placeholder': {
+                                        color: 'var(--placeholder-color)',
+                                        opacity: 1
+                                    }
+                                },
+                                '& .MuiOutlinedInput-root:hover fieldset': {
+                                    borderColor: 'var(--hover-field-color)'
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                    borderColor: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'var(--text-label-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-error': {
+                                    color: 'var(--error-color)'
+                                },
+                                '& .MuiAutocomplete-popupIndicator': {
+                                    '& svg': {
+                                        fill: isSubmit && userId === '' ? 'var(--error-color)' : 'var(--text-color)'
+                                    }
+                                },
+                                '& .MuiAutocomplete-paper': {
+                                    backgroundColor: 'var(--background-item)',
+                                    color: 'var(--text-color)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '8px',
+                                    '& .MuiAutocomplete-option': {
+                                        '&:hover': {
+                                            backgroundColor: 'var(--hover-color) !important'
+                                        }
+                                    }
+                                },
+                                '& .MuiAutocomplete-clearIndicator': {
+                                    '& svg': {
+                                        fill: 'var(--text-color)'
+                                    }
+                                }
+                            }}
+                            options={employee}
+                            getOptionLabel={option => `${option.EmployeeId}  ${option.FullName}`}
+                            renderOption={(props, option, { selected }) => {
+                                const { key, ...otherProps } = props
+                                return (
+                                    <Box
+                                        key={key}
+                                        component='li'
+                                        {...otherProps}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '10px',
+                                            padding: '10px',
+                                            color: 'var(--text-color)'
+                                        }}
+                                    >
+                                        <Avatar
+                                            src={
+                                                option.AvatarPath ||
+                                                'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
+                                            }
+                                            alt='Avatar'
+                                        />
+                                        <Typography>{`${option.EmployeeId}  ${option.FullName}`}</Typography>
+                                    </Box>
+                                )
+                            }}
+                            renderInput={params => (
+                                <TextField
+                                    {...params}
+                                    variant='outlined'
+                                    label={t('COMMON.CONTRACT.INFORMATION') + '*'}
+                                    fullWidth
+                                    error={isSubmit && userId === ''}
+                                />
+                            )}
+                            value={employee.find(e => e.Id === userId) || null}
+                            onChange={(event, newValue) => setUserId(newValue?.Id || '')}
+                            isOptionEqualToValue={(option, value) => option.Id === value.Id}
+                        />
+
+                        <TextField
+                            variant='outlined'
+                            label='Số tiền'
+                            sx={{
+                                flex: 1,
+                                '& fieldset': {
+                                    borderRadius: '8px',
+                                    color: 'var(--text-color)',
+                                    borderColor: 'var(--border-color)'
+                                },
+                                '& .MuiInputBase-root': {
+                                    paddingRight: '3px'
+                                },
+                                '& .MuiInputBase-input': {
+                                    scrollbarGutter: 'stable',
+                                    '&::-webkit-scrollbar': {
+                                        width: '7px',
+                                        height: '7px'
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        backgroundColor: 'var(--scrollbar-color)',
+                                        borderRadius: '10px'
+                                    },
+                                    paddingRight: '4px',
+                                    color: 'var(--text-color)',
+                                    fontSize: '16px',
+                                    '&::placeholder': {
+                                        color: 'var(--placeholder-color)',
+                                        opacity: 1
+                                    }
+                                },
+                                '& .MuiOutlinedInput-root:hover fieldset': {
+                                    borderColor: 'var(--hover-field-color)'
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                    borderColor: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'var(--text-label-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-error': {
+                                    color: 'var(--error-color)'
+                                }
+                            }}
+                            value={money}
+                            onChange={e => setMoney(Number(e.target.value.replace(/[^0-9]/g, '')))}
+                        />
+                    </Box>
+
+                    <TextField
+                        variant='outlined'
+                        label='Lý do'
+                        id='fullWidth'
+                        fullWidth
                         sx={{
                             '& fieldset': {
                                 borderRadius: '8px',
@@ -101,10 +301,19 @@ function CreateBenefitPage() {
                                 borderColor: 'var(--border-color)'
                             },
                             '& .MuiInputBase-root': {
-                                paddingRight: '0px'
+                                paddingRight: '3px'
                             },
                             '& .MuiInputBase-input': {
-                                paddingRight: '12px',
+                                scrollbarGutter: 'stable',
+                                '&::-webkit-scrollbar': {
+                                    width: '7px',
+                                    height: '7px'
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'var(--scrollbar-color)',
+                                    borderRadius: '10px'
+                                },
+                                paddingRight: '4px',
                                 color: 'var(--text-color)',
                                 fontSize: '16px',
                                 '&::placeholder': {
@@ -132,109 +341,140 @@ function CreateBenefitPage() {
                             },
                             '& .MuiInputLabel-root.Mui-error': {
                                 color: 'var(--error-color)'
-                            },
-                            '& .MuiAutocomplete-popupIndicator': {
-                                '& svg': {
-                                    fill: isSubmit && userId === '' ? 'var(--error-color)' : 'var(--text-color)'
-                                }
-                            },
-                            '& .MuiAutocomplete-clearIndicator': {
-                                '& svg': {
-                                    fill: 'var(--text-color)'
-                                }
                             }
                         }}
-                        options={employee}
-                        getOptionLabel={option => `${option.EmployeeId}  ${option.FullName}`}
-                        renderOption={(props, option, { selected }) => {
-                            const { key, ...otherProps } = props
-                            return (
-                                <Box
-                                    key={key}
-                                    component='li'
-                                    {...otherProps}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px',
-                                        padding: '8px',
-                                        color: selected ? 'black' : 'var(--text-color)',
-                                        backgroundColor: 'var(--background-color)',
-                                        '&:hover': {
-                                            color: 'black'
-                                        }
-                                    }}
-                                >
-                                    <Avatar
-                                        src={
-                                            option.AvatarPath ||
-                                            'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
-                                        }
-                                        alt='Avatar'
-                                    />
-                                    <Typography>{`${option.EmployeeId}  ${option.FullName}`}</Typography>
-                                </Box>
-                            )
-                        }}
-                        renderInput={params => (
-                            <TextField
-                                {...params}
-                                variant='outlined'
-                                label={t('COMMON.CONTRACT.INFORMATION') + '*'}
-                                fullWidth
-                                error={isSubmit && userId === ''}
-                            />
-                        )}
-                        value={employee.find(e => e.Id === userId) || null}
-                        onChange={(event, newValue) => setUserId(newValue?.Id || '')}
-                        isOptionEqualToValue={(option, value) => option.Id === value.Id}
+                        value={reason}
+                        onChange={e => setReason(e.target.value)}
                     />
 
                     <TextField
                         variant='outlined'
-                        label={t('CTiền thưởng')}
+                        label='Ghi chú'
+                        id='fullWidth'
                         fullWidth
-                        {...(isSubmit && name === '' && { error: true })}
-                        value={money}
-                        onChange={e => setMoney(Number(e.target.value))}
-                    />
-                    <TextField
-                        variant='outlined'
-                        label={t('Lý do')}
-                        fullWidth
-                        {...(isSubmit && name === '' && { error: true })}
-                        value={reason}
-                        onChange={e => setReason(e.target.value)}
-                    />
-                    <TextField
-                        variant='outlined'
-                        label={t('Chú thích')}
-                        fullWidth
-                        {...(isSubmit && name === '' && { error: true })}
+                        multiline
+                        minRows={4}
+                        maxRows={12}
+                        sx={{
+                            '& fieldset': {
+                                borderRadius: '8px',
+                                color: 'var(--text-color)',
+                                borderColor: 'var(--border-color)'
+                            },
+                            '& .MuiInputBase-root': {
+                                paddingRight: '3px'
+                            },
+                            '& .MuiInputBase-input': {
+                                scrollbarGutter: 'stable',
+                                '&::-webkit-scrollbar': {
+                                    width: '7px',
+                                    height: '7px'
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'var(--scrollbar-color)',
+                                    borderRadius: '10px'
+                                },
+                                paddingRight: '4px',
+                                color: 'var(--text-color)',
+                                fontSize: '16px',
+                                '&::placeholder': {
+                                    color: 'var(--placeholder-color)',
+                                    opacity: 1
+                                }
+                            },
+                            '& .MuiOutlinedInput-root:hover fieldset': {
+                                borderColor: 'var(--hover-field-color)'
+                            },
+                            '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                            },
+                            '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                            },
+                            '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                borderColor: 'var(--selected-field-color)'
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'var(--text-label-color)'
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'var(--selected-field-color)'
+                            },
+                            '& .MuiInputLabel-root.Mui-error': {
+                                color: 'var(--error-color)'
+                            }
+                        }}
                         value={note}
                         onChange={e => setNote(e.target.value)}
                     />
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', mt: '20px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', mt: '24px' }}>
                     <LoadingButton
                         variant='contained'
                         {...(isLoading && { loading: true })}
                         loadingPosition='start'
                         startIcon={<SaveIcon />}
+                        sx={{
+                            height: '50px',
+                            backgroundColor: 'var(--button-color)',
+                            width: 'auto',
+                            padding: '0px 30px',
+                            fontSize: '16px',
+                            '&:hover': {
+                                backgroundColor: 'var(--hover-button-color)'
+                            },
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                            textTransform: 'none'
+                        }}
                         onClick={handleSave}
                     >
                         {t('COMMON.BUTTON.SAVE')}
                     </LoadingButton>
+
                     <LoadingButton
                         variant='contained'
                         {...(isLoading && { loading: true })}
                         loadingPosition='start'
                         startIcon={<SaveIcon />}
+                        sx={{
+                            height: '50px',
+                            backgroundColor: 'var(--button-color)',
+                            width: 'auto',
+                            padding: '0px 30px',
+                            '&:hover': {
+                                backgroundColor: 'var(--hover-button-color)'
+                            },
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                            textTransform: 'none'
+                        }}
                         onClick={handleSaveAndClose}
                     >
                         {t('COMMON.BUTTON.SAVE_AND_CLOSE')}
                     </LoadingButton>
-                    <Button variant='contained' startIcon={<XIcon />} onClick={() => router.push('/admin/reward')}>
+
+                    <Button
+                        variant='contained'
+                        startIcon={<XIcon />}
+                        sx={{
+                            height: '50px',
+                            backgroundColor: 'var(--button-color)',
+                            width: 'auto',
+                            fontSize: '16px',
+                            '&:hover': {
+                                backgroundColor: 'var(--hover-button-color)'
+                            },
+                            padding: '0px 30px',
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                            textTransform: 'none'
+                        }}
+                        onClick={() => {
+                            router.push('/admin/reward')
+                        }}
+                    >
                         {t('COMMON.BUTTON.CLOSE')}
                     </Button>
                 </Box>
@@ -243,4 +483,4 @@ function CreateBenefitPage() {
     )
 }
 
-export default CreateBenefitPage
+export default Page

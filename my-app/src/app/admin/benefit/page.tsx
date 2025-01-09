@@ -1,12 +1,11 @@
 'use client'
-import { IBenefitGetAll } from '@/models/Benefit'
+import { IFilterSysConfiguration, IGetAllSysConfiguration } from '@/models/SysConfiguration'
 import {
-    useGetAllBenefitsQuery,
-    useChangeStatusBenefitMutation,
-    // useUpdateBenefitMutation,
-    //useCreateBenefitMutation,
-    useChangeStatusManyBenefitMutation
-} from '@/services/BenefitService'
+    useSearchSysConfigurationQuery,
+    useChangeStatusSysConfigurationMutation,
+    useChangeStatusManySysConfigurationMutation
+} from '@/services/SysConfigurationService'
+import { formatDate } from '@/utils/formatDate'
 import {
     Box,
     Select,
@@ -25,70 +24,65 @@ import {
     Button,
     TextField,
     InputAdornment,
-    IconButton,
     Tooltip,
     TableSortLabel
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import SearchIcon from '@mui/icons-material/Search'
+import { useRouter } from 'next/navigation'
 import { CirclePlus, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import AlertDialog from '@/components/AlertDialog'
-import { IFilterSysConfiguration } from '@/models/SysConfiguration'
+import DetailModal from './DetailModal'
+import Loading from '@/components/Loading'
+import { authSelector } from '@/redux/slices/authSlice'
+import { useSelector } from 'react-redux'
+import { debounce } from 'lodash'
+import { useCallback } from 'react'
 
-//import CreateBenefitPage from './create-benefit/page'
-import { useRouter } from 'next/navigation'
-import { formatDate } from '@/utils/formatDate'
-
-function BenefitPage() {
+function ConfigurationPage() {
     const { t } = useTranslation('common')
     const router = useRouter()
-    const [selected, setSelected] = useState<string[]>([])
+    const [selected, setSelected] = useState<number[]>([])
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState('10')
     const [from, setFrom] = useState(1)
     const [to, setTo] = useState(10)
-    const [keyword, setKeyword] = useState('')
-    //const [isSubmit, setIsSubmit] = useState(false)
-    const [openDialog, setOpenDialog] = useState(false)
-    const [selectedRow, setSelectedRow] = useState<string | null>(null)
-    const [order, setOrder] = useState<'asc' | 'desc'>('asc')
-    const [orderBy, setOrderBy] = useState<string>('')
-    // const [name, setName] = useState('')
-    //const [benefitContribution, setBenefitContribution] = useState<number>(0)
-    //const [benefitTypeId, setBenefitTypeId] = useState<number>(0)
-    //const [nameOfBenefitType, setNameOfBenefitType] = useState('')
-    const [isChangeMany, setIsChangeMany] = useState(false)
     const [filter, setFilter] = useState<IFilterSysConfiguration>({
         pageSize: 10,
         pageNumber: 1
     })
+    const [keyword, setKeyword] = useState('')
+    const [openDialog, setOpenDialog] = useState(false)
+    const [isChangeMany, setIsChangeMany] = useState(false)
+    const [selectedRow, setSelectedRow] = useState<number | null>(null)
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc')
+    const [orderBy, setOrderBy] = useState<string>('')
+    const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
+    const [openModal, setOpenModal] = useState(false)
 
-    const { data: responseData, isFetching, refetch } = useGetAllBenefitsQuery(filter)
-    const [deleteBenefit, { isSuccess: isSuccessDelete }] = useChangeStatusBenefitMutation()
-    //const [createBenefit, { isSuccess, isLoading, isError }] = useCreateBenefitMutation()
-    //const [updateBenefit] = useUpdateBenefitMutation()
-    const [isSuccess] = useState(false)
-    const [changeManyBenefit] = useChangeStatusManyBenefitMutation()
+    const { data: responseData, isLoading, isFetching, refetch } = useSearchSysConfigurationQuery(filter)
+    const [changeSysConfiguration, { isSuccess: isSuccessChange }] = useChangeStatusSysConfigurationMutation()
+    const [changeManySysConfiguration, { isSuccess: isSuccessChangeMany }] =
+        useChangeStatusManySysConfigurationMutation()
 
-    const benefitData = responseData?.Data.Records as IBenefitGetAll[]
+    const handleClickDetail = (config: IGetAllSysConfiguration) => {
+        setSelectedConfig(config)
+        setOpenModal(true)
+    }
+
+    const sysConfigurationData = responseData?.Data.Records as IGetAllSysConfiguration[]
     const totalRecords = responseData?.Data.TotalRecords as number
 
-    const isSelected = (id: string) => selected.includes(id)
+    const isSelected = (id: number) => selected.includes(id)
 
-    const handleCheckboxClick = (id: string) => {
+    const handleCheckboxClick = (id: number) => {
         setSelected(prev => (prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]))
     }
 
-    useEffect(() => {
-        if (isSuccess) {
-            refetch()
-        }
-    }, [isSuccess])
-
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelected(benefitData.map(row => row.Id))
+            setSelected(sysConfigurationData.map(row => row.Id))
         } else {
             setSelected([])
         }
@@ -105,68 +99,60 @@ function BenefitPage() {
     }
 
     const handleChangeRowsPerPage = (event: SelectChangeEvent) => {
-        const newRowsPerPage = event.target.value as string
-        setRowsPerPage(newRowsPerPage)
         setPage(1)
-        setFilter(prev => ({
-            ...prev,
-            pageSize: Number(newRowsPerPage),
-            pageNumber: 1
-        }))
-    }
-
-    const handleSearchKeyword = () => {
-        setPage(1)
+        setRowsPerPage(event.target.value as string)
         setFilter(prev => {
             return {
                 ...prev,
-                keyword: keyword,
+                pageSize: Number(event.target.value),
                 pageNumber: 1
             }
         })
     }
 
+    const debouncedSetFilter = useCallback(
+        debounce(value => {
+            setFilter(prev => ({
+                ...prev,
+                keyword: value,
+                pageNumber: 1
+            }))
+        }, 100),
+        []
+    )
+
+    const handleSearchKeyword = value => {
+        setPage(1)
+        setKeyword(value)
+        debouncedSetFilter(value)
+    }
+
     useEffect(() => {
         if (!isFetching && responseData?.Data) {
-            const from = (page - 1) * Number(rowsPerPage) + 1
+            const from = (page - 1) * Number(rowsPerPage) + Math.min(1, sysConfigurationData.length)
             setFrom(from)
 
-            const to = Math.min(page * Number(rowsPerPage), totalRecords)
+            const to = Math.min(sysConfigurationData.length + (page - 1) * Number(rowsPerPage), totalRecords)
             setTo(to)
         }
     }, [isFetching, responseData, page, rowsPerPage])
 
     useEffect(() => {
         refetch()
-    }, [page, rowsPerPage, keyword])
+    }, [filter])
 
-    const handleDeleteClick = async (id: string) => {
+    const handleButtonUpdateClick = (id: number) => {
+        router.push(`/admin/configuration/update?id=${id}`)
+    }
+
+    const handleDeleteClick = async (id: number) => {
         setOpenDialog(true)
         setSelectedRow(id)
     }
 
-    const handleChangeManyClick = async () => {
-        setIsChangeMany(true)
-        setOpenDialog(true)
-    }
-
-    const handleChangeStatusManyBenefit = async () => {
-        if (selected.length > 0) {
-            await changeManyBenefit(selected)
-            setIsChangeMany(false)
-            setSelected([])
-            setOpenDialog(false)
-        }
-    }
-
-    const handleConfirmChangeMany = async () => {
-        await handleChangeStatusManyBenefit()
-        refetch()
-    }
-
-    const handleDeleteBenefit = async () => {
+    const handleDeleteSysConfiguration = async () => {
         if (selectedRow) {
-            await deleteBenefit(selectedRow)
+            await changeSysConfiguration(selectedRow)
             if (isSelected(selectedRow)) {
                 setSelected(prev => prev.filter(item => item !== selectedRow))
             }
@@ -175,13 +161,25 @@ function BenefitPage() {
         }
     }
 
+    const handleDeleteManyClick = async () => {
+        setIsChangeMany(true)
+        setOpenDialog(true)
+    }
+
+    const handleDeleteManySysConfiguration = async () => {
+        if (selected.length > 0) {
+            await changeManySysConfiguration(selected)
+            setIsChangeMany(false)
+            setSelected([])
+            setOpenDialog(false)
+        }
+    }
+
     useEffect(() => {
-        if (isSuccessDelete) {
+        if (isSuccessChange || isSuccessChangeMany) {
             refetch()
         }
-    }, [isSuccessDelete])
-
-    //const [isOpen, setIsOpen] = useState(false)
+    }, [isSuccessChange, isSuccessChangeMany])
 
     const handleSort = (property: string) => {
         setFilter(prev => ({
@@ -199,71 +197,80 @@ function BenefitPage() {
 
     const countRows = selected.length
 
+    const menuLeft = useSelector(authSelector)
+
+    if (isLoading || menuLeft === null || Object.keys(menuLeft).length === 0) {
+        return <Loading />
+    }
+
     return (
         <Box>
             <Paper
                 sx={{
                     width: '100%',
+                    boxShadow: 'var(--box-shadow-paper)',
                     overflow: 'hidden',
-                    borderRadius: '6px',
-                    backgroundColor: 'var(--background-color)'
+                    borderRadius: '15px',
+                    backgroundColor: 'var(--background-item)'
                 }}
             >
-                <Box display='flex' alignItems='center' justifyContent='space-between' margin='20px'>
-                    <Box sx={{ position: 'relative', width: '100%' }}>
+                <Box display='flex' alignItems='center' justifyContent='space-between' margin='24px'>
+                    <Box sx={{ position: 'relative', width: '100%', height: '55px' }}>
                         <TextField
-                            fullWidth
                             id='location-search'
                             type='search'
                             placeholder={t('COMMON.SYS_CONFIGURATION.PLACEHOLDER_SEARCH')}
                             variant='outlined'
+                            required
                             value={keyword}
-                            onChange={e => setKeyword(e.target.value)}
+                            onChange={e => handleSearchKeyword(e.target.value)}
                             sx={{
                                 color: 'var(--text-color)',
                                 padding: '0px',
                                 width: '335px',
                                 '& fieldset': {
-                                    borderRadius: '8px',
+                                    borderRadius: '10px',
                                     borderColor: 'var(--border-color)'
                                 },
-                                '& .MuiInputBase-root': { paddingRight: '0px' },
+                                '& .MuiInputBase-root': { paddingLeft: '0px', paddingRight: '12px' },
                                 '& .MuiInputBase-input': {
-                                    padding: '11px 0 11px 14px',
+                                    padding: '15px 0px',
                                     color: 'var(--text-color)',
-                                    fontSize: '16px'
+                                    fontSize: '16px',
+                                    '&::placeholder': {
+                                        color: 'var(--placeholder-color)',
+                                        opacity: 1 // Đảm bảo opacity của placeholder không bị giảm
+                                    }
                                 },
                                 '& .MuiOutlinedInput-root:hover fieldset': {
-                                    borderColor: 'var(--hover-color)'
+                                    borderColor: 'var(--hover-field-color)'
                                 },
                                 '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-                                    borderColor: 'var(--selected-color)'
+                                    borderColor: 'var(--selected-field-color)'
                                 }
                             }}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    handleSearchKeyword()
-                                }
-                            }}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position='end'>
-                                        <IconButton
-                                            onClick={handleSearchKeyword}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment
+                                            position='start'
                                             sx={{
-                                                backgroundColor: 'var(--button-color)',
-                                                borderRadius: '0 8px 8px 0',
-                                                padding: '10.5px',
-                                                '&:hover': {
-                                                    backgroundColor: 'var(--hover-button-color)'
-                                                }
+                                                mr: 0
                                             }}
                                         >
-                                            <SearchIcon sx={{ color: 'white' }} />
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
+                                            <Box
+                                                sx={{
+                                                    height: '100%',
+                                                    color: '#a5bed4',
+                                                    padding: '10.5px',
+                                                    zIndex: 100
+                                                }}
+                                            >
+                                                <SearchIcon />
+                                            </Box>
+                                        </InputAdornment>
+                                    )
+                                }
                             }}
                         />
                     </Box>
@@ -277,66 +284,82 @@ function BenefitPage() {
                         >
                             {t('COMMON.COUNT_ROWS_SELECTED', { countRows })}
                         </Typography>
-                        <Button
-                            variant='contained'
-                            startIcon={<Trash2 />}
-                            sx={{
-                                height: '44px',
-                                visibility: countRows > 0 ? 'visible' : 'hidden',
-                                backgroundColor: 'var(--button-color)',
-                                width: 'auto',
-                                padding: '0px 24px',
-                                '&:hover': {
-                                    backgroundColor: 'var(--hover-button-color)'
-                                },
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                whiteSpace: 'nowrap',
-                                textTransform: 'none'
-                            }}
-                            onClick={() => handleChangeManyClick()}
-                            //onClick={() => handleDeleteBenefit()}
-                        >
-                            {t('COMMON.BUTTON.DELETE')}
-                        </Button>
+                        {menuLeft['Configuration'].IsAllowDelete && (
+                            <Button
+                                variant='contained'
+                                startIcon={<Trash2 />}
+                                sx={{
+                                    mr: '5px',
+                                    height: '53px',
+                                    visibility: countRows > 0 ? 'visible' : 'hidden',
+                                    backgroundColor: 'var(--button-color)',
+                                    width: 'auto',
+                                    padding: '0px 30px',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--hover-button-color)'
+                                    },
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    whiteSpace: 'nowrap',
+                                    textTransform: 'none'
+                                }}
+                                onClick={() => handleDeleteManyClick()}
+                            >
+                                {t('COMMON.BUTTON.DELETE')}
+                            </Button>
+                        )}
 
-                        <Button
-                            variant='contained'
-                            startIcon={<CirclePlus />}
-                            sx={{
-                                height: '44px',
-                                backgroundColor: 'var(--button-color)',
-                                width: 'auto',
-                                padding: '0px 24px',
-                                '&:hover': {
-                                    backgroundColor: 'var(--hover-button-color)'
-                                },
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                whiteSpace: 'nowrap',
-                                textTransform: 'none'
-                            }}
-                            onClick={() => router.push('/admin/benefit/create')}
-                            //onClick={() => handleOpenCreateDialog()}
-                        >
-                            {t('COMMON.BUTTON.CREATE')}
-                        </Button>
+                        {menuLeft['Configuration'].IsAllowCreate && (
+                            <Button
+                                variant='contained'
+                                startIcon={<CirclePlus />}
+                                sx={{
+                                    height: '53px',
+                                    backgroundColor: 'var(--button-color)',
+                                    width: 'auto',
+                                    padding: '0px 30px',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--hover-button-color)'
+                                    },
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    whiteSpace: 'nowrap',
+                                    textTransform: 'none'
+                                }}
+                                onClick={() => router.push('/admin/configuration/create')}
+                            >
+                                {t('COMMON.BUTTON.CREATE')}
+                            </Button>
+                        )}
                     </Box>
                 </Box>
-
-                <TableContainer>
+                <TableContainer
+                    sx={{
+                        textAlign: 'center',
+                        '&::-webkit-scrollbar': {
+                            width: '7px',
+                            height: '7px'
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: 'var(--scrollbar-color)',
+                            borderRadius: '10px'
+                        }
+                    }}
+                >
                     <Table>
                         <TableHead>
                             <TableRow sx={{ backgroundColor: 'var(--header-color-table)' }}>
                                 <TableCell
                                     padding='checkbox'
-                                    sx={{ borderColor: 'var(--border-color)', paddingLeft: '8.5px' }}
+                                    sx={{ borderColor: 'var(--border-color)', paddingLeft: '12px' }}
                                 >
                                     <Checkbox
-                                        indeterminate={selected.length > 0 && selected.length < benefitData.length}
+                                        indeterminate={
+                                            selected.length > 0 && selected.length < sysConfigurationData.length
+                                        }
                                         checked={
-                                            benefitData && selected.length > 0
-                                                ? selected.length === benefitData.length
+                                            sysConfigurationData && selected.length > 0
+                                                ? selected.length === sysConfigurationData.length
                                                 : false
                                         }
                                         onChange={handleSelectAllClick}
@@ -372,39 +395,11 @@ function BenefitPage() {
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <TableSortLabel
-                                        active={orderBy === 'BenefitTypeName'}
-                                        direction={orderBy === 'BenefitTypeName' ? order : 'asc'}
-                                        onClick={() => handleSort('BenefitTypeName')}
-                                        sx={{
-                                            '& .MuiTableSortLabel-icon': {
-                                                color: 'var(--text-color) !important'
-                                            },
-                                            width: '200px'
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                color: 'var(--text-color)',
-                                                fontSize: '16px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {t('COMMON.BENEFIT.TYPE_NAME')} {/* Cập nhật khóa dịch này */}
-                                        </Typography>
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell
-                                    sx={{ borderColor: 'var(--border-color)', minWidth: '49px', maxWidth: '60px' }}
-                                >
-                                    <TableSortLabel
-                                        active={orderBy === 'Name'}
-                                        direction={orderBy === 'Name' ? order : 'asc'}
-                                        onClick={() => handleSort('Name')}
+                                        active={'Key' === orderBy}
+                                        direction={orderBy === 'Key' ? order : 'asc'}
+                                        onClick={() => handleSort('Key')}
                                         sx={{
                                             '& .MuiTableSortLabel-icon': {
                                                 color: 'var(--text-color) !important'
@@ -417,15 +412,93 @@ function BenefitPage() {
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
                                                 overflow: 'hidden',
+                                                maxWidth: '260px',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {t('COMMON.BENEFIT.NAME')}
+                                            {t('COMMON.SYS_CONFIGURATION.KEY')}
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
-
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                    <TableSortLabel
+                                        active={'Type' === orderBy}
+                                        direction={orderBy === 'Type' ? order : 'asc'}
+                                        onClick={() => handleSort('Type')}
+                                        sx={{
+                                            '& .MuiTableSortLabel-icon': {
+                                                color: 'var(--text-color) !important'
+                                            }
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                maxWidth: '280px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {t('COMMON.SYS_CONFIGURATION.TYPE')}
+                                        </Typography>
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                    <TableSortLabel
+                                        active={'Value' === orderBy}
+                                        direction={orderBy === 'Value' ? order : 'asc'}
+                                        onClick={() => handleSort('Value')}
+                                        sx={{
+                                            '& .MuiTableSortLabel-icon': {
+                                                color: 'var(--text-color) !important'
+                                            }
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                maxWidth: '280px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {t('COMMON.SYS_CONFIGURATION.VALUE')}
+                                        </Typography>
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                    <TableSortLabel
+                                        active={'Description' === orderBy}
+                                        direction={orderBy === 'Description' ? order : 'asc'}
+                                        onClick={() => handleSort('Description')}
+                                        sx={{
+                                            '& .MuiTableSortLabel-icon': {
+                                                color: 'var(--text-color) !important'
+                                            }
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                color: 'var(--text-color)',
+                                                maxWidth: '400px',
+                                                fontSize: '16px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {t('COMMON.SYS_CONFIGURATION.DESCRIPTION')}
+                                        </Typography>
+                                    </TableSortLabel>
+                                </TableCell>
                                 <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <TableSortLabel
                                         active={'CreatedDate' === orderBy}
@@ -451,16 +524,15 @@ function BenefitPage() {
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <TableSortLabel
-                                        active={orderBy === 'CreatedBy'}
+                                        active={'CreatedBy' === orderBy}
                                         direction={orderBy === 'CreatedBy' ? order : 'asc'}
                                         onClick={() => handleSort('CreatedBy')}
                                         sx={{
                                             '& .MuiTableSortLabel-icon': {
                                                 color: 'var(--text-color) !important'
-                                            },
-                                            width: '150px'
+                                            }
                                         }}
                                     >
                                         <Typography
@@ -469,15 +541,23 @@ function BenefitPage() {
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
                                                 overflow: 'hidden',
+                                                maxWidth: '280px',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {t('Người tạo')}
+                                            {t('COMMON.SYS_CONFIGURATION.CREATED_BY')}
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
-                                <TableCell>
+
+                                <TableCell
+                                    sx={{
+                                        borderColor: 'var(--border-color)',
+                                        padding: '0px 11px 0px 0px',
+                                        width: '146px'
+                                    }}
+                                >
                                     <Typography
                                         sx={{
                                             fontWeight: 'bold',
@@ -486,124 +566,223 @@ function BenefitPage() {
                                             overflow: 'hidden',
                                             textAlign: 'center',
                                             textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            width: '150px'
+                                            whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {t('COMMON.BENEFIT.ACTION')}
+                                        {t('COMMON.SYS_CONFIGURATION.ACTION')}
                                     </Typography>
                                 </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {benefitData?.map(row => (
-                                <TableRow key={row.Id} selected={isSelected(row.Id)}>
-                                    <TableCell padding='checkbox'>
-                                        <Checkbox
-                                            checked={isSelected(row.Id)}
-                                            onChange={() => handleCheckboxClick(row.Id)}
-                                        />
-                                    </TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}>{row.Id}</TableCell>
-                                    <TableCell sx={{ width: '200px' }}>{row.NameOfBenefitType}</TableCell>
-                                    <TableCell>{row.Name}</TableCell>
-                                    <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                        <Typography
+                            {sysConfigurationData &&
+                                sysConfigurationData.map(row => (
+                                    <TableRow key={row.Id} selected={isSelected(row.Id)}>
+                                        <TableCell
+                                            padding='checkbox'
+                                            sx={{ borderColor: 'var(--border-color)', paddingLeft: '12px' }}
+                                        >
+                                            <Checkbox
+                                                checked={isSelected(row.Id)}
+                                                onChange={() => handleCheckboxClick(row.Id)}
+                                                sx={{
+                                                    color: 'var(--text-color)'
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell
                                             sx={{
-                                                color: 'var(--text-color)',
-                                                fontSize: '16px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
+                                                minWidth: '49px',
+                                                maxWidth: '60px',
+                                                borderColor: 'var(--border-color)'
                                             }}
                                         >
-                                            {formatDate(row.CreatedDate)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ width: '100px' }}>{row.CreatedBy}</TableCell>
-                                    <TableCell>
-                                        <Box
-                                            display='flex'
-                                            alignItems='center'
-                                            justifyContent='space-between'
-                                            gap='10px'
-                                            width={'150px'}
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.Id}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    maxWidth: '260px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.Key}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    maxWidth: '280px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.Type}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    overflow: 'hidden',
+                                                    maxWidth: '280px',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.Value}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    overflow: 'hidden',
+                                                    maxWidth: '400px',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.Description}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {formatDate(row.CreatedDate)}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                            <Typography
+                                                sx={{
+                                                    color: 'var(--text-color)',
+                                                    fontSize: '16px',
+                                                    overflow: 'hidden',
+                                                    maxWidth: '280px',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {row.CreateBy}
+                                            </Typography>
+                                        </TableCell>
+
+                                        <TableCell
+                                            sx={{
+                                                padding: '0px 12px 0px 0px',
+                                                borderColor: 'var(--border-color)',
+                                                width: '146px'
+                                            }}
                                         >
-                                            <Tooltip title={t('COMMON.BUTTON.VIEW_DETAIL')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: '#00d100',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
-                                                        }
-                                                    }}
-                                                >
-                                                    <EyeIcon />
-                                                </Box>
-                                            </Tooltip>
-                                            <Tooltip title={t('COMMON.BUTTON.EDIT')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: '#00d4ff',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
-                                                        }
-                                                    }}
-                                                    onClick={() => router.push(`/admin/benefit/update?id=${row.Id}`)}
-                                                >
-                                                    <Pencil />
-                                                </Box>
-                                            </Tooltip>
-                                            <Tooltip title={t('COMMON.BUTTON.DELETE')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: 'red',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
-                                                        }
-                                                    }}
-                                                    onClick={() => handleDeleteClick(row.Id)}
-                                                >
-                                                    <Trash2 />
-                                                </Box>
-                                            </Tooltip>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                            <Box display='flex' alignItems='center' justifyContent='center' gap='10px'>
+                                                <Tooltip title={t('COMMON.BUTTON.VIEW_DETAIL')}>
+                                                    <Box
+                                                        display='flex'
+                                                        alignItems='center'
+                                                        justifyContent='center'
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            color: '#00d100',
+                                                            borderRadius: '50%',
+                                                            width: '42px',
+                                                            height: '42px',
+                                                            '&:hover': {
+                                                                backgroundColor: 'var(--hover-color)'
+                                                            }
+                                                        }}
+                                                        onClick={() => handleClickDetail(row)}
+                                                    >
+                                                        <EyeIcon />
+                                                    </Box>
+                                                </Tooltip>
+                                                {menuLeft['Configuration'].IsAllowEdit && (
+                                                    <Tooltip title={t('COMMON.BUTTON.EDIT')}>
+                                                        <Box
+                                                            display='flex'
+                                                            alignItems='center'
+                                                            justifyContent='center'
+                                                            sx={{
+                                                                cursor: 'pointer',
+                                                                color: '#00d4ff',
+                                                                borderRadius: '50%',
+                                                                width: '42px',
+                                                                height: '42px',
+                                                                '&:hover': {
+                                                                    backgroundColor: 'var(--hover-color)'
+                                                                }
+                                                            }}
+                                                            onClick={() => handleButtonUpdateClick(row.Id)}
+                                                        >
+                                                            <Pencil />
+                                                        </Box>
+                                                    </Tooltip>
+                                                )}
+                                                {menuLeft['Configuration'].IsAllowDelete && (
+                                                    <Tooltip title={t('COMMON.BUTTON.DELETE')}>
+                                                        <Box
+                                                            display='flex'
+                                                            alignItems='center'
+                                                            justifyContent='center'
+                                                            sx={{
+                                                                cursor: 'pointer',
+                                                                color: 'red',
+                                                                borderRadius: '50%',
+                                                                width: '42px',
+                                                                height: '42px',
+                                                                '&:hover': {
+                                                                    backgroundColor: 'var(--hover-color)'
+                                                                }
+                                                            }}
+                                                            onClick={() => handleDeleteClick(row.Id)}
+                                                        >
+                                                            <Trash2 />
+                                                        </Box>
+                                                    </Tooltip>
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
-
-                <Box display='flex' alignItems='center' justifyContent='space-between' padding='15px'>
+                <Box display='flex' alignItems='center' justifyContent='space-between' padding='20px 24px'>
                     <Box display='flex' alignItems='center'>
-                        <Typography sx={{ mr: '10px' }}>{t('COMMON.PAGINATION.ROWS_PER_PAGE')}</Typography>
+                        <Typography sx={{ mr: '10px', color: 'var(--text-color)' }}>
+                            {t('COMMON.PAGINATION.ROWS_PER_PAGE')}
+                        </Typography>
                         <Select
                             id='select'
                             sx={{
                                 width: '71px',
                                 padding: '5px',
+                                borderRadius: '8px',
                                 color: 'var(--text-color)',
                                 '& .MuiSelect-icon': {
                                     color: 'var(--text-color)'
@@ -612,10 +791,10 @@ function BenefitPage() {
                                     borderColor: 'var(--border-color)'
                                 },
                                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'var(--hover-color)'
+                                    borderColor: 'var(--hover-field-color)'
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'var(--selected-color)'
+                                    borderColor: 'var(--selected-field-color)'
                                 },
                                 '& .MuiSelect-select': {
                                     padding: '6px 32px 6px 10px'
@@ -629,17 +808,26 @@ function BenefitPage() {
                                     elevation: 0,
                                     sx: {
                                         border: '1px solid var(--border-color)',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'var(--background-item)',
                                         '& .MuiList-root': {
-                                            backgroundColor: 'var(--background-color)',
+                                            borderRadius: '0px',
+                                            backgroundImage:
+                                                'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODYpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAgMS44MTgxMmUtMDUpIHJvdGF0ZSgtNDUpIHNjYWxlKDEyMy4yNSkiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMDBCOEQ5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwQjhEOSIgc3RvcC1vcGFjaXR5PSIwIi8+CjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODcpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K)',
+                                            backgroundPosition: 'top right, bottom left',
+                                            backgroundSize: '50%, 50%',
+                                            backgroundRepeat: 'no-repeat',
+                                            backdropFilter: 'blur(20px)',
+                                            backgroundColor: 'var(--background-item)',
                                             padding: '5px',
                                             '& .MuiMenuItem-root': {
                                                 color: 'var(--text-color)',
-                                                borderRadius: '4px',
+                                                borderRadius: '6px',
                                                 '&:hover': {
-                                                    backgroundColor: 'var(--hover-color)'
+                                                    backgroundColor: 'var(--hover-color) !important'
                                                 },
                                                 '&.Mui-selected': {
-                                                    backgroundColor: 'var(--selected-color)'
+                                                    backgroundColor: 'var(--background-selected-item)'
                                                 }
                                             }
                                         }
@@ -647,13 +835,21 @@ function BenefitPage() {
                                 }
                             }}
                         >
-                            {[1, 2, 3, 4, 5, 10, 20, 30, 40].map(value => (
-                                <MenuItem key={value} value={value}>
-                                    {value}
-                                </MenuItem>
-                            ))}
+                            <MenuItem sx={{ marginBottom: '3px' }} value={5}>
+                                5
+                            </MenuItem>
+                            <MenuItem sx={{ marginBottom: '3px' }} value={10}>
+                                10
+                            </MenuItem>
+                            <MenuItem sx={{ marginBottom: '3px' }} value={20}>
+                                20
+                            </MenuItem>
+                            <MenuItem sx={{ marginBottom: '3px' }} value={30}>
+                                30
+                            </MenuItem>
+                            <MenuItem value={40}>40</MenuItem>
                         </Select>
-                        <Typography sx={{ ml: '30px' }}>
+                        <Typography sx={{ ml: '30px', color: 'var(--text-color)' }}>
                             {t('COMMON.PAGINATION.FROM_TO', { from, to, totalRecords })}
                         </Typography>
                     </Box>
@@ -671,12 +867,13 @@ function BenefitPage() {
                                 color: 'var(--text-color)',
                                 borderColor: 'var(--border-color)',
                                 '&.Mui-selected': {
-                                    backgroundColor: 'var(--selected-color)',
+                                    backgroundColor: 'var(--background-selected-item) ',
+                                    borderColor: 'var(--background-selected-item) ',
                                     color: 'var(--text-color)'
                                 },
                                 '&:hover': {
-                                    backgroundColor: 'var(--hover-color)',
-                                    borderColor: 'var(--hover-color)'
+                                    backgroundColor: 'var(--hover-color) !important',
+                                    borderColor: 'var(--hover-color) !important'
                                 }
                             }
                         }}
@@ -693,10 +890,14 @@ function BenefitPage() {
                 setOpen={setOpenDialog}
                 buttonCancel={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CANCEL')}
                 buttonConfirm={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.DELETE')}
-                onConfirm={() => (isChangeMany ? handleConfirmChangeMany() : handleDeleteBenefit())}
+                onConfirm={() => (isChangeMany ? handleDeleteManySysConfiguration() : handleDeleteSysConfiguration())}
             />
+
+            {selectedConfig && (
+                <DetailModal handleToggle={() => setOpenModal(false)} open={openModal} configuration={selectedConfig} />
+            )}
         </Box>
     )
 }
 
-export default BenefitPage
+export default ConfigurationPage

@@ -1,5 +1,5 @@
 //import { IRewardGetAll } from "@/models/Reward";
-import { IFilterSysConfiguration } from '@/models/SysConfiguration'
+import { IFilterReward } from '@/models/Reward'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { createBaseQuery } from './api'
 import { ICreateDiscipline, IUpdateDiscipline } from '@/models/Discipline'
@@ -15,7 +15,7 @@ export const disciplineApi = createApi({
     baseQuery: createBaseQuery(apiPath),
     tagTypes: ['Discipline'],
     endpoints: builder => ({
-        createBenefit: builder.mutation<void, ICreateDiscipline>({
+        createDiscipline: builder.mutation<void, ICreateDiscipline>({
             query: benefit => ({
                 url: 'Create',
                 method: 'POST',
@@ -24,43 +24,47 @@ export const disciplineApi = createApi({
             invalidatesTags: ['Discipline']
         }),
 
-        ChangeStatusBenefit: builder.mutation<void, string>({
+        changeStatusDiscipline: builder.mutation<void, number>({
             query: id => ({
                 url: `ChangeStatus/${id}`,
                 method: 'PUT'
             })
         }),
-        updateBenefit: builder.mutation<void, IUpdateDiscipline>({
-            query: benefit => ({
+        updateIsPenalized: builder.mutation<void, number>({
+            query: id => ({
+                url: `UpdateIsPenalized?Id=${id}`,
+                method: 'PUT'
+            })
+        }),
+        updateDiscipline: builder.mutation<void, IUpdateDiscipline>({
+            query: body => ({
                 url: 'Update',
                 method: 'PUT',
-                body: benefit
+                body: body
             }),
             invalidatesTags: ['Discipline']
         }),
-        ChangeStatusManyBenefit: builder.mutation<void, string[]>({
+        ChangeStatusManyDiscipline: builder.mutation<void, string[]>({
             query: ids => ({
                 url: `ChangeStatusMany`,
                 method: 'PUT',
                 body: { Ids: ids }
             })
         }),
-        GetByIdBenefit: builder.query<DisciplineResponse, string>({
+        GetByIdDiscipline: builder.query<DisciplineResponse, number>({
             query: id => `GetById?id=${id}`
         }),
-        getAllDisciplines: builder.query<DisciplineResponse, IFilterSysConfiguration>({
+        getAllDisciplines: builder.query<DisciplineResponse, IFilterReward>({
             query: filter => {
                 const params = new URLSearchParams()
 
                 if (filter) {
-                    if (filter.createdBy) params.append('CreatedBy', filter.createdBy)
-                    if (filter.createdDate) params.append('CreatedDate', filter.createdDate.toDateString())
                     if (filter.pageSize) params.append('PageSize', filter.pageSize.toString())
                     if (filter.pageNumber) params.append('PageNumber', filter.pageNumber.toString())
-                    if (filter.isActive !== undefined) params.append('IsActive', filter.isActive.toString())
                     if (filter.keyword) params.append('Keyword', filter.keyword)
                     if (filter.isDescending !== undefined) params.append('IsDescending', filter.isDescending.toString())
                     if (filter.sortBy) params.append('SortBy', filter.sortBy)
+                    if (filter.department) params.append('Department', filter.department)
                 }
 
                 return `Search?${params.toString()}`
@@ -72,9 +76,10 @@ export const disciplineApi = createApi({
 
 export const {
     useGetAllDisciplinesQuery,
-    useChangeStatusBenefitMutation,
-    useCreateBenefitMutation,
-    useChangeStatusManyBenefitMutation,
-    useGetByIdBenefitQuery,
-    useUpdateBenefitMutation
+    useCreateDisciplineMutation,
+    useChangeStatusDisciplineMutation,
+    useChangeStatusManyDisciplineMutation,
+    useGetByIdDisciplineQuery,
+    useUpdateDisciplineMutation,
+    useUpdateIsPenalizedMutation
 } = disciplineApi
