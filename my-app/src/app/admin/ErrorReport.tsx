@@ -1,5 +1,5 @@
 'use client'
-import { IFilterEmploymentContract } from '@/models/EmploymentContract'
+
 import {
     Box,
     Select,
@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import SearchIcon from '@mui/icons-material/Search'
 import { useRouter } from 'next/navigation'
 import TableErrorReport from '@/components/TableErrorReport'
-
+import { useSearchErrorReportQuery } from '@/services/ErrorReportService'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 
@@ -30,157 +30,31 @@ function a11yProps(index: number) {
 }
 
 interface IGetAllErrorReport {
-    Id: number
-    FullNameReported: string
-    AvatarReportedPath: string
-    EmployeeIdReported: string
-    ReportedDate: string
-    Type: string
-    TypeId: string
-    Description: string
-    Status: string
-    AvatarResolvedPath: string
-    FullNameResolved: string | null
-    ResolvedDate: string | null
+    Id: number | null
+    ReportedBy: string | null
+    ReportedDate: Date
+    Type: number | null
+    TypeId: string | null
+    Description: string | null
+    Status: string | null
+    ResolvedBy: string | null
+    ResolvedDate: Date | null
     ResolutionDetails: string | null
+    ReportedFullName: string | null
+    ReportedId: string | null
+    ReportedAvatarPath: string | null
+    ResolvedFullName: string | null
+    ResolvedId: string | null
+    ResolvedAvatarPath: string | null
 }
 
-const responseData = {
-    Data: {
-        TotalRecords: 10,
-        Records: [
-            {
-                Id: 1,
-                FullNameReported: 'Lê Xuân Nam',
-                EmployeeIdReported: 'CC-001',
-                ReportedDate: '2024-11-27 00:00:00.0000000',
-                Type: 'Salary',
-                TypeId: 'S0001',
-                Description: 'Bảng lương sai',
-                Status: 'Rejected',
-                FullNameResolved: 'Nguyen Van D',
-                ResolvedDate: '2024-11-27',
-                ResolutionDetails: null
-            },
-            {
-                Id: 2,
-                FullNameReported: 'Nguyễn Văn Thành',
-                EmployeeIdReported: 'CC-002',
-                ReportedDate: '2024-11-28 00:00:00.0000000',
-                Type: 'Benefit',
-                TypeId: 'L0001',
-                Description: 'Sai thông tin phép năm',
-                Status: 'Pending',
-                FullNameResolved: null,
-                ResolvedDate: null,
-                ResolutionDetails: null
-            },
-            {
-                Id: 3,
-                FullNameReported: 'Trần Thị Hải Yến',
-                EmployeeIdReported: 'CC-003',
-                ReportedDate: '2024-11-29 00:00:00.0000000',
-                Type: 'Discipline',
-                TypeId: 'O0001',
-                Description: 'Tăng ca không được tính',
-                Status: 'In Progress',
-                FullNameResolved: 'Nguyen Van D',
-                ResolvedDate: '2024-12-01 00:00:00.0000000',
-                ResolutionDetails: 'Đã cập nhật dữ liệu tăng ca'
-            },
-            {
-                Id: 4,
-                FullNameReported: 'Lê Văn Việt',
-                EmployeeIdReported: 'CC-004',
-                ReportedDate: '2024-11-30 00:00:00.0000000',
-                Type: 'Salary',
-                TypeId: 'S0002',
-                Description: 'Thưởng Tết không đúng',
-                Status: 'Pending',
-                FullNameResolved: null,
-                ResolvedDate: null,
-                ResolutionDetails: null
-            },
-            {
-                Id: 5,
-                FullNameReported: 'Nguyễn Trọng Tất Thành',
-                EmployeeIdReported: 'CC-005',
-                ReportedDate: '2024-12-01 00:00:00.0000000',
-                Type: 'Reward',
-                TypeId: 'L0002',
-                Description: 'Đăng ký nghỉ nhưng không được duyệt',
-                Status: 'Resolved',
-                FullNameResolved: 'Nguyen Van G',
-                ResolvedDate: '2024-12-03 00:00:00.0000000',
-                ResolutionDetails: 'Đã xử lý phê duyệt nghỉ'
-            },
-            {
-                Id: 6,
-                FullNameReported: 'Lê Minh Vũ Nam',
-                EmployeeIdReported: 'CC-006',
-                ReportedDate: '2024-12-02 00:00:00.0000000',
-                Type: 'Timekeeping',
-                TypeId: 'O0002',
-                Description: 'Sai số giờ tăng ca',
-                Status: 'Pending',
-                FullNameResolved: null,
-                ResolvedDate: null,
-                ResolutionDetails: null
-            },
-            {
-                Id: 7,
-                FullNameReported: 'Trần Thị Tuyết Phương',
-                EmployeeIdReported: 'CC-007',
-                ReportedDate: '2024-12-03 00:00:00.0000000',
-                Type: 'Salary',
-                TypeId: 'S0003',
-                Description: 'Chưa nhận được lương tháng 11',
-                Status: 'In Progress',
-                FullNameResolved: null,
-                ResolvedDate: null,
-                ResolutionDetails: null
-            },
-            {
-                Id: 8,
-                FullNameReported: 'Nguyen Thi K',
-                EmployeeIdReported: 'CC-008',
-                ReportedDate: '2024-12-04 00:00:00.0000000',
-                Type: 'Insurance',
-                TypeId: 'L0003',
-                Description: 'Ngày phép bị trừ sai',
-                Status: 'Resolved',
-                FullNameResolved: 'Pham Van L',
-                ResolvedDate: '2024-12-05 00:00:00.0000000',
-                ResolutionDetails: 'Đã điều chỉnh ngày phép'
-            },
-            {
-                Id: 9,
-                FullNameReported: 'Hoang Thi M',
-                EmployeeIdReported: 'CC-009',
-                ReportedDate: '2024-12-05 00:00:00.0000000',
-                Type: 'Contract',
-                TypeId: 'O0003',
-                Description: 'Tăng ca bị thiếu tiền',
-                Status: 'Rejected',
-                FullNameResolved: 'Nguyen Van D',
-                ResolvedDate: '2024-11-27',
-                ResolutionDetails: null
-            },
-            {
-                Id: 10,
-                FullNameReported: 'Le Van N',
-                EmployeeIdReported: 'CC-010',
-                ReportedDate: '2024-12-06 00:00:00.0000000',
-                Type: 'All',
-                TypeId: 'S0004',
-                Description: 'Sai bậc lương',
-                Status: 'Pending',
-                FullNameResolved: null,
-                ResolvedDate: null,
-                ResolutionDetails: null
-            }
-        ]
-    }
+interface IFilter {
+    pageSize?: number
+    pageNumber?: number
+    sortBy?: string
+    isDescending?: boolean
+    keyword?: string
+    isType?: string
 }
 
 function ContractExpPage() {
@@ -191,10 +65,11 @@ function ContractExpPage() {
     const [rowsPerPage, setRowsPerPage] = useState('5')
     const [from, setFrom] = useState(1)
     const [to, setTo] = useState(5)
-    const [filter, setFilter] = useState<IFilterEmploymentContract>({
+    const [typeNotification, setTypeNotification] = useState('COMMON.NOTIFICATION_TYPE.PUBLIC')
+
+    const [filter, setFilter] = useState<IFilter>({
         pageSize: 5,
-        pageNumber: 1,
-        daysUntilExpiration: 60
+        pageNumber: 1
     })
     const [keyword, setKeyword] = useState('')
     const [openDialog, setOpenDialog] = useState(false)
@@ -211,13 +86,40 @@ function ContractExpPage() {
     //     setOpenModal(true)
     // }
 
+    const { data: responseData, isFetching, refetch } = useSearchErrorReportQuery(filter)
+    const errorsData = responseData?.Data?.Records as IGetAllErrorReport[]
+
+    const handleSort = (property: string) => {
+        setFilter(prev => ({
+            ...prev,
+            sortBy: property,
+            isDescending: orderBy === property && order === 'asc'
+        }))
+        if (orderBy === property) {
+            setOrder(order === 'asc' ? 'desc' : 'asc')
+        } else {
+            setOrder('asc')
+        }
+        setOrderBy(property)
+        refetch() // Gọi lại query khi sắp xếp thay đổi
+    }
+
+    const handleIsType = (uniqueType: string) => {
+        setFilter(prev => {
+            return {
+                ...prev,
+                isType: uniqueType === 'COMMON.NOTIFICATION_TYPE.PUBLIC' ? null : uniqueType
+            }
+        })
+        setTypeNotification(uniqueType)
+    }
+
     useEffect(() => {}, [
         router,
         page,
         rowsPerPage,
         from,
         to,
-        filter,
         selected,
         openDialog,
         selectedRow,
@@ -233,8 +135,6 @@ function ContractExpPage() {
         setOrderBy,
         setOpenModal
     ])
-
-    const errorsData = responseData?.Data.Records as IGetAllErrorReport[]
 
     const totalRecords = (responseData?.Data.TotalRecords as number) || 0
 
@@ -271,33 +171,15 @@ function ContractExpPage() {
         })
     }
 
-    // useEffect(() => {
-    //     if (!isFetching && responseData?.Data) {
-    //         const from = (page - 1) * Number(rowsPerPage) + Math.min(1, errorsData.length)
-    //         setFrom(from)
+    useEffect(() => {
+        if (!isFetching && responseData?.Data) {
+            const from = (page - 1) * Number(rowsPerPage) + Math.min(1, errorsData.length)
+            setFrom(from)
 
-    //         const to = Math.min(errorsData.length + (page - 1) * Number(rowsPerPage), totalRecords)
-    //         setTo(to)
-    //     }
-    // }, [isFetching, responseData, page, rowsPerPage])
-
-    // useEffect(() => {
-    //     refetch()
-    // }, [filter])
-
-    // const handleSort = (property: string) => {
-    //     setFilter(prev => ({
-    //         ...prev,
-    //         sortBy: property,
-    //         isDescending: orderBy === property && order === 'asc' ? true : false
-    //     }))
-    //     if (orderBy === property) {
-    //         setOrder(order === 'asc' ? 'desc' : 'asc')
-    //     } else {
-    //         setOrder('asc')
-    //     }
-    //     setOrderBy(property)
-    // }
+            const to = Math.min(errorsData.length + (page - 1) * Number(rowsPerPage), totalRecords)
+            setTo(to)
+        }
+    }, [isFetching, responseData, page, rowsPerPage])
 
     const [currentTab, setCurrentTab] = useState(0)
 
@@ -307,13 +189,13 @@ function ContractExpPage() {
             case 0: // All
                 return errorsData
             case 1: // Pending
-                return errorsData.filter(item => item.Status === 'Pending')
+                return errorsData.filter(item => item.Status === '0')
             case 2: // In Progress
-                return errorsData.filter(item => item.Status === 'In Progress')
+                return errorsData.filter(item => item.Status === '1')
             case 3: // Resolved
-                return errorsData.filter(item => item.Status === 'Resolved')
+                return errorsData.filter(item => item.Status === '2')
             case 4: // Rejected
-                return errorsData.filter(item => item.Status === 'Rejected')
+                return errorsData.filter(item => item.Status === '3')
             default:
                 return errorsData
         }
@@ -321,11 +203,11 @@ function ContractExpPage() {
 
     const counts = useMemo(
         () => ({
-            0: errorsData.length,
-            1: errorsData.filter(item => item.Status === 'Pending').length,
-            2: errorsData.filter(item => item.Status === 'In Progress').length,
-            3: errorsData.filter(item => item.Status === 'Resolved').length,
-            4: errorsData.filter(item => item.Status === 'Rejected').length
+            0: errorsData?.length ?? 0,
+            1: errorsData?.filter(item => item.Status === '0').length ?? 0,
+            2: errorsData?.filter(item => item.Status === '1').length ?? 0,
+            3: errorsData?.filter(item => item.Status === '2').length ?? 0,
+            4: errorsData?.filter(item => item.Status === '3').length ?? 0
         }),
         [errorsData]
     )
@@ -640,12 +522,8 @@ function ContractExpPage() {
                         </InputLabel>
                         <Select
                             labelId='select-label'
-                            // open={openSelectType}
-                            // onClose={handleCloseSelectType}
-                            // onOpen={handleOpenSelectType}
-                            // value={typeNotification}
-                            // onChange={handleChange}
                             label={t('COMMON.CREATE_NOTIFICATION.TYPE')}
+                            value={typeNotification || t('COMMON.NOTIFICATION_TYPE.PUBLIC')}
                             autoFocus={false}
                             sx={{
                                 height: '53px',
@@ -698,21 +576,33 @@ function ContractExpPage() {
                                     autoFocus: false
                                 }
                             }}
+                            onChange={e => handleIsType(e.target.value as string)}
                         >
-                            <MenuItem value={'Public'}>{t('COMMON.NOTIFICATION_TYPE.PUBLIC')}</MenuItem>
-                            <MenuItem value={'Benefit'}>{t('COMMON.NOTIFICATION_TYPE.BENEFIT')}</MenuItem>
-                            <MenuItem value={'Salary'}>{t('COMMON.NOTIFICATION_TYPE.SALARY')}</MenuItem>
-                            <MenuItem value={'Reward'}>{t('COMMON.NOTIFICATION_TYPE.REWARD')}</MenuItem>
-                            <MenuItem value={'Insurance'}>{t('COMMON.NOTIFICATION_TYPE.INSURANCE')}</MenuItem>
-                            <MenuItem value={'Holiday'}>{t('COMMON.NOTIFICATION_TYPE.HOLIDAY')}</MenuItem>
-                            <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.DISCIPLINE')}</MenuItem>
-                            <MenuItem value={'Timekeeping'}>{t('COMMON.NOTIFICATION_TYPE.TIMEKEEPING')}</MenuItem>
+                            {[
+                                {
+                                    value: 'COMMON.NOTIFICATION_TYPE.PUBLIC',
+                                    label: t('COMMON.NOTIFICATION_TYPE.PUBLIC')
+                                },
+                                ...[...new Set(errorsData?.map(type => type.Type))].map(uniqueType => ({
+                                    value: uniqueType || '',
+                                    label: t(String(uniqueType))
+                                }))
+                            ].map(({ value, label }) => (
+                                <MenuItem key={value} value={value}>
+                                    {label}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Box>
             </Box>
 
-            <TableErrorReport errorsData={filteredData} totalRecords={totalRecords} type={currentTab} />
+            <TableErrorReport
+                errorsData={filteredData}
+                totalRecords={totalRecords}
+                type={currentTab}
+                onSort={handleSort}
+            />
 
             <Box display='flex' alignItems='center' justifyContent='space-between' padding='24px'>
                 <Box display='flex' alignItems='center'>

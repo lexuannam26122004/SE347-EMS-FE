@@ -36,14 +36,14 @@ function DetailModal({ open, handleToggle, configuration }: Props) {
                     left: '50%',
                     backgroundColor: 'var(--background-color)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
+                    borderRadius: '15px',
                     overflow: 'hidden',
                     transform: 'translate(-50%, -50%)'
                 }}
             >
                 <Box
                     sx={{
-                        paddingBlock: 1.4,
+                        paddingBlock: 1.6,
                         paddingInline: 9,
                         display: 'flex',
                         alignItems: 'center',
@@ -91,7 +91,7 @@ function DetailModal({ open, handleToggle, configuration }: Props) {
 
                 <TableContainer
                     sx={{
-                        padding: '10px 3px 10px 10px',
+                        padding: '20px 17px 20px 24px',
                         maxHeight: '80vh',
                         scrollbarGutter: 'stable',
                         '&::-webkit-scrollbar': {

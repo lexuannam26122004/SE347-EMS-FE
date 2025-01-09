@@ -20,7 +20,7 @@ const SaleByGenderChart = () => {
 
     const option = {
         title: {
-            text: `${t('COMMON.DASHBOARD.SUM_EMPLOYEE')} ${ages?.LessThan32 + ages?.Between32And45 + ages?.GreaterThan45}`, // Hiển thị tổng số nhân viên
+            text: `${t('COMMON.DASHBOARD.SUM_EMPLOYEE')} 28`, // Hiển thị tổng số nhân viên
             left: 'center', // Căn giữa tiêu đề
             top: '42px',
             textStyle: {
