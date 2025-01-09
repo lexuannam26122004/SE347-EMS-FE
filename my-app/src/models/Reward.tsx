@@ -18,6 +18,15 @@ export interface ICreateReward {
     Money?: number
 }
 
+export interface IFilterReward {
+    department?: string
+    keyword?: string
+    pageSize?: number
+    pageNumber?: number
+    sortBy?: string
+    isDescending?: boolean
+}
+
 export interface IUpdateReward extends ICreateReward {
     Id: number
 }
