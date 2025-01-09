@@ -26,6 +26,18 @@ import { AuthApi } from '@/services/AuthService'
 import { authSlice } from './slices/authSlice'
 import { disciplineApi } from '@/services/DisciplineService'
 import { messageApi } from '@/services/MessageService'
+import { ErrorReportApi } from '@/services/ErrorReportService'
+import { userNotificationsApi } from '@/services/UserNotificationsService'
+import { userSalaryApi } from '@/services/UserSalaryService'
+import { userAttendanceApi } from '@/services/UserAttendanceService'
+import { userErrorReportApi } from '@/services/UserErrorReportService'
+import { userTimeOffApi } from '@/services/UserTimeOffService'
+import { JobHistoryApi } from '@/services/JobHistoryService'
+import { userJobHistoryApi } from '@/services/UserJobHistoryService'
+import { userRewardApi } from '@/services/UserRewardService'
+import { userDisciplineApi } from '@/services/UserDisciplineService'
+
+import { userEmploymentContractApi } from '@/services/UserEmploymentContractService'
 
 export const store = configureStore({
     reducer: {
@@ -55,7 +67,18 @@ export const store = configureStore({
         [rewardApi.reducerPath]: rewardApi.reducer,
         [AuthApi.reducerPath]: AuthApi.reducer,
         [authSlice.name]: authSlice.reducer,
-        [disciplineApi.reducerPath]: disciplineApi.reducer
+        [ErrorReportApi.reducerPath]: ErrorReportApi.reducer,
+        [disciplineApi.reducerPath]: disciplineApi.reducer,
+        [userNotificationsApi.reducerPath]: userNotificationsApi.reducer,
+        [userSalaryApi.reducerPath]: userSalaryApi.reducer,
+        [userAttendanceApi.reducerPath]: userAttendanceApi.reducer,
+        [userErrorReportApi.reducerPath]: userErrorReportApi.reducer,
+        [userTimeOffApi.reducerPath]: userTimeOffApi.reducer,
+        [JobHistoryApi.reducerPath]: JobHistoryApi.reducer,
+        [userJobHistoryApi.reducerPath]: userJobHistoryApi.reducer,
+        [userRewardApi.reducerPath]: userRewardApi.reducer,
+        [userDisciplineApi.reducerPath]: userDisciplineApi.reducer,
+        [userEmploymentContractApi.reducerPath]: userEmploymentContractApi.reducer
     },
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware().concat(
@@ -76,7 +99,19 @@ export const store = configureStore({
             rewardApi.middleware,
             disciplineApi.middleware,
             AuthApi.middleware,
-            messageApi.middleware
+            ErrorReportApi.middleware,
+            AuthApi.middleware,
+            messageApi.middleware,
+            userNotificationsApi.middleware,
+            userSalaryApi.middleware,
+            userAttendanceApi.middleware,
+            userErrorReportApi.middleware,
+            userTimeOffApi.middleware,
+            JobHistoryApi.middleware,
+            userJobHistoryApi.middleware,
+            userRewardApi.middleware,
+            userDisciplineApi.middleware,
+            userEmploymentContractApi.middleware
         )
 })
 
