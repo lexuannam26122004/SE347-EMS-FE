@@ -23,6 +23,11 @@ export const departmentApi = createApi({
             }),
             invalidatesTags: ['Department']
         }),
+
+        getByIdDepartment: builder.query<DepartmentResponse, number>({
+            query: id => `GetById?id=${id}`
+        }),
+
         updateDepartment: builder.mutation<void, IDepartmentUpdate>({
             query: department => ({
                 url: 'Update',
@@ -81,6 +86,7 @@ export const departmentApi = createApi({
 
 export const {
     useGetAllDepartmentQuery,
+    useGetByIdDepartmentQuery,
     useCreateDepartmentMutation,
     useUpdateDepartmentMutation,
     useDeleteDepartmentMutation,

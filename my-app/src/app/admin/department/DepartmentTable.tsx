@@ -6,6 +6,7 @@ import {
     useChangeStatusMutation,
     useGetAllDepartmentQuery
 } from '@/services/DepartmentService'
+import Loading from '@/components/Loading'
 import {
     Box,
     Typography,
@@ -27,7 +28,7 @@ import {
     MenuItem,
     Pagination
 } from '@mui/material'
-import { CirclePlus, EyeIcon, Pencil, Trash2 } from 'lucide-react'
+import { CirclePlus, Pencil, Trash2 } from 'lucide-react'
 import SearchIcon from '@mui/icons-material/Search'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -58,11 +59,11 @@ function DepartmentTable() {
         isDescending: false
     })
 
-    const { data: responseData, isFetching, refetch } = useGetAllDepartmentQuery(filter)
-    const [deleteBenefit, { isSuccess: isSuccessDelete }] = useChangeStatusMutation()
+    const { data: responseData, isFetching, refetch, isLoading: LoadingDepartment } = useGetAllDepartmentQuery(filter)
+    const [deleteDepartment, { isSuccess: isSuccessDelete }] = useChangeStatusMutation()
 
     const [isSuccess] = useState(false)
-    const [changeManyBenefit] = useChangeStatusManyDepartmentMutation()
+    const [changeManyDepartment] = useChangeStatusManyDepartmentMutation()
 
     const departmentdata = responseData?.Data.Records as IDepartmentGetAll[]
     const totalRecords = responseData?.Data.TotalRecords as number
@@ -132,9 +133,9 @@ function DepartmentTable() {
         setOpenDialog(true)
     }
 
-    const handleChangeStatusManyBenefit = async () => {
+    const handleChangeStatusManyDepartment = async () => {
         if (selected.length > 0) {
-            await changeManyBenefit(selected)
+            await changeManyDepartment(selected)
             setIsChangeMany(false)
             setSelected([])
             setOpenDialog(false)
@@ -142,13 +143,13 @@ function DepartmentTable() {
     }
 
     const handleConfirmChangeMany = async () => {
-        await handleChangeStatusManyBenefit()
+        await handleChangeStatusManyDepartment()
         refetch()
     }
 
-    const handleDeleteBenefit = async () => {
+    const handleDeleteDepartment = async () => {
         if (selectedRow) {
-            await deleteBenefit(selectedRow)
+            await deleteDepartment(selectedRow)
             if (isSelected(selectedRow)) {
                 setSelected(prev => prev.filter(item => item !== selectedRow))
             }
@@ -180,6 +181,8 @@ function DepartmentTable() {
     }
 
     const countRows = selected.length
+
+    if (LoadingDepartment) return <Loading />
 
     return (
         <Box>
@@ -383,6 +386,7 @@ function DepartmentTable() {
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
+
                                 <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <TableSortLabel
                                         active={orderBy === 'DepartmentHeadName'}
@@ -400,7 +404,34 @@ function DepartmentTable() {
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
                                                 overflow: 'hidden',
-                                                maxWidth: '260px',
+
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {t('Mã trưởng phòng')}
+                                        </Typography>
+                                    </TableSortLabel>
+                                </TableCell>
+
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                    <TableSortLabel
+                                        active={orderBy === 'DepartmentHeadEmployeeId'}
+                                        direction={orderBy === 'DepartmentHeadEmployeeId' ? order : 'asc'}
+                                        onClick={() => handleSort('DepartmentHeadEmployeeId')}
+                                        sx={{
+                                            '& .MuiTableSortLabel-icon': {
+                                                color: 'var(--text-color) !important'
+                                            }
+                                        }}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                overflow: 'hidden',
+
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
@@ -427,7 +458,7 @@ function DepartmentTable() {
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
                                                 overflow: 'hidden',
-                                                maxWidth: '260px',
+
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
@@ -444,8 +475,7 @@ function DepartmentTable() {
                                         sx={{
                                             '& .MuiTableSortLabel-icon': {
                                                 color: 'var(--text-color) !important'
-                                            },
-                                            width: '150px'
+                                            }
                                         }}
                                     >
                                         <Typography
@@ -454,7 +484,7 @@ function DepartmentTable() {
                                                 color: 'var(--text-color)',
                                                 fontSize: '16px',
                                                 overflow: 'hidden',
-                                                maxWidth: '260px',
+
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
                                             }}
@@ -512,7 +542,6 @@ function DepartmentTable() {
                                     </TableCell>
                                     <TableCell
                                         sx={{
-                                            width: '200px',
                                             color: 'var(--text-color)',
                                             fontSize: '16px',
                                             overflow: 'hidden',
@@ -523,18 +552,37 @@ function DepartmentTable() {
                                     >
                                         {row.Name}
                                     </TableCell>
-                                    <TableCell
-                                        sx={{
-                                            color: 'var(--text-color)',
-                                            fontSize: '16px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            borderColor: 'var(--border-color)'
-                                        }}
-                                    >
-                                        {row.DepartmentHeadName}
+
+                                    <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                        <Typography
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                borderColor: 'var(--border-color)'
+                                            }}
+                                        >
+                                            {row.DepartmentHeadName}
+                                        </Typography>
                                     </TableCell>
+
+                                    <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                        <Typography
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                borderColor: 'var(--border-color)'
+                                            }}
+                                        >
+                                            {row.DepartmentHeadEmployeeId}
+                                        </Typography>
+                                    </TableCell>
+
                                     <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                         <Typography
                                             sx={{
@@ -551,7 +599,6 @@ function DepartmentTable() {
                                     </TableCell>
                                     <TableCell
                                         sx={{
-                                            width: '100px',
                                             color: 'var(--text-color)',
                                             fontSize: '16px',
                                             overflow: 'hidden',
@@ -564,31 +611,11 @@ function DepartmentTable() {
                                     </TableCell>
                                     <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                         <Box
+                                            textAlign='center'
                                             display='flex'
-                                            alignItems='center'
-                                            justifyContent='space-between'
-                                            gap='10px'
-                                            width={'150px'}
+                                            //alignItems='center'
+                                            //justifyContent='space-between'
                                         >
-                                            <Tooltip title={t('COMMON.BUTTON.VIEW_DETAIL')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: '#00d100',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
-                                                        }
-                                                    }}
-                                                >
-                                                    <EyeIcon />
-                                                </Box>
-                                            </Tooltip>
                                             <Tooltip title={t('COMMON.BUTTON.EDIT')}>
                                                 <Box
                                                     display='flex'
@@ -604,7 +631,7 @@ function DepartmentTable() {
                                                             backgroundColor: 'var(--hover-color)'
                                                         }
                                                     }}
-                                                    //onClick={() => handleUpdate(row)}
+                                                    onClick={() => router.push(`/admin/department/update?id=${row.Id}`)}
                                                 >
                                                     <Pencil />
                                                 </Box>
@@ -754,7 +781,7 @@ function DepartmentTable() {
                 setOpen={setOpenDialog}
                 buttonCancel={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CANCEL')}
                 buttonConfirm={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.DELETE')}
-                onConfirm={() => (isChangeMany ? handleConfirmChangeMany() : handleDeleteBenefit())}
+                onConfirm={() => (isChangeMany ? handleConfirmChangeMany() : handleDeleteDepartment())}
             />
         </Box>
     )

@@ -223,7 +223,7 @@ function DepartmentInfo() {
                                     mt: '7px'
                                 }}
                             >
-                                {t('thành viên')}
+                                {t('Thành viên')}
                             </Typography>
                         </Box>
                     </Paper>

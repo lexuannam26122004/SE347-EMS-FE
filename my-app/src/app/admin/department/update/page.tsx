@@ -2,15 +2,18 @@
 import { Autocomplete, Avatar, Box, Button, Paper, TextField, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { SaveIcon, XIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useCreateDepartmentMutation } from '@/services/DepartmentService'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useToast } from '@/hooks/useToast'
 import { useGetAllUsersQuery } from '@/services/AspNetUserService'
 import { IAspNetUserGetAll } from '@/models/AspNetUser'
 import { IDepartmentGetAll } from '@/models/Department'
-import { useGetAllDepartmentQuery } from '@/services/DepartmentService'
+import {
+    useGetAllDepartmentQuery,
+    useUpdateDepartmentMutation,
+    useGetByIdDepartmentQuery
+} from '@/services/DepartmentService'
 import Loading from '@/components/Loading'
 
 function CreateConfigurationPage() {
@@ -21,14 +24,28 @@ function CreateConfigurationPage() {
     const toast = useToast()
     const [isSubmit, setIsSubmit] = useState(false)
 
-    const [createDepartment, { isSuccess, isLoading, isError }] = useCreateDepartmentMutation()
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id') ? parseInt(searchParams.get('id') as string) : 0
+    const { data: response, isFetching: isFetchingGetById, refetch: fetch } = useGetByIdDepartmentQuery(id)
+
+    const data = response?.Data
+    useEffect(() => {
+        if (!isFetchingGetById && data) {
+            setName(data.Name || '')
+            setDepartmentHeadId(data.DepartmentHeadId || '')
+        }
+    }, [data, isFetchingGetById])
+
+    const [update, { isSuccess, isError, reset, isLoading }] = useUpdateDepartmentMutation()
 
     const { data: userResponse, isLoading: LoadingUsers } = useGetAllUsersQuery()
     const { data: responseData, isLoading: LoadingDepartment } = useGetAllDepartmentQuery(null)
     const employee = (userResponse?.Data?.Records as IAspNetUserGetAll[]) || []
     const departmentdata = (responseData?.Data.Records as IDepartmentGetAll[]) || []
 
-    const filteredEmployees = employee.filter(emp => !departmentdata.some(dept => dept.DepartmentHeadId === emp.Id))
+    const filteredEmployees = employee.filter(
+        emp => !departmentdata.some(dept => dept.DepartmentHeadId === emp.Id && emp.Id !== departmentHeadId)
+    )
 
     const handleSave = async () => {
         setIsSubmit(true)
@@ -36,19 +53,24 @@ function CreateConfigurationPage() {
             return
         }
         const data = {
+            Id: id,
             Name: name,
             DepartmentHeadId: departmentHeadId
         }
-        await createDepartment(data).unwrap()
+        await update(data).unwrap()
         setIsSubmit(false)
     }
 
     useEffect(() => {
         if (isSuccess === true) {
             toast(t('Tạo phòng ban thàng công'), 'success')
+            fetch()
+            reset()
         }
         if (isError === true) {
             toast(t('Tạo phòng ban thất bại'), 'error')
+            fetch()
+            reset()
         }
     }, [isSuccess, isError])
 
@@ -58,10 +80,11 @@ function CreateConfigurationPage() {
             return
         }
         const data = {
+            Id: id,
             Name: name,
             DepartmentHeadId: departmentHeadId
         }
-        await createDepartment(data).unwrap()
+        await update(data).unwrap()
         setIsSubmit(false)
         router.push('/admin/department')
     }

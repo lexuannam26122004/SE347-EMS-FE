@@ -8,6 +8,7 @@ export interface IDepartmentGetAll {
     CountDepartment: number
     DepartmentHeadName: string | null
     DepartmentHeadId: string | null
+    DepartmentHeadEmployeeId: string | null
 }
 
 export interface IDepartmentCreate {
