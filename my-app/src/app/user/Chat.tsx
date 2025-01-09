@@ -5,6 +5,7 @@ import { Close as CloseIcon, Send as SendIcon } from '@mui/icons-material'
 import { useCreateMessageMutation, useGetMeMessageQuery } from '@/services/MessageService'
 import { IMessageGetAll } from '@/models/Message'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { useGetAuthMeQuery } from '@/services/AuthService'
 
 // Access your API key as an environment variable (see "Set up your API key" above)
 const genAI = new GoogleGenerativeAI('AIzaSyAGW_ofMFvk9YoadeM9eq9j931Bb_58l5s')
@@ -32,6 +33,9 @@ export default function ChatButton() {
     const [createMessage] = useCreateMessageMutation()
     const { data: responseData, refetch } = useGetMeMessageQuery()
     const messageData = (responseData?.Data as IMessageGetAll[]) || []
+
+    const { data: meData } = useGetAuthMeQuery()
+    const user = meData?.Data || null
 
     useEffect(() => {
         refetch()
