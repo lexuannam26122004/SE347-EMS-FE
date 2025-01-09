@@ -153,9 +153,9 @@
             "ATTENDANCE_SALARY": "Chấm công - Lương",
             "EMPLOYEE-CONTRACT": "Nhân viên - Hợp đồng",
             "TIMEOFF-ERRORREPORT": "Nghỉ phép - Báo cáo",
-            "BENEFITS": "Bảo hiểm - Phúc lợi",
+            "BENEFITS": "Phúc lợi",
             "REWARDS_DISCIPLINE": "Khen thưởng - Kỷ luật",
-            "NOTIFICATIONS_EVENTS": "Thông báo - Sự kiện",
+            "ACTIVITIES_EVENTS": "Hoạt động - Sự kiện",
             "REPORTS_SYSTEM": "Báo cáo - Hệ thống",
             "ATTENDANCE": "Chấm công",
             "WORKHISTORY": "Lịch sử công tác",
@@ -174,7 +174,6 @@
             "PROFILE": "Thông tin cá nhân",
             "SETTINGS": "Cài đặt",
             "LOGOUT": "Đăng xuất",
-            "PERSONAL": "Trang cá nhân",
             "TIMEKEEPING": "Chấm công",
             "CALENDAR": "Lịch",
             "LOGIN_HISTORY": "Lịch sử đăng nhập",
@@ -254,13 +253,7 @@
             "ACTION_HOLIDAY": {
                 "NAME": "Tên ngày lễ*",
                 "START_DATE": "Ngày bắt đầu*",
-                "END_DATE": "Ngày kết thúc*",
-                "CREATE_SUCCESS": "Tạo một Ngày lễ mới thành công",
-                "UPDATE_SUCCESS": "Cập nhật Ngày lễ thành công",
-                "DELETE_SUCCESS": "Xóa Ngày lễ thành công",
-                "CREATE_ERROR": "Tạo Ngày lễ thất bại",
-                "UPDATE_ERROR": "Cập nhật Ngày lễ thất bại",
-                "DELETE_ERROR": "Xóa Ngày lễ thất bại"
+                "END_DATE": "Ngày kết thúc*"
             }
         },
         "SALARY": {
@@ -287,15 +280,7 @@
             "BETWEEN30AND40": "Từ 30 đến 40",
             "GREATER40": "Trên 40",
             "SALARY_LEVEL": "Mức lương (Triệu VND)",
-            "NUMBER_OF_EMPLOYEES": "Số lượng nhân viên",
-            "UNPAID": "Danh sách lương chưa trả",
-            "BIRTHDAY": "Sinh nhật",
-            "HIGHEST": "Nhân viên có lương cao nhất",
-            "LOWEST": "Nhân viên có lương thấp nhất",
-            "BILLION": "tỷ VND",
-            "MILLION": "triệu VND",
-            "THOUSAND": "trăm nghìn VND",
-            "VND": "VND"
+            "NUMBER_OF_EMPLOYEES": "Số lượng nhân viên"
         },
         "CREATE_NOTIFICATION": {
             "TITLE_PAGE": "Tạo thông báo mới",
@@ -518,8 +503,6 @@
         "REWARD_DISCIPLINE": {
             "LAST_MONTH": "tháng trước",
             "LAST_QUARTER": "quý trước",
-            "RECEIVED": "Đã nhận",
-            "UNRECEIVED": "Chưa nhận",
             "LIST_REWARD": "Danh sách Khen thưởng",
             "LIST_DISCIPLINE": "Danh sách Kỷ luật",
             "SUMMARY_REWARD": "Tổng số lần Khen thưởng",
@@ -535,7 +518,6 @@
             "STATUS": "Trạng thái",
             "MONEY_REWARD": "Số tiền thưởng",
             "MONEY_DISCIPLINE": "Số tiền phạt",
-            "NOTE": "Ghi chú",
             "PUNISHMENT": "Hình thức kỷ luật",
             "DATE": "Ngày",
             "VIEW_DETAIL": "Xem chi tiết",
@@ -554,7 +536,6 @@
             "READ_NOTIFY_RATE": "Tỉ lệ đọc Thông báo",
             "INCREASED": "tăng",
             "DECREASED": "giảm",
-            "LIST_EVENTS": "Danh sách Sự kiện",
             "DELETE": "Xóa",
             "VIEW": "Xem chi tiết",
             "UPDATE": "Chỉnh sửa",
@@ -580,7 +561,6 @@
             "STATUS_LATE": "Đi trễ",
             "STATUS_EARLY": "Về sớm",
             "ALL": "Tất cả",
-            "BY_DEPARTMENT": "Thống kê Chấm công theo Phòng ban",
             "STATUS_INVALID": "Không hợp lệ",
             "CHECK_IN_&_OUT": "Giờ vào & ra",
             "OVERTIME": "Làm thêm giờ",
@@ -588,103 +568,12 @@
             "NOTE": "Ghi chú",
             "CHECK_IN": "Giờ vào",
             "CHECK_OUT": "Giờ ra",
-            "SEARCH": "Tìm kiếm theo Tên",
             "JOIN": "Tham gia",
             "STATUS_ABSENT": "Vắng mặt",
             "MEMBER_ATTENDANCE": "Chấm công nhân viên",
             "ATTENDANCE_PERCENT": "Tỉ lệ chấm công {{status}} {{x}}% so với hôm qua",
             "DETAIL_EMPLOYEE": "Thông tin chi tiết nhân viên",
-            "DOWNLOAD_INFO": "Tải thông tin",
-            "LIST_ATTENDANCE": "Danh sách chấm công"
-        },
-        "INSURANCE_BENEFIT": {
-            "LAST_MONTH": "tháng trước",
-            "LAST_QUARTER": "quý trước",
-            "LIST_INSURANCE": "Danh sách Bảo hiểm",
-            "LIST_BENEFIT": "Danh sách Phúc lợi",
-            "SUMMARY_BENEFIT": "Tổng số phúc lợi được cấp",
-            "SUMMARY_EMPLOYEE_BENEFIT": "Tổng số nhân viên được cấp phúc lợi",
-            "SUMMARY_EMPLOYEE_INSURANCE_IS_ACTIVE": "Tổng số nhân viên hoàn thành đóng bảo hiểm",
-            "CHART_STATISTIC_BENEFIT": "Biểu đồ thống kê Bảo hiểm",
-            "CHART_STATISTIC_INSURANCE": "Biểu đồ thống kê Phúc lợi",
-            "INSURANCE": "Bảo hiểm",
-            "BENEFIT": "Phúc lợi",
-            "WELARE_APPLICATION": "Đơn xin cấp phúc lợi",
-            "PRICE_REQUEST": "Số tiền yêu cầu:"
-        },
-        "LOGIN": {
-            "HI": "Xin chào, mừng bạn trở lại!",
-            "MORE_EFFECTIVELY": "Nâng cao hiệu suất với quy trình làm việc được tối ưu hóa.",
-            "SIGN_IN_TO_YOUR_ACCOUNT": "Đăng nhập vào tài khoản của bạn",
-            "USERNAME": "Tên người dùng",
-            "PASSWORD": "Mật khẩu",
-            "FORGOT_PASSWORD": "Quên mật khẩu?",
-            "SIGN_IN": "Đăng nhập",
-            "8_CHARACTERS": "+8 ký tự",
-            "USERNAME_PLACEHOLDER": "Nhập username hoặc email"
-        },
-        "USER": {
-            "TOTAL_ATTENDANCE": "Số lần chấm công",
-            "TOTAL_LATE": "Tổng số lần đi trễ",
-            "AVG_CHECK_IN": "Trung bình giờ vào",
-            "AVG_CHECK_OUT": "Trung bình giờ ra",
-            "THIS_MONTH": "Tháng này",
-            "THIS_YEAR": "Năm nay",
-            "THIS_WEEK": "Tuần này",
-            "ATTENDANCE_HISTORY": "Lịch sử chấm công",
-            "FILTER": "Bộ lọc",
-            "START_DATE": "Từ ngày",
-            "END_DATE": "Đến ngày",
-            "CHECK_IN_TIME": "Thời gian vào",
-            "CHECK_OUT_TIME": "Thời gian ra",
-            "OVERTIME": "Làm thêm giờ",
-            "WORKING_HOURS": "Số giờ làm việc",
-            "FILTER_V": "Lọc",
-            "TODAY_ATTENDANCE": "Chấm công hôm nay",
-            "DETAIL": "Chi tiết chấm công",
-            "LOGIN_COUNT": "Số lần đăng nhập",
-            "INVALID_ATTEMPTS": "Số lần không hợp lệ",
-            "CURRENT_STATUS": "Trạng thái hiện tại",
-            "EARLIER_THAN_YESTERDAY": "Sớm hơn",
-            "LATER_THAN_YESTERDAY": "Muộn hơn"
-        },
-        "REQUEST_PASSWORD": {
-            "FORGOT_PASSWORD": "Bạn quên mật khẩu?",
-            "DESC": "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu của bạn.",
-            "EMAIL_ADDRESS": "Địa chỉ Email",
-            "SEND_REQUEST": "Gửi yêu cầu",
-            "RETURN_LOGIN": "Quay lại đăng nhập",
-            "NOT_FOUND": "Không tìm thấy email",
-            "SEND_SUCCESS": "Gửi yêu cầu thành công",
-
-            "WAIT_BEFORE_RETRY": "Vui lòng chờ {{countdown}} giây trước khi thử lại!"
-        },
-        "VERIFY": {
-            "TITLE": "Vui lòng kiểm tra email!",
-            "DESC": "Chúng tôi đã gửi email mã xác nhận gồm 6 chữ số. Vui lòng nhập mã vào ô bên dưới để xác minh email của bạn.",
-            "DON'T_HAVE_A_CODE": "Chưa nhận được mã?",
-            "RESEND": "Gửi lại",
-            "VERIFY": "Xác minh"
-        },
-        "UPDATE_PASSWORD": {
-            "TITLE": "Yêu cầu đã được gửi thành công!",
-            "DESC": "Cập nhật mật khẩu của bạn để đảm bảo tài khoản của bạn được an toàn.",
-            "PASSWORD": "Mật khẩu mới",
-            "CONFIRM": "Xác nhận mật khẩu mới",
-            "UPDATE_PASSWORD": "Cập nhật mật khẩu",
-            "EQUAL": "Mật khẩu và xác nhận mật khẩu phải trùng khớp",
-            "UPDATE_SUCCESS": "Cập nhật mật khẩu thành công!"
-        },
-        "USER_SCHEDULAR": {
-            "TITLE": "Danh sách sự kiện",
-            "EVENT_DETAIL": "Chi tiết sự kiện",
-            "SEARCH_PLACEHOLDER": "Tìm kiếm theo tên sự kiện",
-            "FILTER_LABEL": "Loại sự kiện",
-            "FILTER_OPTIONS": {
-                "ALL": "Tất cả",
-                "HOLIDAY": "Ngày lễ",
-                "NON_HOLIDAY": "Khác"
-            }
+            "DOWNLOAD_INFO": "Tải thông tin"
         }
     }
 }

@@ -69,8 +69,7 @@
             "VIEW_DETAIL": "View detail",
             "CLOSE": "Close",
             "SELECT": "Select",
-            "UNSELECT": "Unselect",
-            "GO_BACK_HOME": "Go to home"
+            "UNSELECT": "Unselect"
         },
         "TEXTFIELD": {
             "SEARCH": "Search",
@@ -154,9 +153,9 @@
             "ATTENDANCE_SALARY": "Timekeeping - Salary",
             "EMPLOYEE-CONTRACT": "Employee - Contract",
             "TIMEOFF-ERRORREPORT": "Time off - Error report",
-            "BENEFITS": "Insurances - Benefits",
+            "BENEFITS": "Benefits",
             "REWARDS_DISCIPLINE": "Rewards - Disciplines",
-            "NOTIFICATIONS_EVENTS": "Notifications - Events",
+            "ACTIVITIES_EVENTS": "Activities - Events",
             "REPORTS_SYSTEM": "Reports - System",
             "ATTENDANCE": "Attendance",
             "WORKHISTORY": "Work History",
@@ -175,7 +174,6 @@
             "PROFILE": "Profile",
             "SETTINGS": "Settings",
             "LOGOUT": "Logout",
-            "PERSONAL": "Personal",
             "TIMEKEEPING": "Timekeeping",
             "CALENDAR": "Calendar",
             "LOGIN_HISTORY": "Login history",
@@ -256,13 +254,7 @@
             "ACTION_HOLIDAY": {
                 "NAME": "Name*",
                 "START_DATE": "Start Date*",
-                "END_DATE": "End Date*",
-                "CREATE_SUCCESS": "Create a Holiday successfully",
-                "UPDATE_SUCCESS": "Update Holiday successfully",
-                "DELETE_SUCCESS": "Delete Holiday successfully",
-                "CREATE_ERROR": "Create Holiday failed",
-                "UPDATE_ERROR": "Update Holiday failed",
-                "DELETE_ERROR": "Delete Holiday failed"
+                "END_DATE": "End Date*"
             }
         },
         "SALARY": {
@@ -289,15 +281,7 @@
             "BETWEEN30AND40": "From 30 to 40",
             "GREATER40": "Greater 40",
             "SALARY_LEVEL": "Salary Level (Million VND)",
-            "NUMBER_OF_EMPLOYEES": "Number of Employees",
-            "UNPAID": "Unpaid Salary List",
-            "BIRTHDAY": "Birthday",
-            "HIGHEST": "The highest paid employee",
-            "LOWEST": "The lowest paid employee",
-            "BILLION": "billion VND",
-            "MILLION": "million VND",
-            "THOUSAND": "hundred thousand VND",
-            "VND": "VND"
+            "NUMBER_OF_EMPLOYEES": "Number of Employees"
         },
         "BENEFIT": {
             "NAME": "Name",
@@ -574,8 +558,6 @@
             "PERCENT_REWARD_DISCIPLINE_IN_YEAR": "Percent of Reward - Discipline in year is",
             "REWARD": "Reward",
             "DISCIPLINE": "Discipline",
-            "UNRECEIVED": "Unreceived",
-            "RECEIVED": "Received",
             "UNPROCESSED": "Unprocessed",
             "PROCESSED": "Processed",
             "FULLNAME": "Full Name",
@@ -585,7 +567,6 @@
             "STATUS": "Status",
             "MONEY_REWARD": "Reward Amount",
             "MONEY_DISCIPLINE": "Penalty Amount",
-            "NOTE": "Note",
             "VIEW_DETAIL": "View detail",
             "DEPARTMENT": "Department",
             "TIMES": "times",
@@ -602,7 +583,6 @@
             "TOTAL_EVENTS": "Total Events",
             "INCREASED": "increased",
             "DECREASED": "decreased",
-            "LIST_EVENTS": "List of Events",
             "UPDATE": "Update",
             "DELETE": "Delete",
             "VIEW": "View detail",
@@ -632,92 +612,15 @@
             "CHECK_IN_&_OUT": "Check in & out",
             "OVERTIME": "Overtime",
             "STATUS": "Status",
-            "BY_DEPARTMENT": "Statistics Attendance by Department",
             "CHECK_IN": "Check in",
             "CHECK_OUT": "Check out",
             "NOTE": "Note",
-            "SEARCH": "Search by Full Name",
             "JOIN": "Join",
             "STATUS_ABSENT": "Absent",
             "MEMBER_ATTENDANCE": "Attendance Overview",
             "ATTENDANCE_PERCENT": "{{status}} {{x}}% attendance from yesterday",
             "DETAIL_EMPLOYEE": "Detail Employee",
-            "DOWNLOAD_INFO": "Download Info",
-            "LIST_ATTENDANCE": "List of Attendance"
-        },
-        "LOGIN": {
-            "HI": "Hi, Welcome back!",
-            "MORE_EFFECTIVELY": "More effectively with optimized workflows.",
-            "SIGN_IN_TO_YOUR_ACCOUNT": "Sign in to your account",
-            "USERNAME": "Username",
-            "PASSWORD": "Password",
-            "FORGOT_PASSWORD": "Forgot password?",
-            "SIGN_IN": "Sign in",
-            "8_CHARACTERS": "+8 characters",
-            "USERNAME_PLACEHOLDER": "Enter your username or email"
-        },
-        "USER": {
-            "TOTAL_ATTENDANCE": "Total Attendance",
-            "TOTAL_LATE": "Total Late",
-            "AVG_CHECK_IN": "Avg Check In Time",
-            "AVG_CHECK_OUT": "Avg Check Out Time",
-            "THIS_MONTH": "This Month",
-            "THIS_WEEK": "This Week",
-            "THIS_YEAR": "This Year",
-            "ATTENDANCE_HISTORY": "Attendance History",
-            "FILTER": "Filter",
-            "START_DATE": "Start Date",
-            "END_DATE": "End Date",
-            "CHECK_IN_TIME": "Check In Time",
-            "CHECK_OUT_TIME": "Check Out Time",
-            "OVERTIME": "Overtime",
-            "WORKING_HOURS": "Working Hours",
-            "FILTER_V": "Filter",
-            "TODAY_ATTENDANCE": "Today's attendance",
-            "DETAIL": "Detail attendance",
-            "LOGIN_COUNT": "Login Count",
-            "INVALID_ATTEMPTS": "Invalid Attempts",
-            "CURRENT_STATUS": "Current Status Login",
-            "EARLIER_THAN_YESTERDAY": "Earlier",
-            "LATER_THAN_YESTERDAY": "Later"
-        },
-        "REQUEST_PASSWORD": {
-            "FORGOT_PASSWORD": "Forgot your password?",
-            "DESC": "Please enter the email address associated with your account and we'll email you a link to reset your password.",
-            "EMAIL_ADDRESS": "Email Address",
-            "SEND_REQUEST": "Send Request",
-            "RETURN_LOGIN": "Return to sign in",
-            "EMAIL_EXAMPLE": "example@gmail.com",
-            "NOT_FOUND": "Email not found",
-            "SEND_SUCCESS": "Request sent successfully!",
-            "WAIT_BEFORE_RETRY": "Please wait {{countdown}} seconds before trying again!"
-        },
-        "VERIFY": {
-            "TITLE": "Please check your email!",
-            "DESC": "We've emailed a 6-digit confirmation code. Please enter the code in the box below to verify your email.",
-            "DON'T_HAVE_A_CODE": "Don't have a code?",
-            "RESEND": "Resend",
-            "VERIFY": "Verify"
-        },
-        "UPDATE_PASSWORD": {
-            "TITLE": "Request sent successfully!",
-            "DESC": "Update your password to ensure your account stays secure.",
-            "PASSWORD": "New Password",
-            "CONFIRM": "Confirm new password",
-            "UPDATE_PASSWORD": "Update password",
-            "EQUAL": "Password and confirm password must match",
-            "UPDATE_SUCCESS": "Password updated successfully!"
-        },
-        "USER_SCHEDULAR": {
-            "TITLE": "Event List",
-            "EVENT_DETAIL": "Event Detail",
-            "SEARCH_PLACEHOLDER": "Search by event name",
-            "FILTER_LABEL": "Event Type",
-            "FILTER_OPTIONS": {
-                "ALL": "All",
-                "HOLIDAY": "Holiday",
-                "NON_HOLIDAY": "Other"
-            }
+            "DOWNLOAD_INFO": "Download Infor"
         }
     }
 }
