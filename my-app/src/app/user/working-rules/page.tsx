@@ -12,18 +12,16 @@ export interface IFilter {
     name?: string
 }
 
-import { Box, Typography, Paper, Button, MenuItem, Select, Pagination, SelectChangeEvent } from '@mui/material'
-import { AlarmClock, CirclePlus } from 'lucide-react'
+import { Box, Typography, Paper, MenuItem, Select, Pagination, SelectChangeEvent } from '@mui/material'
+import { AlarmClock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGetAllWorkingRulesQuery } from '@/services/UserWorkingRulesService'
 import { IWorkingRulesGetAll } from '@/models/WorkingRules'
 import Loading from '@/components/Loading'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 function WorkingRolesPage() {
     const { t } = useTranslation('common')
-    const router = useRouter()
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState('10')
     const [from, setFrom] = useState(1)
