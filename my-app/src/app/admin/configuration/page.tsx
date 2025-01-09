@@ -37,6 +37,8 @@ import DetailModal from './DetailModal'
 import Loading from '@/components/Loading'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
+import { debounce } from 'lodash'
+import { useCallback } from 'react'
 
 function ConfigurationPage() {
     const { t } = useTranslation('common')
@@ -108,14 +110,21 @@ function ConfigurationPage() {
         })
     }
 
+    const debouncedSetFilter = useCallback(
+        debounce(value => {
+            setFilter(prev => ({
+                ...prev,
+                keyword: value,
+                pageNumber: 1
+            }))
+        }, 100),
+        []
+    )
+
     const handleSearchKeyword = value => {
         setPage(1)
         setKeyword(value)
-        setFilter(prev => ({
-            ...prev,
-            keyword: value,
-            pageNumber: 1
-        }))
+        debouncedSetFilter(value)
     }
 
     // const debouncedHandleSearch = useCallback(debounce(handleSearchKeyword, 200), [])
@@ -191,13 +200,6 @@ function ConfigurationPage() {
     const countRows = selected.length
 
     const menuLeft = useSelector(authSelector)
-
-    // Cleanup debounce on unmount
-    // useEffect(() => {
-    //     return () => {
-    //         debouncedHandleSearch.cancel()
-    //     }
-    // }, [debouncedHandleSearch])
 
     if (isLoading || menuLeft === null || Object.keys(menuLeft).length === 0) {
         return <Loading />
@@ -524,7 +526,7 @@ function ConfigurationPage() {
                                         </Typography>
                                     </TableSortLabel>
                                 </TableCell>
-                                {/* <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                     <TableSortLabel
                                         active={'CreatedBy' === orderBy}
                                         direction={orderBy === 'CreatedBy' ? order : 'asc'}
@@ -549,7 +551,7 @@ function ConfigurationPage() {
                                             {t('COMMON.SYS_CONFIGURATION.CREATED_BY')}
                                         </Typography>
                                     </TableSortLabel>
-                                </TableCell> */}
+                                </TableCell>
 
                                 <TableCell
                                     sx={{
@@ -678,7 +680,7 @@ function ConfigurationPage() {
                                                 {formatDate(row.CreatedDate)}
                                             </Typography>
                                         </TableCell>
-                                        {/* <TableCell sx={{ borderColor: 'var(--border-color)' }}>
+                                        <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                             <Typography
                                                 sx={{
                                                     color: 'var(--text-color)',
@@ -691,7 +693,7 @@ function ConfigurationPage() {
                                             >
                                                 {row.CreateBy}
                                             </Typography>
-                                        </TableCell> */}
+                                        </TableCell>
 
                                         <TableCell
                                             sx={{

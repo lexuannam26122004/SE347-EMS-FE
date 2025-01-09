@@ -1,6 +1,5 @@
 'use client'
-//import { IFilterEmploymentContract } from '@/models/EmploymentContract'
-import { formatDate } from '@/utils/formatDate'
+import { IFilterEmploymentContract } from '@/models/EmploymentContract'
 import {
     Box,
     Select,
@@ -9,37 +8,19 @@ import {
     MenuItem,
     SelectChangeEvent,
     Paper,
-    TableRow,
     InputLabel,
-    Table,
-    TableCell,
     FormControl,
-    TableContainer,
     TextField,
-    InputAdornment,
-    // OutlinedInput,
-    Avatar,
-    TableHead,
-    TableSortLabel,
-    TableBody,
-    Tooltip,
-    Button
+    InputAdornment
 } from '@mui/material'
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import SearchIcon from '@mui/icons-material/Search'
-//import { useRouter } from 'next/navigation'
-//import { useGetContractsExpiringSoonQuery } from '@/services/EmploymentContractService'
-//import TableReward from '@/components/TableReward'
+// import { useRouter } from 'next/navigation'
+import TableDiscipline from '@/components/TableDiscipline'
 
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
-import { useGetAllDisciplinesQuery } from '@/services/DisciplineService'
-import { IDisciplineGetAll } from '@/models/Discipline'
-import { formatNumberToMoney } from '@/utils/formatNumberWithUnit'
-import { CirclePlus, ClipboardCheck } from 'lucide-react'
-import { IFilterSysConfiguration } from '@/models/SysConfiguration'
-import { useRouter } from 'next/navigation'
 
 function a11yProps(index: number) {
     return {
@@ -48,54 +29,167 @@ function a11yProps(index: number) {
     }
 }
 
-function getStatusBgColor(status: boolean): string {
-    if (status === false) {
-        return 'var(--bg-warning-color)'
-    } else {
-        return 'var(--bg-success-color)'
-    }
+interface IGetAllDiscipline {
+    Id: number
+    FullName: string
+    AvatarPath: string
+    EmployeeId: string
+    Department: string
+    Money?: number
+    Date: string
+    Reason: string
+    Note: string
+    IsPenalized: boolean
 }
 
-function getStatusTextColor(status: boolean): string {
-    if (status === false) {
-        return 'var(--text-warning-color)'
-    } else {
-        return 'var(--text-success-color)'
+const responseData = {
+    Data: {
+        TotalRecords: 10,
+        Records: [
+            {
+                Id: 1,
+                UserId: 'CC-001',
+                EmployeeId: 'Lê Xuân Nam',
+                AvatarPath: '/images/avatar1.jpg',
+                Department: 'Human Resources',
+                Date: '2024-11-27',
+                Reason: 'Đi làm muộn',
+                Note: 'Cảnh cáo vì vi phạm nội quy',
+                IsPenalized: true,
+                Money: 500000 // Số tiền phạt (đơn vị: VNĐ)
+            },
+            {
+                Id: 2,
+                FullName: 'Nguyễn Văn Thành',
+                EmployeeId: 'CC-002',
+                AvatarPath: '/images/avatar2.jpg',
+                Date: '2024-11-28',
+                Department: 'Human Resources',
+                Reason: 'Không đeo thẻ nhân viên',
+                Note: 'Nhắc nhở lần đầu',
+                IsPenalized: false,
+                Money: null // Không bị phạt
+            },
+            {
+                Id: 3,
+                FullName: 'Trần Thị Hải Yến',
+                EmployeeId: 'CC-003',
+                AvatarPath: '/images/avatar3.jpg',
+                Date: '2024-11-29',
+                Department: 'IT Services',
+                Reason: 'Nghỉ không báo trước',
+                Note: 'Cắt thưởng tháng',
+                IsPenalized: true,
+                Money: 1005000
+            },
+            {
+                Id: 4,
+                FullName: 'Lê Văn Việt',
+                EmployeeId: 'CC-004',
+                AvatarPath: '/images/avatar4.jpg',
+                Date: '2024-11-30',
+                Department: 'Finance',
+                Reason: 'Sử dụng điện thoại trong giờ làm',
+                Note: 'Nhắc nhở lần đầu',
+                IsPenalized: false,
+                Money: null
+            },
+            {
+                Id: 5,
+                FullName: 'Nguyễn Trọng Tất Thành',
+                EmployeeId: 'CC-005',
+                AvatarPath: '/images/avatar5.jpg',
+                Department: 'IT Services',
+                Date: '2024-12-01',
+                Reason: 'Gây mất trật tự trong công ty',
+                Note: 'Cảnh cáo lần 2',
+                IsPenalized: true,
+                Money: 800000
+            },
+            {
+                Id: 6,
+                FullName: 'Lê Minh Vũ Nam',
+                EmployeeId: 'CC-006',
+                AvatarPath: '/images/avatar6.jpg',
+                Date: '2024-12-02',
+                Department: 'Customer Support',
+                Reason: 'Không hoàn thành công việc đúng hạn',
+                Note: 'Giảm KPI tháng',
+                IsPenalized: true,
+                Money: 1200000
+            },
+            {
+                Id: 7,
+                FullName: 'Trần Thị Tuyết Phương',
+                EmployeeId: 'CC-007',
+                AvatarPath: '/images/avatar7.jpg',
+                Department: 'Finance',
+                Date: '2024-12-03',
+                Reason: 'Đi trễ nhiều lần',
+                Note: 'Cắt thưởng cuối năm',
+                IsPenalized: true,
+                Money: 2000000
+            },
+            {
+                Id: 8,
+                FullName: 'Nguyen Thi K',
+                EmployeeId: 'CC-008',
+                AvatarPath: '/images/avatar8.jpg',
+                Department: 'Customer Support',
+                Date: '2024-12-04',
+                Reason: 'Không đúng trang phục quy định',
+                Note: 'Nhắc nhở',
+                IsPenalized: false,
+                Money: null
+            },
+            {
+                Id: 9,
+                FullName: 'Hoang Thi M',
+                EmployeeId: 'CC-009',
+                AvatarPath: '/images/avatar9.jpg',
+                Date: '2024-12-05',
+                Department: 'Customer Support',
+                Reason: 'Làm sai quy trình sản xuất',
+                Note: 'Cảnh cáo và đào tạo lại',
+                IsPenalized: true,
+                Money: 1500000
+            },
+            {
+                Id: 10,
+                FullName: 'Le Van N',
+                EmployeeId: 'CC-010',
+                AvatarPath: '/images/avatar10.jpg',
+                Date: '2024-12-06',
+                Department: 'Customer Support',
+                Reason: 'Không tham gia họp đúng giờ',
+                Note: 'Nhắc nhở',
+                IsPenalized: false,
+                Money: null
+            }
+        ]
     }
 }
 
 function Page() {
     const { t } = useTranslation('common')
-    const router = useRouter()
-    //const [selected, setSelected] = useState<number[]>([])
+    // const router = useRouter()
+    // const [selected, setSelected] = useState<number[]>([])
     const [page, setPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState('10')
-    const [from, setFrom] = useState(1)
-    const [to, setTo] = useState(10)
-    const [filter, setFilter] = useState<IFilterSysConfiguration>({
-        pageSize: 10,
-        pageNumber: 1
+    const [rowsPerPage, setRowsPerPage] = useState('5')
+    const [from] = useState(1)
+    const [to] = useState(5)
+    const [filter, setFilter] = useState<IFilterEmploymentContract>({
+        pageSize: 5,
+        pageNumber: 1,
+        daysUntilExpiration: 60
     })
     const [keyword, setKeyword] = useState('')
-    //const [openDialog, setOpenDialog] = useState(false)
-    //const [selectedRow, setSelectedRow] = useState<number | null>(null)
-    const [order, setOrder] = useState<'asc' | 'desc'>('asc')
-    const [orderBy, setOrderBy] = useState<string>('')
+    // const [openDialog, setOpenDialog] = useState(false)
+    // const [selectedRow, setSelectedRow] = useState<number | null>(null)
+    // const [order, setOrder] = useState<'asc' | 'desc'>('asc')
+    // const [orderBy, setOrderBy] = useState<string>('')
     // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
-    //const [openModal, setOpenModal] = useState(false)
-    const handleSort = (property: string) => {
-        setFilter(prev => ({
-            ...prev,
-            sortBy: property,
-            isDescending: orderBy === property && order === 'asc' ? true : false
-        }))
-        if (orderBy === property) {
-            setOrder(order === 'asc' ? 'desc' : 'asc')
-        } else {
-            setOrder('asc')
-        }
-        setOrderBy(property)
-    }
+    // const [openModal, setOpenModal] = useState(false)
 
     // const { data: responseD, isFetching, refetch } = useGetContractsExpiringSoonQuery(filter)
 
@@ -103,9 +197,8 @@ function Page() {
     //     setSelectedConfig(config)
     //     setOpenModal(true)
     // }
-    const { data: responseData, isFetching, refetch } = useGetAllDisciplinesQuery(filter)
 
-    const disciplineData = responseData?.Data.Records as IDisciplineGetAll[]
+    const disciplineData = responseData?.Data.Records as IGetAllDiscipline[]
 
     const totalRecords = (responseData?.Data.TotalRecords as number) || 0
 
@@ -120,14 +213,15 @@ function Page() {
     }
 
     const handleChangeRowsPerPage = (event: SelectChangeEvent) => {
-        const newRowsPerPage = event.target.value as string
-        setRowsPerPage(newRowsPerPage)
         setPage(1)
-        setFilter(prev => ({
-            ...prev,
-            pageSize: Number(newRowsPerPage),
-            pageNumber: 1
-        }))
+        setRowsPerPage(event.target.value as string)
+        setFilter(prev => {
+            return {
+                ...prev,
+                pageSize: Number(event.target.value),
+                pageNumber: 1
+            }
+        })
     }
 
     const handleSearchKeyword = () => {
@@ -141,33 +235,33 @@ function Page() {
         })
     }
 
-    useEffect(() => {
-        if (!isFetching && responseData?.Data) {
-            const from = (page - 1) * Number(rowsPerPage) + 1
-            setFrom(from)
-
-            const to = Math.min(page * Number(rowsPerPage), totalRecords)
-            setTo(to)
-        }
-    }, [isFetching, responseData, page, rowsPerPage])
-
-    useEffect(() => {
-        refetch()
-    }, [page, rowsPerPage, keyword])
-
     // useEffect(() => {
     //     if (!isFetching && responseData?.Data) {
-    //         const from = (page - 1) * Number(rowsPerPage) + Math.min(1, rewardData.length)
+    //         const from = (page - 1) * Number(rowsPerPage) + Math.min(1, DisciplineData.length)
     //         setFrom(from)
 
-    //         const to = Math.min(rewardData.length + (page - 1) * Number(rowsPerPage), totalRecords)
+    //         const to = Math.min(DisciplineData.length + (page - 1) * Number(rowsPerPage), totalRecords)
     //         setTo(to)
     //     }
     // }, [isFetching, responseData, page, rowsPerPage])
 
-    // useEffect(() => {
-    //     refetch()
-    // }, [filter])
+    useEffect(() => {
+        //refetch()
+    }, [filter])
+
+    // const handleSort = (property: string) => {
+    //     setFilter(prev => ({
+    //         ...prev,
+    //         sortBy: property,
+    //         isDescending: orderBy === property && order === 'asc' ? true : false
+    //     }))
+    //     if (orderBy === property) {
+    //         setOrder(order === 'asc' ? 'desc' : 'asc')
+    //     } else {
+    //         setOrder('asc')
+    //     }
+    //     setOrderBy(property)
+    // }
 
     const [currentTab, setCurrentTab] = useState(0)
 
@@ -187,9 +281,9 @@ function Page() {
 
     const counts = useMemo(
         () => ({
-            0: 10,
-            1: disciplineData?.filter(item => item.IsPenalized === false).length,
-            2: disciplineData?.filter(item => item.IsPenalized === true).length
+            0: disciplineData.length,
+            1: disciplineData.filter(item => item.IsPenalized === false).length,
+            2: disciplineData.filter(item => item.IsPenalized === true).length
         }),
         [disciplineData]
     )
@@ -215,49 +309,25 @@ function Page() {
             <Paper
                 sx={{
                     width: '100%',
+                    boxShadow: 'var(--box-shadow-paper)',
                     overflow: 'hidden',
                     borderRadius: '20px',
                     backgroundColor: 'var(--background-item)'
                 }}
             >
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Typography
-                        sx={{
-                            userSelect: 'none',
-                            color: 'var(--text-color)',
-                            fontWeight: 'bold',
-                            fontSize: '18px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: '24px 24px 15px'
-                        }}
-                    >
-                        {t('COMMON.REWARD_DISCIPLINE.LIST_DISCIPLINE')}
-                    </Typography>
-                    <Button
-                        variant='contained'
-                        startIcon={<CirclePlus />}
-                        sx={{
-                            mt: '24px',
-                            mr: '24px',
-                            height: '44px',
-                            backgroundColor: 'var(--button-color)',
-                            width: 'auto',
-                            padding: '0px 24px',
-                            '&:hover': {
-                                backgroundColor: 'var(--hover-button-color)'
-                            },
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            whiteSpace: 'nowrap',
-                            textTransform: 'none'
-                        }}
-                        onClick={() => router.push('/admin/discipline/create')}
-                        //onClick={() => handleOpenCreateDialog()}
-                    >
-                        {t('COMMON.BUTTON.CREATE')}
-                    </Button>
-                </Box>
+                <Typography
+                    sx={{
+                        userSelect: 'none',
+                        color: 'var(--text-color)',
+                        fontWeight: 'bold',
+                        fontSize: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '24px 24px 15px'
+                    }}
+                >
+                    {t('COMMON.REWARD_DISCIPLINE.LIST_DISCIPLINE')}
+                </Typography>
 
                 <Box>
                     <Tabs
@@ -406,11 +476,8 @@ function Page() {
                                     borderColor: 'var(--selected-field-color)'
                                 }
                             }}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault()
-                                    handleSearchKeyword()
-                                }
+                            onKeyDown={() => {
+                                handleSearchKeyword()
                             }}
                             slotProps={{
                                 input: {
@@ -546,423 +613,20 @@ function Page() {
                                     }
                                 }}
                             >
-                                <MenuItem value={'Public'}>{t('Human Resources')}</MenuItem>
-                                <MenuItem value={'Benefit'}>{t('Finance')}</MenuItem>
-                                <MenuItem value={'Salary'}>{t('IT Services')}</MenuItem>
-                                <MenuItem value={'Reward'}>{t('Marketing')}</MenuItem>
-                                <MenuItem value={'Insurance'}>{t('Sales')}</MenuItem>
-                                <MenuItem value={'Holiday'}>{t('Operations')}</MenuItem>
-                                <MenuItem value={'Discipline'}>{t('Customer Support')}</MenuItem>
+                                <MenuItem value={'Public'}>{t('COMMON.NOTIFICATION_TYPE.PUBLIC')}</MenuItem>
+                                <MenuItem value={'Benefit'}>{t('COMMON.NOTIFICATION_TYPE.BENEFIT')}</MenuItem>
+                                <MenuItem value={'Salary'}>{t('COMMON.NOTIFICATION_TYPE.SALARY')}</MenuItem>
+                                <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.Discipline')}</MenuItem>
+                                <MenuItem value={'Insurance'}>{t('COMMON.NOTIFICATION_TYPE.INSURANCE')}</MenuItem>
+                                <MenuItem value={'Holiday'}>{t('COMMON.NOTIFICATION_TYPE.HOLIDAY')}</MenuItem>
+                                <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.DISCIPLINE')}</MenuItem>
+                                <MenuItem value={'Timekeeping'}>{t('COMMON.NOTIFICATION_TYPE.TIMEKEEPING')}</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>
                 </Box>
 
-                <TableContainer
-                    sx={{
-                        '&::-webkit-scrollbar': {
-                            width: '7px',
-                            height: '7px'
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: 'var(--scrollbar-color)',
-                            borderRadius: '10px'
-                        }
-                    }}
-                >
-                    <Table>
-                        <TableHead>
-                            <TableRow
-                                sx={{
-                                    backgroundColor: 'var(--header-table-dashboard)',
-                                    '&:last-child td, &:last-child th': {
-                                        border: 'none'
-                                    }
-                                }}
-                            >
-                                <TableCell sx={{ borderColor: 'var(--border-color)', padding: '16px 30px 16px 24px' }}>
-                                    <TableSortLabel
-                                        active={'FullName' === orderBy}
-                                        direction={orderBy === 'FullName' ? order : 'asc'}
-                                        onClick={() => handleSort('FullName')}
-                                        sx={{
-                                            '& .MuiTableSortLabel-icon': {
-                                                color: 'var(--text-color) !important'
-                                            }
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                color: 'var(--text-color)',
-                                                fontSize: '16px',
-                                                overflow: 'hidden',
-                                                maxWidth: '300px',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {t('COMMON.REWARD_DISCIPLINE.FULLNAME')}
-                                        </Typography>
-                                    </TableSortLabel>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                    <TableSortLabel
-                                        active={'Department' === orderBy}
-                                        direction={orderBy === 'Department' ? order : 'asc'}
-                                        onClick={() => handleSort('Department')}
-                                        sx={{
-                                            '& .MuiTableSortLabel-icon': {
-                                                color: 'var(--text-color) !important'
-                                            },
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                color: 'var(--text-color)',
-                                                fontSize: '16px',
-                                                textAlign: 'center',
-                                                maxWidth: '280px',
-                                                overflow: 'hidden',
-                                                ml: '-20px',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {t('COMMON.REWARD_DISCIPLINE.DEPARTMENT')}
-                                        </Typography>
-                                    </TableSortLabel>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                    <TableSortLabel
-                                        active={'Date' === orderBy}
-                                        direction={orderBy === 'Date' ? order : 'asc'}
-                                        onClick={() => handleSort('Date')}
-                                        sx={{
-                                            '& .MuiTableSortLabel-icon': {
-                                                color: 'var(--text-color) !important'
-                                            },
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                color: 'var(--text-color)',
-                                                fontSize: '16px',
-                                                textAlign: 'center',
-                                                maxWidth: '280px',
-                                                overflow: 'hidden',
-                                                ml: '8px',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {t('COMMON.REWARD_DISCIPLINE.DATE')}
-                                        </Typography>
-                                    </TableSortLabel>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                    <TableSortLabel
-                                        active={'Reason' === orderBy}
-                                        direction={orderBy === 'Reason' ? order : 'asc'}
-                                        onClick={() => handleSort('Reason')}
-                                        sx={{
-                                            '& .MuiTableSortLabel-icon': {
-                                                color: 'var(--text-color) !important'
-                                            }
-                                        }}
-                                    >
-                                        <Typography
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                color: 'var(--text-color)',
-                                                maxWidth: '400px',
-                                                fontSize: '16px',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
-                                            {t('COMMON.REWARD_DISCIPLINE.REASON')}
-                                        </Typography>
-                                    </TableSortLabel>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            color: 'var(--text-color)',
-                                            fontSize: '16px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
-                                        }}
-                                    >
-                                        {t('COMMON.REWARD_DISCIPLINE.MONEY_REWARD')}
-                                    </Typography>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            color: 'var(--text-color)',
-                                            fontSize: '16px',
-                                            textAlign: 'center',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
-                                        }}
-                                    >
-                                        {t('COMMON.ERROR_REPORT.STATUS')}
-                                    </Typography>
-                                </TableCell>
-
-                                <TableCell sx={{ borderColor: 'var(--border-color)', padding: '16px 24px' }}>
-                                    <Typography
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            color: 'var(--text-color)',
-                                            fontSize: '16px',
-                                            overflow: 'hidden',
-                                            textAlign: 'center',
-                                            maxWidth: '280px',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
-                                        }}
-                                    >
-                                        {t('COMMON.ERROR_REPORT.ACTION')}
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredData &&
-                                filteredData.map((row: IDisciplineGetAll, index: number) => (
-                                    <TableRow
-                                        key={index}
-                                        sx={{
-                                            '&:last-child td, &:last-child th': {
-                                                border: 'none'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            sx={{
-                                                borderColor: 'var(--border-color)',
-                                                borderStyle: 'dashed',
-                                                padding: '16px 24px 16px 24px'
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '14px'
-                                                }}
-                                            >
-                                                <Avatar
-                                                    sx={{
-                                                        mt: '-2px'
-                                                    }}
-                                                    src={
-                                                        row.AvatarPath ||
-                                                        'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
-                                                    }
-                                                />
-
-                                                <Box>
-                                                    <Typography
-                                                        sx={{
-                                                            color: 'var(--text-color)',
-                                                            fontSize: '16px',
-                                                            maxWidth: '260px',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap'
-                                                        }}
-                                                    >
-                                                        {row.FullName}
-                                                    </Typography>
-                                                    <Typography
-                                                        sx={{
-                                                            color: 'var(--created-date-color)',
-                                                            fontSize: '16px',
-                                                            mt: '-0px',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap'
-                                                        }}
-                                                    >
-                                                        {row.UserId}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        </TableCell>
-
-                                        <TableCell sx={{ borderColor: 'var(--border-color)', borderStyle: 'dashed' }}>
-                                            <Typography
-                                                sx={{
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    maxWidth: '280px',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {row.Department}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell
-                                            sx={{
-                                                borderStyle: 'dashed',
-                                                borderColor: 'var(--border-color)'
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    maxWidth: '280px',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {formatDate(row.CreatedDate)}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell
-                                            sx={{
-                                                borderStyle: 'dashed',
-                                                borderColor: 'var(--border-color)'
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    maxWidth: '280px',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {row.Reason}
-                                            </Typography>
-                                        </TableCell>
-
-                                        <TableCell
-                                            sx={{
-                                                borderStyle: 'dashed',
-                                                borderColor: 'var(--border-color)'
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    maxWidth: '280px',
-                                                    fontStyle: 'italic',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {row.Money && formatNumberToMoney(row.Money)}
-                                            </Box>
-                                        </TableCell>
-
-                                        <TableCell
-                                            sx={{
-                                                borderStyle: 'dashed',
-                                                borderColor: 'var(--border-color)',
-                                                padding: '11px'
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    borderRadius: '8px',
-                                                    padding: '5px 10px',
-                                                    display: 'flex',
-                                                    minWidth: '100px',
-                                                    justifyContent: 'center',
-                                                    backgroundColor: getStatusBgColor(row.IsPenalized)
-                                                }}
-                                            >
-                                                <Typography
-                                                    sx={{
-                                                        fontSize: '15px',
-                                                        overflow: 'hidden',
-                                                        color: getStatusTextColor(row.IsPenalized),
-                                                        width: 'auto',
-                                                        fontWeight: 'bold',
-                                                        display: 'inline-block',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                >
-                                                    {row.IsPenalized ? t('Đã xử lý') : t('Chưa xử lý')}
-                                                </Typography>
-                                            </Box>
-                                        </TableCell>
-
-                                        <TableCell
-                                            sx={{
-                                                borderStyle: 'dashed',
-                                                padding: '16px 24px',
-                                                borderColor: 'var(--border-color)',
-                                                width: '146px',
-                                                cursor: 'pointer'
-                                            }}
-                                        >
-                                            <Box
-                                                display='flex'
-                                                alignItems='center'
-                                                justifyContent='center'
-                                                sx={{
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                <Tooltip title={t('COMMON.REWARD_DISCIPLINE.VIEW_DETAIL')}>
-                                                    <Box
-                                                        display='flex'
-                                                        alignItems='center'
-                                                        justifyContent='center'
-                                                        sx={{
-                                                            color: '#00d100',
-                                                            borderRadius: '50%',
-                                                            width: '42px',
-                                                            height: '42px',
-                                                            '&:hover': {
-                                                                backgroundColor: 'var(--hover-color)'
-                                                            }
-                                                        }}
-                                                    >
-                                                        <ClipboardCheck />
-                                                    </Box>
-                                                </Tooltip>
-                                            </Box>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <TableDiscipline disciplineData={filteredData} totalRecords={totalRecords} type={currentTab} />
 
                 <Box display='flex' alignItems='center' justifyContent='space-between' padding='24px'>
                     <Box display='flex' alignItems='center'>

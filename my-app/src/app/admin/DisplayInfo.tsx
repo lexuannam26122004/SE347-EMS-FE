@@ -6,13 +6,8 @@ import { Box } from '@mui/material'
 import { TrendingDown } from 'lucide-react'
 import Loading from '@/components/Loading'
 import { useGetEmployeeStatsByMonthAndYearQuery } from '@/services/EmploymentContractService'
-
-interface IEmployeeStats {
-    StartCount: number
-    StartPercentChange: number
-    EndCount: number
-    EndPercentChange: number
-}
+import { useGetIncomeInMonthQuery } from '@/services/SalaryService'
+import { useGetTimeOffStatisticsQuery } from '@/services/TimeOffService'
 
 function DisplayInfo() {
     const { t } = useTranslation('common')
@@ -20,24 +15,45 @@ function DisplayInfo() {
     const date = new Date()
     const month = date.getMonth() + 1
     const year = date.getFullYear()
-    const { data: response, isFetching } = useGetEmployeeStatsByMonthAndYearQuery({ Month: month, Year: year })
 
-    const data = response?.Data as IEmployeeStats
+    let monthSalary = month
+    let yearSalary = year
 
-    const totalEmployee = 105
-    const employeePercent = 5.2
-    const timeOff = 56
-    const timeOffPercent = 10
-    const totalEmployeeLayoff = data?.EndCount
-    const layoffPercent = data?.EndPercentChange
-    const newEmployees = data?.StartCount
-    const newEmployeePercent = data?.StartPercentChange
-    const laborCosts = 1200000000
-    const laborCostsPercent = 14.47
+    if (month == 1) {
+        monthSalary = 12
+        yearSalary = year - 1
+    } else {
+        monthSalary = monthSalary - 1
+    }
+
+    const { data: response, isLoading: isLoading1 } = useGetEmployeeStatsByMonthAndYearQuery({
+        Month: month,
+        Year: year
+    })
+    const { data: salaryResponse, isLoading: isLoading2 } = useGetIncomeInMonthQuery({
+        Month: monthSalary,
+        Year: yearSalary
+    })
+
+    const { data: timeOffResponse, isLoading: isLoading3 } = useGetTimeOffStatisticsQuery({
+        Month: month,
+        Year: year
+    })
+
+    const totalEmployee = response?.Data?.ContractsInMonth
+    const employeePercent = response?.Data?.ContractsInMonthPercentChange?.toFixed(1)
+    const timeOff = timeOffResponse?.Data?.CurrentMonthCount
+    const timeOffPercent = timeOffResponse?.Data?.PercentageIncrease?.toFixed(1)
+    const totalEmployeeLayoff = response?.Data?.EndCount
+    const layoffPercent = response?.Data?.EndPercentChange?.toFixed(1)
+    const newEmployees = response?.Data?.StartCount
+    const newEmployeePercent = response?.Data?.StartPercentChange?.toFixed(1)
+    const laborCosts = salaryResponse?.Data.TotalIncome
+    const laborCostsPercent = salaryResponse?.Data.PercentageChange?.toFixed(1)
     const promotions = 12
     const promotionPercent = 24
 
-    if (isFetching) {
+    if (isLoading1 || isLoading2 || isLoading3) {
         return <Loading />
     }
 
@@ -115,19 +131,20 @@ function DisplayInfo() {
                         sx={{
                             mt: '10px',
                             color: !(!employeePercent || employeePercent >= 0) ? '#F93C65' : '#00B69B',
-                            fontSize: '14px',
+                            fontSize: '16px',
                             fontWeight: 'bold',
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
-                        {employeePercent !== null &&
+                        {employeePercent !== undefined &&
                             (!(!employeePercent || employeePercent >= 0) ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {employeePercent !== null ? employeePercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {employeePercent !== undefined ? employeePercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
@@ -186,20 +203,21 @@ function DisplayInfo() {
                     <Box
                         sx={{
                             mt: '10px',
-                            color: timeOffPercent != null && timeOffPercent < 0 ? '#F93C65' : '#00B69B',
-                            fontSize: '14px',
+                            color: timeOffPercent != undefined && timeOffPercent < 0 ? '#F93C65' : '#00B69B',
+                            fontSize: '16px',
                             fontWeight: 'bold',
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
-                        {timeOffPercent != null &&
+                        {timeOffPercent != undefined &&
                             (timeOffPercent < 0 ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {timeOffPercent !== null ? timeOffPercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {timeOffPercent !== undefined ? timeOffPercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
@@ -258,19 +276,20 @@ function DisplayInfo() {
                         sx={{
                             mt: '10px',
                             color: !(!newEmployeePercent || newEmployeePercent >= 0) ? '#F93C65' : '#00B69B',
-                            fontSize: '14px',
+                            fontSize: '16px',
                             fontWeight: 'bold',
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
-                        {newEmployeePercent !== null &&
+                        {newEmployeePercent !== undefined &&
                             (!(!newEmployeePercent || newEmployeePercent >= 0) ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {newEmployeePercent !== null ? newEmployeePercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {newEmployeePercent !== undefined ? newEmployeePercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
@@ -345,13 +364,14 @@ function DisplayInfo() {
                             alignItems: 'center'
                         }}
                     >
-                        {layoffPercent !== null &&
+                        {layoffPercent !== undefined &&
                             (layoffPercent && layoffPercent < 0 ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {layoffPercent !== null ? layoffPercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {layoffPercent !== undefined ? layoffPercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
@@ -410,19 +430,20 @@ function DisplayInfo() {
                         sx={{
                             mt: '10px',
                             color: laborCostsPercent && laborCostsPercent < 0 ? '#F93C65' : '#00B69B',
-                            fontSize: '14px',
+                            fontSize: '16px',
                             fontWeight: 'bold',
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
-                        {laborCostsPercent !== null &&
+                        {laborCostsPercent !== undefined &&
                             (laborCostsPercent && laborCostsPercent < 0 ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {laborCostsPercent !== null ? laborCostsPercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {laborCostsPercent !== undefined ? laborCostsPercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
@@ -487,13 +508,14 @@ function DisplayInfo() {
                             alignItems: 'center'
                         }}
                     >
-                        {promotionPercent !== null &&
+                        {promotionPercent !== undefined &&
                             (!(!promotionPercent || promotionPercent >= 0) ? (
                                 <TrendingDown style={{ marginRight: '6px' }} />
                             ) : (
                                 <TrendingUp style={{ marginRight: '6px' }} />
                             ))}
-                        {promotionPercent !== null ? promotionPercent + '%' : t('COMMON.DASHBOARD.NO_CHANGE')}
+                        {promotionPercent !== undefined ? promotionPercent + '%' : 'N/A'}
+                        {/*t('COMMON.DASHBOARD.NO_CHANGE')*/}
                         <Typography
                             sx={{
                                 ml: '6px',
