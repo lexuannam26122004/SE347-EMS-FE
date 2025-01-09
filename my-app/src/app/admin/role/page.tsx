@@ -141,10 +141,13 @@ function DepartmentTable() {
 
     const handleChangeStatusManyDepartment = async () => {
         if (selected.length > 0) {
-            // await changeManyDepartment(selected)
+            for (const id of selected) {
+                await deleteDepartment(id)
+            }
             setIsChangeMany(false)
             setSelected([])
             setOpenDialog(false)
+            refetch()
         }
     }
 
