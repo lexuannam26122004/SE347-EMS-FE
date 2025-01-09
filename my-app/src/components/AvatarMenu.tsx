@@ -389,24 +389,8 @@ const AvatarMenu = () => {
                                         </MenuItem>
                                     )}
 
-                                    {pathName.includes('/admin') && (
-                                        <MenuItem
-                                            onClick={handleSchedular}
-                                            sx={{
-                                                color: 'var(--text-color)',
-                                                padding: '9px 12px',
-                                                borderRadius: '8px',
-                                                '&:hover': {
-                                                    backgroundColor: 'var(--hover-color)'
-                                                }
-                                            }}
-                                        >
-                                            <CalendarClock style={{ marginRight: '16px' }} />
-                                            {t('COMMON.SIDEBAR.SCHEDULAR')}
-                                        </MenuItem>
-                                    )}
                                     <MenuItem
-                                        onClick={handleCreateTasks}
+                                        onClick={handleSchedular}
                                         sx={{
                                             color: 'var(--text-color)',
                                             padding: '9px 12px',
@@ -416,9 +400,25 @@ const AvatarMenu = () => {
                                             }
                                         }}
                                     >
-                                        <BriefcaseBusiness style={{ marginRight: '16px' }} />
-                                        {t('COMMON.SIDEBAR.CREATETASKS')}
+                                        <CalendarClock style={{ marginRight: '16px' }} />
+                                        {t('COMMON.SIDEBAR.SCHEDULAR')}
                                     </MenuItem>
+                                    {pathName.includes('/admin') && (
+                                        <MenuItem
+                                            onClick={handleCreateTasks}
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                padding: '9px 12px',
+                                                borderRadius: '8px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                }
+                                            }}
+                                        >
+                                            <BriefcaseBusiness style={{ marginRight: '16px' }} />
+                                            {t('COMMON.SIDEBAR.CREATETASKS')}
+                                        </MenuItem>
+                                    )}
 
                                     {/* <MenuItem
                                         onClick={handleClose}

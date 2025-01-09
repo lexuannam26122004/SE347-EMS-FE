@@ -740,6 +740,12 @@
             "USERNAME_PLACEHOLDER": "Enter your username or email"
         },
         "USER": {
+            "ATTENDANCE": "Attendance",
+            "PERSONAL": "Personal information",
+            "SALARY": "Salaries",
+            "REQUEST": "Requests",
+            "INCENTIVES_PENALTIES": "Incentives & penalties",
+            "POLICIES": "Policies",
             "TOTAL_ATTENDANCE": "Total Attendance",
             "TOTAL_LATE": "Total Late",
             "AVG_CHECK_IN": "Avg Check In Time",

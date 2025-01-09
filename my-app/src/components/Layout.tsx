@@ -236,14 +236,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     alert={false}
                     active={pathname === '/admin/work-shift'}
                 /> */}
-                {menuLeft['Insurance'].IsAllowView && (
+                {/* {menuLeft['Insurance'].IsAllowView && (
                     <SidebarItem
                         icon={<Stethoscope />}
                         text={t('COMMON.SIDEBAR.INSURANCE')}
                         route='/admin/insurance'
                         active={pathname === '/admin/insurance'}
                     />
-                )}
+                )} */}
                 {menuLeft['Reward'].IsAllowView && (
                     <SidebarItem
                         icon={<Award />}
@@ -252,7 +252,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         active={pathname === '/admin/reward'}
                     />
                 )}
-                {menuLeft['Benefit'].IsAllowView && (
+                {/* {menuLeft['Benefit'].IsAllowView && (
                     <SidebarItem
                         icon={<Gift />}
                         text={t('Phúc lợi')}
@@ -274,7 +274,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             />
                         )}
                     </SidebarItem>
-                )}
+                )} */}
                 {menuLeft['Discipline'].IsAllowView && (
                     <SidebarItem
                         icon={<Scale />}

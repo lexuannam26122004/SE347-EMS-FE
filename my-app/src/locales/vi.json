@@ -707,6 +707,12 @@
             "USERNAME_PLACEHOLDER": "Nhập username hoặc email"
         },
         "USER": {
+            "ATTENDANCE": "Chấm công",
+            "PERSONAL": "Trang cá nhân",
+            "SALARY": "Lương",
+            "REQUEST": "Yêu cầu",
+            "INCENTIVES_PENALTIES": "Thưởng & Phạt",
+            "POLICIES": "Quy định",
             "TOTAL_ATTENDANCE": "Số lần chấm công",
             "TOTAL_LATE": "Tổng số lần đi trễ",
             "AVG_CHECK_IN": "Trung bình giờ vào",

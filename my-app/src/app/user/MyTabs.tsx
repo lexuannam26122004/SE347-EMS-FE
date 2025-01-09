@@ -4,6 +4,7 @@ import { styled } from '@mui/system'
 import { Tab as BaseTab, tabClasses } from '@mui/base/Tab'
 import { Tabs as BaseTabs } from '@mui/base/Tabs'
 import { TabsList as BaseTabsList } from '@mui/base/TabsList'
+import { useTranslation } from 'react-i18next'
 
 const blue = {
     50: '#F0F7FF',
@@ -56,6 +57,7 @@ const TabsList = styled(BaseTabsList)`
 `
 
 function MyTabs() {
+    const { t } = useTranslation('common')
     const router = useRouter()
     const pathname = usePathname()
 
@@ -72,7 +74,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Cá nhân
+                    {t('COMMON.USER.PERSONAL')}
                 </Tab>
                 <Tab
                     value='/user/attendance'
@@ -80,7 +82,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Chấm công
+                    {t('COMMON.USER.ATTENDANCE')}
                 </Tab>
                 <Tab
                     value='/user/salary'
@@ -88,7 +90,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Lương
+                    {t('COMMON.USER.SALARY')}
                 </Tab>
                 <Tab
                     value='/user/rewards-disciplines'
@@ -96,15 +98,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Thưởng phạt
-                </Tab>
-                <Tab
-                    value='/user/benefits-insurances'
-                    sx={{
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    Phúc lợi
+                    {t('COMMON.USER.INCENTIVES_PENALTIES')}
                 </Tab>
                 <Tab
                     value='/user/requests'
@@ -112,7 +106,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Yêu cầu
+                    {t('COMMON.USER.REQUEST')}
                 </Tab>
                 <Tab
                     value='/user/working-rules'
@@ -120,7 +114,7 @@ function MyTabs() {
                         whiteSpace: 'nowrap'
                     }}
                 >
-                    Quy định
+                    {t('COMMON.USER.POLICIES')}
                 </Tab>
             </TabsList>
         </BaseTabs>

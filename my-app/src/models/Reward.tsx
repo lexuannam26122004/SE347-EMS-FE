@@ -27,6 +27,17 @@ export interface IFilterReward {
     isDescending?: boolean
 }
 
+export interface IFilterRewardUser {
+    department?: string
+    keyword?: string
+    pageSize?: number
+    startDate?: string
+    endDate?: string
+    pageNumber?: number
+    sortBy?: string
+    isDescending?: boolean
+}
+
 export interface IUpdateReward extends ICreateReward {
     Id: number
 }

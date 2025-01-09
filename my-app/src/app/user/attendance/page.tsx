@@ -97,8 +97,8 @@ function Page() {
     const [filter, setFilter] = useState<IFilterTimekeepingForUser>({
         PageSize: 10,
         PageNumber: 1,
-        StartDate: convertToVietnamTimeStart(new Date()),
-        EndDate: convertToVietnamTimeEnd(new Date()),
+        StartDate: dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+        EndDate: dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'),
         IsValid: true,
         IsEarly: true,
         IsLate: true,
