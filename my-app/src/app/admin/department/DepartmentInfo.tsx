@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Paper, Typography } from '@mui/material'
 import { Box } from '@mui/material'
-import { UserRoundSearch, CircleUserRound, ExternalLink } from 'lucide-react'
+import { UserRoundSearch, CircleUserRound } from 'lucide-react'
 import { useGetAllDepartmentQuery } from '@/services/DepartmentService'
 import { IDepartmentGetAll } from '@/models/Department'
 import { IFilterSysConfiguration } from '@/models/SysConfiguration'
@@ -199,23 +199,6 @@ function DepartmentInfo() {
                                             {t(department.DepartmentHeadName || 'N/A')}
                                         </Typography>
                                     </Box>
-                                </Box>
-                            </Box>
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    padding: '10px 10px',
-                                    borderRadius: '180px',
-                                    background: 'rgb(147, 155, 163)'
-                                }}
-                                onClick={() => {
-                                    alert('Box đã được click!')
-                                }}
-                            >
-                                <Box sx={{ fontSize: '30px', color: '#FFFFFF', display: 'flex' }}>
-                                    <ExternalLink />
                                 </Box>
                             </Box>
                         </Box>

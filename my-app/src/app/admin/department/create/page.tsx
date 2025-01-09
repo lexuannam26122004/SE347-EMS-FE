@@ -63,7 +63,7 @@ function CreateConfigurationPage() {
         }
         await createSysConfiguration(data).unwrap()
         setIsSubmit(false)
-        router.push('/admin/configuration')
+        router.push('/admin/department')
     }
 
     return (
@@ -80,151 +80,12 @@ function CreateConfigurationPage() {
                 }}
             >
                 <Typography sx={{ fontWeight: 'bold', fontSize: '22px', color: 'var(--text-color)' }}>
-                    {t('COMMON.SYS_CONFIGURATION.ACTION_CONFIGURATION.CREATE_TITLE')}
+                    {t('Thêm phòng ban')}
                 </Typography>
 
                 <Box
                     sx={{
-                        mt: '7px'
-                    }}
-                >
-                    <TextField
-                        variant='outlined'
-                        label={t('COMMON.SYS_CONFIGURATION.ACTION_CONFIGURATION.VALUE')}
-                        fullWidth
-                        multiline
-                        {...(isSubmit && value === '' && { error: true })}
-                        minRows={1}
-                        maxRows={3}
-                        sx={{
-                            '& fieldset': {
-                                borderRadius: '8px',
-                                color: 'var(--text-color)',
-                                borderColor: 'var(--border-color)'
-                            },
-                            '& .MuiInputBase-root': {
-                                paddingRight: '3px'
-                            },
-                            '& .MuiInputBase-input': {
-                                scrollbarGutter: 'stable',
-                                '&::-webkit-scrollbar': {
-                                    width: '7px',
-                                    height: '7px'
-                                },
-                                '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: 'var(--scrollbar-color)',
-                                    borderRadius: '10px'
-                                },
-                                paddingRight: '4px',
-                                color: 'var(--text-color)',
-                                fontSize: '16px',
-                                '&::placeholder': {
-                                    color: 'var(--placeholder-color)',
-                                    opacity: 1
-                                }
-                            },
-                            '& .MuiOutlinedInput-root:hover fieldset': {
-                                borderColor: 'var(--hover-field-color)'
-                            },
-                            '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
-                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                            },
-                            '& .MuiOutlinedInput-root.Mui-error fieldset': {
-                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                            },
-                            '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-                                borderColor: 'var(--selected-field-color)'
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: 'var(--text-label-color)'
-                            },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                                color: 'var(--selected-field-color)'
-                            },
-                            '& .MuiInputLabel-root.Mui-error': {
-                                color: 'var(--error-color)'
-                            }
-                        }}
-                        value={value}
-                        onChange={e => setValue(e.target.value)}
-                    />
-                    <Typography
-                        sx={{
-                            color: 'var(--error-color)',
-                            margin: '1px 0 0 10px',
-                            fontSize: '12px',
-                            visibility: isSubmit && value === '' ? 'visible' : 'hidden'
-                        }}
-                    >
-                        {t('COMMON.TEXTFIELD.REQUIRED')}
-                    </Typography>
-                </Box>
-
-                <TextField
-                    variant='outlined'
-                    label={t('COMMON.SYS_CONFIGURATION.ACTION_CONFIGURATION.DESCRIPTION')}
-                    id='fullWidth'
-                    fullWidth
-                    multiline
-                    minRows={4}
-                    maxRows={12}
-                    sx={{
-                        mt: '7px',
-                        '& fieldset': {
-                            borderRadius: '8px',
-                            color: 'var(--text-color)',
-                            borderColor: 'var(--border-color)'
-                        },
-                        '& .MuiInputBase-root': {
-                            paddingRight: '3px'
-                        },
-                        '& .MuiInputBase-input': {
-                            scrollbarGutter: 'stable',
-                            '&::-webkit-scrollbar': {
-                                width: '7px',
-                                height: '7px'
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: 'var(--scrollbar-color)',
-                                borderRadius: '10px'
-                            },
-                            paddingRight: '4px',
-                            color: 'var(--text-color)',
-                            fontSize: '16px',
-                            '&::placeholder': {
-                                color: 'var(--placeholder-color)',
-                                opacity: 1
-                            }
-                        },
-                        '& .MuiOutlinedInput-root:hover fieldset': {
-                            borderColor: 'var(--hover-field-color)'
-                        },
-                        '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
-                            borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                        },
-                        '& .MuiOutlinedInput-root.Mui-error fieldset': {
-                            borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                        },
-                        '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-                            borderColor: 'var(--selected-field-color)'
-                        },
-                        '& .MuiInputLabel-root': {
-                            color: 'var(--text-label-color)'
-                        },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                            color: 'var(--selected-field-color)'
-                        },
-                        '& .MuiInputLabel-root.Mui-error': {
-                            color: 'var(--error-color)'
-                        }
-                    }}
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                />
-
-                <Box
-                    sx={{
-                        width: 'calc(50% - 10px)'
+                        mt: '25px'
                     }}
                 >
                     <Autocomplete
@@ -314,7 +175,7 @@ function CreateConfigurationPage() {
                             <TextField
                                 {...params}
                                 variant='outlined'
-                                label={t('COMMON.CONTRACT.INFORMATION') + '*'}
+                                label={t('Thêm trưởng phòng ban') + '*'}
                                 fullWidth
                                 error={isSubmit && userId === ''}
                             />
@@ -335,6 +196,145 @@ function CreateConfigurationPage() {
                         {t('COMMON.TEXTFIELD.REQUIRED')}
                     </Typography>
                 </Box>
+
+                <Box
+                    sx={{
+                        mt: '7px'
+                    }}
+                >
+                    <TextField
+                        variant='outlined'
+                        label={t('Tên phòng ban') + '*'}
+                        fullWidth
+                        multiline
+                        {...(isSubmit && value === '' && { error: true })}
+                        minRows={1}
+                        maxRows={3}
+                        sx={{
+                            '& fieldset': {
+                                borderRadius: '8px',
+                                color: 'var(--text-color)',
+                                borderColor: 'var(--border-color)'
+                            },
+                            '& .MuiInputBase-root': {
+                                paddingRight: '3px'
+                            },
+                            '& .MuiInputBase-input': {
+                                scrollbarGutter: 'stable',
+                                '&::-webkit-scrollbar': {
+                                    width: '7px',
+                                    height: '7px'
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: 'var(--scrollbar-color)',
+                                    borderRadius: '10px'
+                                },
+                                paddingRight: '4px',
+                                color: 'var(--text-color)',
+                                fontSize: '16px',
+                                '&::placeholder': {
+                                    color: 'var(--placeholder-color)',
+                                    opacity: 1
+                                }
+                            },
+                            '& .MuiOutlinedInput-root:hover fieldset': {
+                                borderColor: 'var(--hover-field-color)'
+                            },
+                            '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                            },
+                            '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                            },
+                            '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                borderColor: 'var(--selected-field-color)'
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'var(--text-label-color)'
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'var(--selected-field-color)'
+                            },
+                            '& .MuiInputLabel-root.Mui-error': {
+                                color: 'var(--error-color)'
+                            }
+                        }}
+                        value={value}
+                        onChange={e => setValue(e.target.value)}
+                    />
+                    <Typography
+                        sx={{
+                            color: 'var(--error-color)',
+                            margin: '1px 0 0 10px',
+                            fontSize: '12px',
+                            visibility: isSubmit && value === '' ? 'visible' : 'hidden'
+                        }}
+                    >
+                        {t('COMMON.TEXTFIELD.REQUIRED')}
+                    </Typography>
+                </Box>
+
+                <TextField
+                    variant='outlined'
+                    label={t('Ghi chú')}
+                    id='fullWidth'
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    maxRows={12}
+                    sx={{
+                        mt: '7px',
+                        '& fieldset': {
+                            borderRadius: '8px',
+                            color: 'var(--text-color)',
+                            borderColor: 'var(--border-color)'
+                        },
+                        '& .MuiInputBase-root': {
+                            paddingRight: '3px'
+                        },
+                        '& .MuiInputBase-input': {
+                            scrollbarGutter: 'stable',
+                            '&::-webkit-scrollbar': {
+                                width: '7px',
+                                height: '7px'
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'var(--scrollbar-color)',
+                                borderRadius: '10px'
+                            },
+                            paddingRight: '4px',
+                            color: 'var(--text-color)',
+                            fontSize: '16px',
+                            '&::placeholder': {
+                                color: 'var(--placeholder-color)',
+                                opacity: 1
+                            }
+                        },
+                        '& .MuiOutlinedInput-root:hover fieldset': {
+                            borderColor: 'var(--hover-field-color)'
+                        },
+                        '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                            borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                        },
+                        '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                            borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                        },
+                        '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                            borderColor: 'var(--selected-field-color)'
+                        },
+                        '& .MuiInputLabel-root': {
+                            color: 'var(--text-label-color)'
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                            color: 'var(--selected-field-color)'
+                        },
+                        '& .MuiInputLabel-root.Mui-error': {
+                            color: 'var(--error-color)'
+                        }
+                    }}
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                />
 
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', mt: '20px' }}>
                     <LoadingButton
@@ -400,7 +400,7 @@ function CreateConfigurationPage() {
                             textTransform: 'none'
                         }}
                         onClick={() => {
-                            router.push('/admin/configuration')
+                            router.push('/admin/department')
                         }}
                     >
                         {t('COMMON.BUTTON.CLOSE')}
