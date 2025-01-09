@@ -10,7 +10,8 @@ import {
     InputLabel,
     FormControl,
     TextField,
-    InputAdornment
+    InputAdornment,
+    Button
 } from '@mui/material'
 import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +26,9 @@ import { useCallback } from 'react'
 import { IFilterReward } from '@/models/Reward'
 import { useGetAllRewardsQuery } from '@/services/RewardService'
 import Loading from '@/components/Loading'
+import { CirclePlus } from 'lucide-react'
+import { authSelector } from '@/redux/slices/authSlice'
+import { useSelector } from 'react-redux'
 
 function a11yProps(index: number) {
     return {
@@ -34,6 +38,7 @@ function a11yProps(index: number) {
 }
 
 function Page() {
+    const router = useRouter()
     const { t } = useTranslation('common')
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState('5')
@@ -145,7 +150,9 @@ function Page() {
         [rewardData]
     )
 
-    if (isLoading) {
+    const menuLeft = useSelector(authSelector)
+
+    if (isLoading || menuLeft === null || Object.keys(menuLeft).length === 0) {
         return <Loading />
     }
 
@@ -247,7 +254,7 @@ function Page() {
                             }}
                             label={
                                 <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {t('COMMON.REWARD_DISCIPLINE.UNPROCESSED')}
+                                    Chưa nhận
                                     <Box
                                         style={{
                                             ...badgeStyle,
@@ -279,7 +286,7 @@ function Page() {
                             }}
                             label={
                                 <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {t('COMMON.REWARD_DISCIPLINE.PROCESSED')}
+                                    Đã nhận
                                     <Box
                                         style={{
                                             ...badgeStyle,
@@ -480,6 +487,30 @@ function Page() {
                             </Select>
                         </FormControl>
                     </Box>
+
+                    {menuLeft['Reward'].IsAllowCreate && (
+                        <Button
+                            variant='contained'
+                            startIcon={<CirclePlus />}
+                            sx={{
+                                ml: 'auto',
+                                height: '53px',
+                                backgroundColor: 'var(--button-color)',
+                                width: 'auto',
+                                padding: '0px 30px',
+                                '&:hover': {
+                                    backgroundColor: 'var(--hover-button-color)'
+                                },
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                whiteSpace: 'nowrap',
+                                textTransform: 'none'
+                            }}
+                            onClick={() => router.push('/admin/reward/create')}
+                        >
+                            {t('COMMON.BUTTON.CREATE')}
+                        </Button>
+                    )}
                 </Box>
 
                 <TableReward rewardsData={filteredData} setFilter={setFilter} refetch={refetch} />

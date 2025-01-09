@@ -14,7 +14,7 @@ import {
     TableSortLabel,
     Avatar
 } from '@mui/material'
-import { EyeIcon, Pencil, Trash2 } from 'lucide-react'
+import { ClipboardCheck, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
@@ -24,6 +24,8 @@ import { useSelector } from 'react-redux'
 import { IFilterReward } from '@/models/Reward'
 import { useChangeStatusRewardMutation } from '@/services/RewardService'
 import AlertDialog from './AlertDialog'
+import DetailModal from '@/app/admin/reward/DetailModal'
+import { useUpdateIsReceivedMutation } from '@/services/RewardService'
 
 function getStatusBgColor(status: boolean): string {
     if (status === false) {
@@ -63,22 +65,31 @@ interface IProps {
 function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
     const { t } = useTranslation('common')
     const router = useRouter()
-    const [selected, setSelected] = useState<number[]>([])
     const [openDialog, setOpenDialog] = useState(false)
     const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
     const [orderBy, setOrderBy] = useState<string>('')
-    // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
+    const [selectedReward, setSelectedReward] = useState<IGetAllReward | null>(null)
     const [openModal, setOpenModal] = useState(false)
     const [changeReward, { isSuccess: isSuccessChange }] = useChangeStatusRewardMutation()
+    const [updateIsReceived, { isSuccess: isSuccessUpdateIsReceived }] = useUpdateIsReceivedMutation()
 
     const handleButtonUpdateClick = (id: number) => {
         router.push(`/admin/reward/update?id=${id}`)
     }
 
+    const handleClickDetail = (reward: IGetAllReward) => {
+        setSelectedReward(reward)
+        setOpenModal(true)
+    }
+
     const handleDeleteClick = async (id: number) => {
         setOpenDialog(true)
         setSelectedRow(id)
+    }
+
+    const handleConsiderClick = async (id: number) => {
+        await updateIsReceived(id)
     }
 
     const handleDeleteReward = async () => {
@@ -90,10 +101,10 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
     }
 
     useEffect(() => {
-        if (isSuccessChange) {
+        if (isSuccessChange || isSuccessUpdateIsReceived) {
             refetch()
         }
-    }, [isSuccessChange])
+    }, [isSuccessChange, isSuccessUpdateIsReceived])
 
     const handleSort = (property: string) => {
         setFilter(prev => ({
@@ -288,7 +299,7 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                                 </Typography>
                             </TableCell>
 
-                            <TableCell sx={{ borderColor: 'var(--border-color)', padding: '16px 24px' }}>
+                            <TableCell sx={{ borderColor: 'var(--border-color)', padding: '16px 50px' }}>
                                 <Typography
                                     sx={{
                                         fontWeight: 'bold',
@@ -484,9 +495,10 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
 
                                     <TableCell
                                         sx={{
-                                            padding: '0px 12px 0px 0px',
+                                            padding: '0px 30px 0px',
                                             borderColor: 'var(--border-color)',
-                                            width: '146px'
+                                            width: '146px',
+                                            borderStyle: 'dashed'
                                         }}
                                     >
                                         <Box display='flex' alignItems='center' justifyContent='center' gap='10px'>
@@ -505,12 +517,34 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                                                             backgroundColor: 'var(--hover-color)'
                                                         }
                                                     }}
-                                                    // onClick={() => handleClickDetail(row)}
+                                                    onClick={() => handleClickDetail(row)}
                                                 >
                                                     <EyeIcon />
                                                 </Box>
                                             </Tooltip>
-                                            {menuLeft['Configuration'].IsAllowEdit && (
+                                            {menuLeft['Reward'].IsAllowEdit && (
+                                                <Tooltip title={'Cập nhật trạng thái'}>
+                                                    <Box
+                                                        display='flex'
+                                                        alignItems='center'
+                                                        justifyContent='center'
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            color: '#d1006d',
+                                                            borderRadius: '50%',
+                                                            width: '42px',
+                                                            height: '42px',
+                                                            '&:hover': {
+                                                                backgroundColor: 'var(--hover-color)'
+                                                            }
+                                                        }}
+                                                        onClick={() => handleConsiderClick(row.Id)}
+                                                    >
+                                                        <ClipboardCheck />
+                                                    </Box>
+                                                </Tooltip>
+                                            )}
+                                            {menuLeft['Reward'].IsAllowEdit && (
                                                 <Tooltip title={t('COMMON.BUTTON.EDIT')}>
                                                     <Box
                                                         display='flex'
@@ -532,7 +566,7 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                                                     </Box>
                                                 </Tooltip>
                                             )}
-                                            {menuLeft['Configuration'].IsAllowDelete && (
+                                            {menuLeft['Reward'].IsAllowDelete && (
                                                 <Tooltip title={t('COMMON.BUTTON.DELETE')}>
                                                     <Box
                                                         display='flex'
@@ -572,6 +606,10 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                 buttonConfirm={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.DELETE')}
                 onConfirm={() => handleDeleteReward()}
             />
+
+            {selectedReward && (
+                <DetailModal handleToggle={() => setOpenModal(false)} open={openModal} reward={selectedReward} />
+            )}
         </>
     )
 }

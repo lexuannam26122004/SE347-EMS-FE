@@ -127,8 +127,6 @@ function ConfigurationPage() {
         debouncedSetFilter(value)
     }
 
-    // const debouncedHandleSearch = useCallback(debounce(handleSearchKeyword, 200), [])
-
     useEffect(() => {
         if (!isFetching && responseData?.Data) {
             const from = (page - 1) * Number(rowsPerPage) + Math.min(1, sysConfigurationData.length)
