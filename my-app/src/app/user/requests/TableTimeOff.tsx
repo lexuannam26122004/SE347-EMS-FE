@@ -16,6 +16,7 @@ import { EyeIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
+import DetailTimeOff from './DetailTimeOff'
 
 function getStatusBgColor(status: boolean): string {
     if (status === false) {
@@ -85,11 +86,17 @@ function TableTimeOff({ errorsData, totalRecords, type }: IProps) {
     const [orderBy, setOrderBy] = useState<string>('')
     // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
     const [openModal, setOpenModal] = useState(false)
+    const [selectedConfig, setSelectedConfig] = useState<IGetAllTimeOff | null>(null)
 
     // const handleClickDetail = (config: IGetAllSysConfiguration) => {
     //     setSelectedConfig(config)
     //     setOpenModal(true)
     // }
+
+    const handleClickDetail = (config: IGetAllTimeOff) => {
+        setSelectedConfig(config)
+        setOpenModal(true)
+    }
 
     useEffect(() => {}, [
         totalRecords,
@@ -407,8 +414,8 @@ function TableTimeOff({ errorsData, totalRecords, type }: IProps) {
                                             {row.IsAccepted === null
                                                 ? t('COMMON.TIMEOFF.PENDING')
                                                 : row.IsAccepted
-                                                  ? t('COMMON.TIMEOFF.AGREE')
-                                                  : t('COMMON.TIMEOFF.REFUSE')}
+                                                ? t('COMMON.TIMEOFF.AGREE')
+                                                : t('COMMON.TIMEOFF.REFUSE')}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -505,6 +512,7 @@ function TableTimeOff({ errorsData, totalRecords, type }: IProps) {
                                                         backgroundColor: 'var(--hover-color)'
                                                     }
                                                 }}
+                                                onClick={() => handleClickDetail(row)}
                                             >
                                                 <EyeIcon />
                                             </Box>
@@ -515,6 +523,14 @@ function TableTimeOff({ errorsData, totalRecords, type }: IProps) {
                         ))}
                 </TableBody>
             </Table>
+
+            {selectedConfig && (
+                <DetailTimeOff
+                    handleToggle={() => setOpenModal(false)}
+                    open={openModal}
+                    configuration={selectedConfig}
+                />
+            )}
         </TableContainer>
     )
 }

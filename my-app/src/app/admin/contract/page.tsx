@@ -33,7 +33,7 @@ import {
     useSearchEmploymentContractsQuery,
     useChangeStatusEmploymentContractsMutation
 } from '@/services/EmploymentContractService'
-
+import DetailContract from './DetailContract'
 import { CirclePlus, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import SearchIcon from '@mui/icons-material/Search'
 import { useTranslation } from 'react-i18next'
@@ -53,6 +53,14 @@ const EmployeeTable: React.FC = () => {
     }>({ key: 'Id', direction: 'asc' })
     const { t } = useTranslation('common')
     const router = useRouter()
+
+    const [openModal, setOpenModal] = useState(false)
+    const [selectedContract, setSelectedContract] = useState<IEmploymentContractSearch | null>(null)
+
+    const handleClickDetail = (config: IEmploymentContractSearch) => {
+        setSelectedContract(config)
+        setOpenModal(true)
+    }
 
     const [changeEmploymentContract] = useChangeStatusEmploymentContractsMutation()
 
@@ -786,6 +794,7 @@ const EmployeeTable: React.FC = () => {
                                                             backgroundColor: 'var(--hover-color)'
                                                         }
                                                     }}
+                                                    onClick={() => handleClickDetail(user)}
                                                 >
                                                     <EyeIcon />
                                                 </Box>
@@ -937,6 +946,15 @@ const EmployeeTable: React.FC = () => {
                     />
                 </Box>
             </Paper>
+
+            {selectedContract && (
+                <DetailContract
+                    handleToggle={() => setOpenModal(false)}
+                    open={openModal}
+                    configuration={selectedContract}
+                    emp={employee}
+                />
+            )}
 
             <AlertDialog
                 title={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.TITLE')}

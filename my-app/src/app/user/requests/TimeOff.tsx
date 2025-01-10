@@ -193,8 +193,7 @@ function ContractExpPage() {
         <Box
             sx={{
                 paddingTop: '35px',
-                paddingLeft: '35px',
-                paddingRight: '35px',
+
                 boxShadow: 'var(--box-shadow-paper)',
                 borderRadius: '30px',
                 backgroundColor: 'var(--attendance-bg1)',
@@ -208,7 +207,9 @@ function ContractExpPage() {
                 sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    mb: '35px'
+                    mb: '35px',
+                    paddingLeft: '35px',
+                    paddingRight: '35px'
                 }}
             >
                 <Box
@@ -227,7 +228,7 @@ function ContractExpPage() {
                         fontWeight: 'bold'
                     }}
                 >
-                     {t('COMMON.TIMEOFF.TIMEOFF')}
+                    {t('COMMON.TIMEOFF.TIMEOFF')}
                 </Typography>
             </Box>
 

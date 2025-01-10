@@ -575,7 +575,7 @@ function WorkingRolesPage() {
                                         justifyContent: 'flex-start',
                                         height: '100%',
                                         gap: '24px',
-                                        border: '2px solid var(--bg-all-color1)',
+                                        //border: '2px solid var(--bg-all-color1)',
                                         borderRadius: '15px'
                                     }}
                                 >

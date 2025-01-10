@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import Loading from '@/components/Loading'
 import { SaveIcon, XIcon, RefreshCcwIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-
+import { IEmploymentContractSearch } from '@/models/EmploymentContract'
 import { useEffect, useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useToast } from '@/hooks/useToast'
@@ -59,10 +59,13 @@ const CreateEmploymentContract = () => {
 
     const [createEmploymentContract, { isSuccess, isError, reset }] = useCreateEmploymentContractsMutation()
 
-    const { refetch } = useSearchEmploymentContractsQuery()
-
+    const { data: contractResponse, isLoading: isContractsLoading, refetch } = useSearchEmploymentContractsQuery()
     const { data: userResponse, isLoading: isUsersLoading } = useGetAllUsersQuery()
+
+    const contract = (contractResponse?.Data?.Records as IEmploymentContractSearch[]) || []
     const employee = (userResponse?.Data?.Records as IAspNetUserGetAll[]) || []
+
+    const filteredEmployees = employee.filter(emp => !contract.some(ct => ct.UserId === emp.Id))
 
     const [isSaveLoading, setIsSaveLoading] = useState(false)
     const [isSaveAndCloseLoading, setIsSaveAndCloseLoading] = useState(false)
@@ -167,7 +170,7 @@ const CreateEmploymentContract = () => {
         setIsSubmit(false)
     }
 
-    if (isUsersLoading) return <Loading />
+    if (isUsersLoading || isContractsLoading) return <Loading />
 
     return (
         <Box sx={{ width: '720px', maxWidth: '100%', margin: '0 auto' }}>
@@ -250,7 +253,7 @@ const CreateEmploymentContract = () => {
                                     }
                                 }
                             }}
-                            options={employee}
+                            options={filteredEmployees}
                             getOptionLabel={option => `${option.EmployeeId}  ${option.FullName}`}
                             renderOption={(props, option, { selected }) => {
                                 const { key, ...otherProps } = props
@@ -291,7 +294,7 @@ const CreateEmploymentContract = () => {
                                     error={isSubmit && userId === ''}
                                 />
                             )}
-                            value={employee.find(e => e.Id === userId) || null}
+                            value={filteredEmployees.find(e => e.Id === userId) || null}
                             onChange={(event, newValue) => setUserId(newValue?.Id || '')}
                             isOptionEqualToValue={(option, value) => option.Id === value.Id}
                         />

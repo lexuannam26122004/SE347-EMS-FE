@@ -34,6 +34,7 @@ import { CirclePlus, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import SearchIcon from '@mui/icons-material/Search'
 import { useTranslation } from 'react-i18next'
 import AlertDialog from '@/components/AlertDialog'
+import DetailTimeOff from './DetailTimeOff'
 
 function a11yProps(index: number) {
     return {
@@ -88,6 +89,14 @@ const EmployeeTable: React.FC = () => {
     const [selected, setSelected] = useState<number[]>([])
     const [rowsPerPage, setRowsPerPage] = useState('10')
     const { t } = useTranslation('common')
+
+    const [openModal, setOpenModal] = useState(false)
+    const [selectedTimeOff, setSelectedTimeOff] = useState<ITimeOffSearch | null>(null)
+
+    const handleClickDetail = (config: ITimeOffSearch) => {
+        setSelectedTimeOff(config)
+        setOpenModal(true)
+    }
 
     const [filter, setFilter] = useState<IFilter>({
         pageSize: 10,
@@ -790,8 +799,8 @@ const EmployeeTable: React.FC = () => {
                                                 {user.IsAccepted === null
                                                     ? t('COMMON.TIMEOFF.PENDING')
                                                     : user.IsAccepted
-                                                      ? t('COMMON.TIMEOFF.AGREE')
-                                                      : t('COMMON.TIMEOFF.REFUSE')}
+                                                    ? t('COMMON.TIMEOFF.AGREE')
+                                                    : t('COMMON.TIMEOFF.REFUSE')}
                                             </Typography>
                                         </Box>
                                     </TableCell>
@@ -886,6 +895,7 @@ const EmployeeTable: React.FC = () => {
                                                             backgroundColor: 'var(--hover-color)'
                                                         }
                                                     }}
+                                                    onClick={() => handleClickDetail(user)}
                                                 >
                                                     <EyeIcon />
                                                 </Box>
@@ -1037,6 +1047,14 @@ const EmployeeTable: React.FC = () => {
                     />
                 </Box>
             </Paper>
+
+            {selectedTimeOff && (
+                <DetailTimeOff
+                    handleToggle={() => setOpenModal(false)}
+                    open={openModal}
+                    configuration={selectedTimeOff}
+                />
+            )}
 
             <AlertDialog
                 title={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.TITLE')}
