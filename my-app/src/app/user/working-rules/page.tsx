@@ -34,7 +34,7 @@ function WorkingRolesPage() {
     })
 
     const { data: responseData, isFetching, refetch, isLoading: LoadingDepartment } = useGetAllWorkingRulesQuery(filter)
-    const data = responseData?.Data.Records as IWorkingRulesGetAll[]
+    const data = (responseData?.Data.Records as IWorkingRulesGetAll[]) || []
     const totalRecords = responseData?.Data.TotalRecords as number
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -521,7 +521,7 @@ function WorkingRolesPage() {
                                         justifyContent: 'flex-start',
                                         height: '100%',
                                         gap: '24px',
-                                        border: '2px solid var(--bg-all-color1)',
+                                        //border: '2px solid var(--bg-all-color1)',
                                         borderRadius: '15px'
                                     }}
                                 >

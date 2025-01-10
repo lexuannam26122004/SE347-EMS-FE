@@ -20,7 +20,6 @@ const SaleByGenderChart = () => {
 
     const option = {
         title: {
-            text: `${t('COMMON.DASHBOARD.SUM_EMPLOYEE')} 28`, // Hiển thị tổng số nhân viên
             left: 'center', // Căn giữa tiêu đề
             top: '42px',
             textStyle: {
@@ -51,14 +50,14 @@ const SaleByGenderChart = () => {
                     '> 45' === name
                         ? ages?.GreaterThan45Percentage?.toFixed(2)
                         : name === '< 32'
-                          ? ages?.LessThan32Percentage?.toFixed(2)
-                          : ages?.Between32And45Percentage?.toFixed(2)
+                        ? ages?.LessThan32Percentage?.toFixed(2)
+                        : ages?.Between32And45Percentage?.toFixed(2)
                 const newName =
                     '> 45' === name
                         ? t('COMMON.DASHBOARD.SUM_EMPLOYEE_OVER_45')
                         : name === '< 32'
-                          ? t('COMMON.DASHBOARD.SUM_EMPLOYEE_UNDER_32')
-                          : t('COMMON.DASHBOARD.SUM_EMPLOYEE_32_TO_45')
+                        ? t('COMMON.DASHBOARD.SUM_EMPLOYEE_UNDER_32')
+                        : t('COMMON.DASHBOARD.SUM_EMPLOYEE_32_TO_45')
                 return `${newName}  (${percent}%)`
             },
             selectedMode: false
