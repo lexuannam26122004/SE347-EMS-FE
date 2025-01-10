@@ -76,15 +76,6 @@ function ContractExpPage() {
     const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
     const [orderBy, setOrderBy] = useState<string>('')
-    // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
-    const [openModal, setOpenModal] = useState(false)
-
-    // const { data: responseD, isFetching, refetch } = useGetContractsExpiringSoonQuery(filter)
-
-    // const handleClickDetail = (config: IGetAllSysConfiguration) => {
-    //     setSelectedConfig(config)
-    //     setOpenModal(true)
-    // }
 
     const { data: responseData, isFetching, refetch } = useSearchErrorReportQuery(filter)
     const errorsData = responseData?.Data?.Records as IGetAllErrorReport[]
@@ -125,15 +116,13 @@ function ContractExpPage() {
         selectedRow,
         order,
         orderBy,
-        openModal,
         setSelected,
         setSelectedRow,
         setOpenDialog,
         setFrom,
         setTo,
         setOrder,
-        setOrderBy,
-        setOpenModal
+        setOrderBy
     ])
 
     const totalRecords = (responseData?.Data.TotalRecords as number) || 0

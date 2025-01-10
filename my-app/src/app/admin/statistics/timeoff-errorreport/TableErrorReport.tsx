@@ -17,6 +17,7 @@ import { ClipboardCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
+import ErrorReportUpdate from '@/app/admin/statistics/timeoff-errorreport/ErrorReportUpdate'
 
 function getStatusBgColor(status: string): string {
     if (status === '3') {
@@ -85,12 +86,11 @@ interface IGetAllErrorReport {
     ResolvedAvatarPath: string | null
 }
 
-
 interface IProps {
     errorsData: IGetAllErrorReport[]
     totalRecords: number
     type: number
-    
+
     onSort: (property: string) => void
 }
 
@@ -102,12 +102,15 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
     const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
     const [orderBy, setOrderBy] = useState<string>('')
-    // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
+
     const [openModal, setOpenModal] = useState(false)
-    // const handleClickDetail = (config: IGetAllSysConfiguration) => {
-    //     setSelectedConfig(config)
-    //     setOpenModal(true)
-    // }
+
+    const [selectedErrorReport, setSelectedErrorReport] = useState<IGetAllErrorReport | null>(null)
+
+    const handleClickUpdate = (config: IGetAllErrorReport) => {
+        setSelectedErrorReport(config)
+        setOpenModal(true)
+    }
 
     useEffect(() => {}, [
         totalRecords,
@@ -129,7 +132,7 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
     ])
 
     const handleSort = (property: string) => {
-        onSort(property) 
+        onSort(property)
         if (orderBy === property) {
             setOrder(order === 'asc' ? 'desc' : 'asc')
         } else {
@@ -469,10 +472,10 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
                                             {row?.Status === '1'
                                                 ? 'In Progress'
                                                 : row?.Status === '2'
-                                                  ? 'Resolved'
-                                                  : row?.Status === '3'
-                                                    ? 'Rejected'
-                                                    : 'Pending'}
+                                                ? 'Resolved'
+                                                : row?.Status === '3'
+                                                ? 'Rejected'
+                                                : 'Pending'}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -569,6 +572,7 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
                                                         backgroundColor: 'var(--hover-color)'
                                                     }
                                                 }}
+                                                onClick={() => handleClickUpdate(row)}
                                             >
                                                 <ClipboardCheck />
                                             </Box>
@@ -579,6 +583,14 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
                         ))}
                 </TableBody>
             </Table>
+
+            {selectedErrorReport && (
+                <ErrorReportUpdate
+                    handleToggle={() => setOpenModal(false)}
+                    open={openModal}
+                    configuration={selectedErrorReport}
+                />
+            )}
         </TableContainer>
     )
 }
