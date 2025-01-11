@@ -578,18 +578,22 @@ function ContractExpPage() {
                             }}
                             onChange={e => handleIsType(e.target.value as string)}
                         >
+                            <MenuItem key={'COMMON.NOTIFICATION_TYPE.PUBLIC'} value={'COMMON.NOTIFICATION_TYPE.PUBLIC'}>
+                                {t('COMMON.NOTIFICATION_TYPE.PUBLIC')}
+                            </MenuItem>
+
                             {[
-                                {
-                                    value: 'COMMON.NOTIFICATION_TYPE.PUBLIC',
-                                    label: t('COMMON.NOTIFICATION_TYPE.PUBLIC')
-                                },
-                                ...[...new Set(errorsData?.map(type => type.Type))].map(uniqueType => ({
-                                    value: uniqueType || '',
-                                    label: t(String(uniqueType))
-                                }))
-                            ].map(({ value, label }) => (
-                                <MenuItem key={value} value={value}>
-                                    {label}
+                                'EMPLOYEE',
+                                'TIMEKEEPING',
+                                'SALARY',
+                                'CONTRACT',
+                                'INSURANCE',
+                                'REWARD',
+                                'BENEFIT',
+                                'DISCIPLINE'
+                            ].map(item => (
+                                <MenuItem key={`COMMON.SIDEBAR.${item}`} value={`COMMON.SIDEBAR.${item}`}>
+                                    {t(`COMMON.SIDEBAR.${item}`)}
                                 </MenuItem>
                             ))}
                         </Select>

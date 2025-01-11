@@ -70,6 +70,7 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
             await createErrorReport(data).unwrap()
         } finally {
             setIsSaveLoading(false)
+            handleToggle()
         }
         setIsSubmit(false)
     }
@@ -529,7 +530,7 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
                             }}
                             onClick={handleSave}
                         >
-                            {t('COMMON.BUTTON.SAVE')}
+                            {t('COMMON.BUTTON.SAVE_AND_CLOSE')}
                         </LoadingButton>
                     </Box>
                 </Box>
