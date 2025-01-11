@@ -13,7 +13,8 @@ export interface IFilter {
 }
 import AlertDialog from '@/components/AlertDialog'
 import { Box, Typography, Paper, Button, Tooltip, MenuItem, Select, Pagination, SelectChangeEvent } from '@mui/material'
-import { AlarmClock, CirclePlus, Pencil, Trash2 } from 'lucide-react'
+import { CirclePlus, Pencil, Trash2 } from 'lucide-react'
+import { AlarmClock, List, Shirt, Trash, CheckSquare, FileText, ShieldCheck, Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGetAllWorkingRulesQuery, useChangeStatusMutation } from '@/services/WorkingRulesService'
 import { IWorkingRulesGetAll } from '@/models/WorkingRules'
@@ -251,7 +252,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName(null)}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <List size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -334,7 +335,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('2')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <Shirt size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -375,7 +376,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('3')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <Trash size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -416,7 +417,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('4')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <CheckSquare size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -457,7 +458,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('5')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <FileText size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -498,7 +499,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('6')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <ShieldCheck size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
@@ -539,7 +540,7 @@ function WorkingRolesPage() {
                             onClick={() => handleName('7')}
                         >
                             <Box>
-                                <AlarmClock size={30} color='white' />
+                                <Lock size={30} color='white' />
                             </Box>
                             <Box
                                 sx={{
