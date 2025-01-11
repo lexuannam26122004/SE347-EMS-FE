@@ -70,13 +70,13 @@ function getStatusTextColor(status: string): string {
 interface IGetAllErrorReport {
     Id: number | null
     ReportedBy: string | null
-    ReportedDate: Date
-    Type: number | null
+    ReportedDate: string | null
+    Type: string | null
     TypeId: string | null
     Description: string | null
     Status: string | null
     ResolvedBy: string | null
-    ResolvedDate: Date | null
+    ResolvedDate: string | null
     ResolutionDetails: string | null
     ReportedFullName: string | null
     ReportedId: string | null
@@ -392,13 +392,13 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {row?.Status === '1'
-                                                ? 'In Progress'
+                                           {row?.Status === '1'
+                                                ? t('COMMON.ERROR_REPORT.IN_PROGRESS')
                                                 : row?.Status === '2'
-                                                  ? 'Resolved'
-                                                  : row?.Status === '3'
-                                                    ? 'Rejected'
-                                                    : 'Pending'}
+                                                ? t('COMMON.ERROR_REPORT.RESOLVED')
+                                                : row?.Status === '3'
+                                                ? t('COMMON.ERROR_REPORT.REJECTED')
+                                                : t('COMMON.ERROR_REPORT.PENDING')}
                                         </Typography>
                                     </Box>
                                 </TableCell>

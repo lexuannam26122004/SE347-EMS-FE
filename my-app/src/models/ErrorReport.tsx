@@ -33,4 +33,5 @@ export interface IErrorReportUpdate {
     ResolvedBy?: string
     ResolvedDate?: string
     ResolutionDetails?: string
+    Id: number
 }

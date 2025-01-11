@@ -34,13 +34,13 @@ function a11yProps(index: number) {
 interface IGetAllErrorReport {
     Id: number | null
     ReportedBy: string | null
-    ReportedDate: Date
-    Type: number | null
+    ReportedDate: string | null
+    Type: string | null
     TypeId: string | null
     Description: string | null
     Status: string | null
     ResolvedBy: string | null
-    ResolvedDate: Date | null
+    ResolvedDate: string | null
     ResolutionDetails: string | null
     ReportedFullName: string | null
     ReportedId: string | null

@@ -70,13 +70,13 @@ function getStatusTextColor(status: string): string {
 interface IGetAllErrorReport {
     Id: number | null
     ReportedBy: string | null
-    ReportedDate: Date
-    Type: number | null
+    ReportedDate: string | null
+    Type: string | null
     TypeId: string | null
     Description: string | null
     Status: string | null
     ResolvedBy: string | null
-    ResolvedDate: Date | null
+    ResolvedDate: string | null
     ResolutionDetails: string | null
     ReportedFullName: string | null
     ReportedId: string | null
@@ -90,11 +90,11 @@ interface IProps {
     errorsData: IGetAllErrorReport[]
     totalRecords: number
     type: number
-
+    refetch: () => void
     onSort: (property: string) => void
 }
 
-function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
+function TableErrorReport({ errorsData, totalRecords, type, onSort, refetch }: IProps) {
     const { t } = useTranslation('common')
     const router = useRouter()
     const [selected, setSelected] = useState<number[]>([])
@@ -470,12 +470,12 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
                                             }}
                                         >
                                             {row?.Status === '1'
-                                                ? 'In Progress'
+                                                ? t('COMMON.ERROR_REPORT.IN_PROGRESS')
                                                 : row?.Status === '2'
-                                                ? 'Resolved'
+                                                ? t('COMMON.ERROR_REPORT.RESOLVED')
                                                 : row?.Status === '3'
-                                                ? 'Rejected'
-                                                : 'Pending'}
+                                                ? t('COMMON.ERROR_REPORT.REJECTED')
+                                                : t('COMMON.ERROR_REPORT.PENDING')}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -586,7 +586,10 @@ function TableErrorReport({ errorsData, totalRecords, type, onSort }: IProps) {
 
             {selectedErrorReport && (
                 <ErrorReportUpdate
-                    handleToggle={() => setOpenModal(false)}
+                    handleToggle={() => {
+                        setOpenModal(false)
+                        refetch()
+                    }}
                     open={openModal}
                     configuration={selectedErrorReport}
                 />

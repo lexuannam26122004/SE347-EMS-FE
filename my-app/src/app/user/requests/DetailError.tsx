@@ -3,13 +3,13 @@
 interface IGetAllErrorReport {
     Id: number | null
     ReportedBy: string | null
-    ReportedDate: Date
-    Type: number | null
+    ReportedDate: string | null
+    Type: string | null
     TypeId: string | null
     Description: string | null
     Status: string | null
     ResolvedBy: string | null
-    ResolvedDate: Date | null
+    ResolvedDate: string | null
     ResolutionDetails: string | null
     ReportedFullName: string | null
     ReportedId: string | null
@@ -148,14 +148,16 @@ function DetailModal({ open, handleToggle, configuration }: Props) {
                                         configuration?.Status === '1'
                                             ? 'In Progress'
                                             : configuration?.Status === '2'
-                                              ? 'Resolved'
-                                              : configuration?.Status === '3'
-                                                ? 'Rejected'
-                                                : 'Pending'
+                                            ? 'Resolved'
+                                            : configuration?.Status === '3'
+                                            ? 'Rejected'
+                                            : 'Pending'
                                 },
                                 {
                                     label: t('COMMON.ERROR_REPORT.FULL_NAME_RESOLVED'),
-                                    value: `${configuration?.ResolvedId ?? 'N/A'}  ${configuration?.ResolvedFullName ?? 'N/A'}`
+                                    value: `${configuration?.ResolvedId ?? 'N/A'}  ${
+                                        configuration?.ResolvedFullName ?? 'N/A'
+                                    }`
                                 },
                                 {
                                     label: t('COMMON.ERROR_REPORT.RESOLVED_DATE'),
