@@ -11,10 +11,10 @@ import { formatDate } from '@/utils/formatDate'
 import Loading from '@/components/Loading'
 
 interface ContractProps {
-    aspnetUserId: string
+    infoMe
 }
 
-const Contract: React.FC<ContractProps> = ({ aspnetUserId }) => {
+const Contract: React.FC<ContractProps> = ({ infoMe }) => {
     const { t } = useTranslation('common')
     const [openErrorReport, setopenErrorReport] = useState(false)
 
@@ -420,7 +420,7 @@ const Contract: React.FC<ContractProps> = ({ aspnetUserId }) => {
             <ErrorPage
                 handleToggle={() => setopenErrorReport(false)}
                 open={openErrorReport}
-                reportedBy={aspnetUserId}
+                infoMe={infoMe}
                 type={'COMMON.SIDEBAR.CONTRACT'}
                 typeId={contract?.Id}
             />

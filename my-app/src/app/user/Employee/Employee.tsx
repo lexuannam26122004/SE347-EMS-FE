@@ -6,18 +6,16 @@ import { formatDate } from '@/utils/formatDate'
 import { Download, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface EmployeeProps {
-    aspnetUserId
+    infoMe
 }
 
-const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
+const Employee: React.FC<EmployeeProps> = ({ infoMe }) => {
     const { t } = useTranslation('common')
     const [openErrorReport, setopenErrorReport] = useState(false)
     const prevOpen = useRef(open)
     useEffect(() => {
         prevOpen.current = open
     }, [open])
-
-    const infoMe = aspnetUserId
 
     const [openDetail, setOpenDetail] = useState(false)
 
@@ -403,7 +401,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
             <ErrorPage
                 handleToggle={() => setopenErrorReport(false)}
                 open={openErrorReport}
-                reportedBy={infoMe?.Id}
+                infoMe={infoMe}
                 type={'COMMON.SIDEBAR.EMPLOYEE'}
                 typeId={infoMe?.EmployeeId}
             />

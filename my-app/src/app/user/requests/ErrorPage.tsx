@@ -6,22 +6,19 @@ import { useTranslation } from 'react-i18next'
 import { SaveIcon } from 'lucide-react'
 import React from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { useCreateErrorReportsMutation, useSearchErrorReportQuery } from '@/services/ErrorReportService'
+import { useCreateErrorReportsMutation, useSearchByUserIdQuery } from '@/services/UserErrorReportService'
 import { useToast } from '@/hooks/useToast'
 import { useEffect, useState } from 'react'
-import { IAspNetUserGetAll } from '@/models/AspNetUser'
-import { useGetAllUsersQuery } from '@/services/AspNetUserService'
-import Loading from '@/components/Loading'
 
 interface Props {
     open: boolean
     handleToggle: () => void
-    reportedBy: string
+    infoMe
     type?: string
     typeId?: string
 }
 
-function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
+function DetailModal({ open, handleToggle, infoMe, type, typeId }: Props) {
     const { t } = useTranslation('common')
     const toast = useToast()
     const [isSaveLoading, setIsSaveLoading] = useState(false)
@@ -32,13 +29,8 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
     const [TypeId, setTypeId] = useState(typeId)
     const [description, setDescription] = useState('')
 
-    const { data: userResponse, isLoading: isUsersLoading } = useGetAllUsersQuery()
-    const employee = (userResponse?.Data?.Records as IAspNetUserGetAll[]) || []
-
-    const user = employee.find(em => em.Id === reportedBy)
-
     const [createErrorReport, { isSuccess, isError, reset }] = useCreateErrorReportsMutation()
-    const { refetch } = useSearchErrorReportQuery(null)
+    const { refetch } = useSearchByUserIdQuery(null)
 
     useEffect(() => {
         if (isSuccess === true) {
@@ -55,14 +47,15 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
     const handleSave = async () => {
         setIsSaveLoading(true)
         setIsSubmit(true)
-        if (reportedBy === '' || Type === '' || TypeId === '') {
+        if (Type === '' || TypeId === '') {
             setIsSaveLoading(false)
             return
         }
         const data = {
-            ReportedBy: reportedBy,
+            ReportedBy: infoMe?.Id,
             Type: Type,
             TypeId: TypeId,
+            Status: '0',
             ReportedDate: reportedDate.toISOString().split('T')[0],
             Description: description
         }
@@ -73,10 +66,6 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
             handleToggle()
         }
         setIsSubmit(false)
-    }
-
-    if (isUsersLoading) {
-        return <Loading />
     }
 
     return (
@@ -218,7 +207,7 @@ function DetailModal({ open, handleToggle, reportedBy, type, typeId }: Props) {
                                         color: 'var(--error-color)'
                                     }
                                 }}
-                                value={`${user?.EmployeeId} ${user?.FullName}`}
+                                value={`${infoMe?.EmployeeId} ${infoMe?.FullName}`}
                                 InputProps={{
                                     readOnly: true
                                 }}
