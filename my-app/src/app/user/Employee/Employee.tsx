@@ -127,7 +127,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
             >
                 <Avatar
                     src={
-                        'https://localhost:44381/' + infoMe.AvatarPath ||
+                        'https://localhost:44381/' + infoMe?.AvatarPath ||
                         'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                     }
                     sx={{
@@ -146,7 +146,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                 flexGrow: 1
                             }}
                         >
-                            {`${infoMe.EmployeeId} ${infoMe.FullName}`}
+                            {`${infoMe?.EmployeeId} ${infoMe?.FullName}`}
                         </Typography>
                         <Box
                             sx={{
@@ -194,7 +194,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.Roles.join(', ')}
+                                {infoMe?.Roles?.join(', ') || 'N/A'}
                             </Typography>
                         </Box>
                         <Box>
@@ -213,7 +213,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.PhoneNumber}
+                                {infoMe?.PhoneNumber || 'N/A'}
                             </Typography>
                         </Box>
 
@@ -233,7 +233,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {formatDate(infoMe.Birthday)}
+                                {formatDate(infoMe?.Birthday) || 'N/A'}
                             </Typography>
                         </Box>
                         <Box>
@@ -252,7 +252,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.DepartmentName || 'Department'}
+                                {infoMe?.DepartmentName || 'N/A'}
                             </Typography>
                         </Box>
 
@@ -272,7 +272,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.Address}
+                                {infoMe?.Address || 'N/A'}
                             </Typography>
                         </Box>
                     </Box>
@@ -303,7 +303,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.UserName}
+                                {infoMe?.UserName || 'N/A'}
                             </Typography>
                         </Box>
 
@@ -323,7 +323,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.Gender === true ? 'Nam' : infoMe.Gender === false ? 'Nữ' : 'Khác'}
+                                {infoMe?.Gender === true ? 'Nam' : infoMe?.Gender === false ? 'Nữ' : 'Khác'}
                             </Typography>
                         </Box>
 
@@ -343,7 +343,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {formatDate(infoMe.StartDateWork)}
+                                {formatDate(infoMe?.StartDateWork) || 'N/A'}
                             </Typography>
                         </Box>
 
@@ -363,7 +363,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.Email}
+                                {infoMe?.Email || 'N/A'}
                             </Typography>
                         </Box>
                     </Box>
@@ -393,7 +393,7 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
                                     fontSize: '17px'
                                 }}
                             >
-                                {infoMe.Note || 'N/A'}
+                                {infoMe?.Note || 'N/A'}
                             </Typography>
                         </Box>
                     </Box>
@@ -403,9 +403,9 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
             <ErrorPage
                 handleToggle={() => setopenErrorReport(false)}
                 open={openErrorReport}
-                reportedBy={infoMe.Id}
+                reportedBy={infoMe?.Id}
                 type={'COMMON.SIDEBAR.EMPLOYEE'}
-                typeId={infoMe.EmployeeId}
+                typeId={infoMe?.EmployeeId}
             />
         </Box>
     )

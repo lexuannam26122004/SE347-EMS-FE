@@ -142,7 +142,7 @@ const DetailModal = () => {
                                     color: 'var(--text-color)'
                                 }}
                             >
-                                {user?.Roles.join(', ') || 'N/A'}
+                                {user?.Roles?.join(', ') || 'N/A'}
                             </p>
                         </Box>
                     </Box>
