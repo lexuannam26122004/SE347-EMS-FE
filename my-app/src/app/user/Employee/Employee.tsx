@@ -1,14 +1,12 @@
 import { Avatar, Box, Button, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useRef, useEffect, useState } from 'react'
-import { useGetAuthMeQuery } from '@/services/AuthService'
 import ErrorPage from '@/app/user/requests/ErrorPage'
 import { formatDate } from '@/utils/formatDate'
-import Loading from '@/components/Loading'
 import { Download, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface EmployeeProps {
-    aspnetUserId: string
+    aspnetUserId
 }
 
 const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
@@ -17,15 +15,11 @@ const Employee: React.FC<EmployeeProps> = ({ aspnetUserId }) => {
     const prevOpen = useRef(open)
     useEffect(() => {
         prevOpen.current = open
-    }, [open, aspnetUserId])
+    }, [open])
 
-    const { data: responseGetMeData, isFetching: isFetchingGetMe } = useGetAuthMeQuery()
-    const infoMe = responseGetMeData?.Data
+    const infoMe = aspnetUserId
 
     const [openDetail, setOpenDetail] = useState(false)
-    if (isFetchingGetMe || !infoMe) {
-        return <Loading />
-    }
 
     const handleIconClick = () => {
         setOpenDetail(!openDetail)

@@ -155,7 +155,7 @@ const DetailModal = () => {
                         gap: '24px'
                     }}
                 >
-                    <Employee aspnetUserId={user?.Id || ''} />
+                    <Employee aspnetUserId={user || ''} />
 
                     <Contract aspnetUserId={user?.Id || ''} />
 
