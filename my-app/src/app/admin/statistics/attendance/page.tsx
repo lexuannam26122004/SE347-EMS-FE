@@ -10,7 +10,11 @@ import ChartJoin from './ChartJoin'
 
 const Page = () => {
     return (
-        <Box>
+        <Box
+            sx={{
+                mb: '24px'
+            }}
+        >
             <Box width='100%'>
                 <DisplayInfo />
             </Box>

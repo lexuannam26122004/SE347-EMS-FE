@@ -331,6 +331,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                             color: '#00ec84',
                                             fontSize: '16px',
                                             width: '88px',
+                                            textAlign: 'center',
                                             padding: '8px 10px',
                                             borderRadius: '10px',
                                             border: '1px solid var(--border-color)',
@@ -352,7 +353,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                         padding: '11px'
                                     }}
                                 >
-                                    {row.IsValid === false ? (
+                                    {row.Status === false ? (
                                         <Box
                                             sx={{
                                                 borderRadius: '8px',

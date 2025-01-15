@@ -11,10 +11,14 @@ import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/material/styles'
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
+import NotificationModal from '@/app/admin/notification/NotificationModal'
+import { useRemoveNotificationMutation } from '@/services/NotificationsService'
+import { useToast } from '@/hooks/useToast'
 
 interface Props {
     notifications: INotificationGetById[]
     totalRecords: number
+    refetch: () => void
 }
 
 const covers = [
@@ -72,22 +76,50 @@ const StyledMenuItem = styled(MenuItem)(() => ({
     }
 }))
 
-function Page({ notifications }: Props) {
+function Page({ notifications, refetch }: Props) {
+    const toast = useToast()
     const { t } = useTranslation('common')
+    const [notificationId, setNotificationId] = useState<number | null>(null)
+    const [tempNotificationId, setTempNotificationId] = useState<number | null>(null)
 
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
+
     const handleClick = useCallback(
         (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+            const id = event.currentTarget.id // Lấy id của phần tử đang được bấm
+            setTempNotificationId(Number(id))
             setAnchorEl(anchorEl ? null : event.currentTarget)
             // setSelectedNotification(notification)
         },
         [anchorEl]
     )
 
+    const [removeNotification, resultDelete] = useRemoveNotificationMutation()
+
+    const handleAction = useCallback(
+        async (action: string) => {
+            if (action === 'view' && tempNotificationId) {
+                setNotificationId(tempNotificationId)
+            } else if (action === 'remove' && tempNotificationId) {
+                try {
+                    await removeNotification(tempNotificationId).unwrap()
+                    toast('Xóa thông báo thành công', 'success')
+                    refetch()
+                } catch (error) {
+                    toast('Xóa thông báo thất bại', 'error')
+                }
+            }
+            setAnchorEl(null)
+        },
+        [removeNotification, tempNotificationId]
+    )
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (anchorEl && !anchorEl.contains(event.target as Node)) {
                 setAnchorEl(null)
+                setNotificationId(null)
+                setTempNotificationId(null)
                 // setSelectedNotification(null)
             }
         }
@@ -123,318 +155,36 @@ function Page({ notifications }: Props) {
     }, [])
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                padding: '0 24px'
-            }}
-        >
-            {chunkedNotifications?.map((chunk, chunkIndex) => (
-                <Box
-                    key={chunkIndex}
-                    sx={{
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        mt: chunkIndex === 0 ? '0' : '24px',
-                        alignItems: 'center',
-                        gap: '24px'
-                    }}
-                >
-                    <Paper
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '0 24px'
+                }}
+            >
+                {chunkedNotifications?.map((chunk, chunkIndex) => (
+                    <Box
+                        key={chunkIndex}
                         sx={{
-                            display: 'flex',
+                            width: '100%',
                             height: '100%',
-                            borderRadius: '15px',
-                            overflow: 'hidden',
-                            boxShadow: 'var(--box-shadow-paper)',
-                            width: 'calc(100% / 2 - 12px)',
-                            backgroundColor: 'var(--background-item)',
-                            justifyContent: 'space-between'
+                            display: 'flex',
+                            mt: chunkIndex === 0 ? '0' : '24px',
+                            alignItems: 'center',
+                            gap: '24px'
                         }}
                     >
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                width: 'calc(100% - 185px)',
-                                flexDirection: 'column',
-                                height: '214px',
-                                padding: '24px 24px 16px'
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    mb: '20px',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                <Typography
-                                    variant='h6'
-                                    sx={{
-                                        padding: '2px 6px',
-                                        backgroundColor: '#f5f5f5',
-                                        borderRadius: '6px',
-                                        fontSize: '14px',
-                                        fontWeight: 'bold'
-                                    }}
-                                >
-                                    {chunk[0].Type}
-                                </Typography>
-
-                                <Typography
-                                    sx={{
-                                        color: 'var(--created-date-color)',
-                                        fontSize: '14px'
-                                    }}
-                                >
-                                    {formatDateToTime(chunk[0].SentTime)}
-                                </Typography>
-                            </Box>
-
-                            <Box>
-                                <Typography
-                                    variant='h5'
-                                    sx={{
-                                        color: 'var(--text-color)',
-                                        fontSize: '16px',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        fontWeight: 'bold',
-                                        width: '100%',
-                                        cursor: 'pointer',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    {chunk[0].Title}
-                                </Typography>
-
-                                <Typography
-                                    sx={{
-                                        color: 'var(--text-label-color)',
-                                        fontSize: '14px',
-                                        display: '-webkit-box',
-                                        overflow: 'hidden',
-                                        WebkitBoxOrient: 'vertical',
-                                        WebkitLineClamp: 2,
-                                        textOverflow: 'ellipsis',
-                                        mt: '10px'
-                                    }}
-                                >
-                                    {chunk[0].Content}
-                                </Typography>
-                            </Box>
-
-                            <Box
-                                sx={{
-                                    marginTop: 'auto',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        width: '38px',
-                                        height: '38px',
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            backgroundColor: 'var(--hover-color)'
-                                        },
-                                        borderRadius: '50%'
-                                    }}
-                                    onClick={event => handleClick(event)}
-                                >
-                                    <EllipsisIcon
-                                        style={{
-                                            color: 'var(--text-color)',
-                                            width: '20px',
-                                            height: '20px'
-                                        }}
-                                    />
-                                </Box>
-
-                                <Box
-                                    sx={{
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        display: 'flex',
-                                        gap: '15px'
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            display: 'flex',
-                                            gap: '5px'
-                                        }}
-                                    >
-                                        <Tooltip title={t('COMMON.STAT_NOTIFY.NUMBER_OF_RECIPIENTS')}>
-                                            <PeopleRoundedIcon
-                                                sx={{
-                                                    color: 'var(--created-date-color)',
-                                                    width: '18px',
-                                                    height: '18px'
-                                                }}
-                                            />
-                                        </Tooltip>
-                                        <Typography
-                                            sx={{
-                                                color: 'var(--created-date-color)',
-                                                fontSize: '14px'
-                                            }}
-                                        >
-                                            {chunk[0].ReceivedCount}
-                                        </Typography>
-                                    </Box>
-                                    <Box
-                                        sx={{
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            display: 'flex',
-                                            gap: '5px'
-                                        }}
-                                    >
-                                        <Tooltip title={t('COMMON.STAT_NOTIFY.READ')}>
-                                            <VisibilityIcon
-                                                sx={{
-                                                    color: 'var(--created-date-color)',
-                                                    width: '18px',
-                                                    height: '18px'
-                                                }}
-                                            />
-                                        </Tooltip>
-                                        <Typography
-                                            sx={{
-                                                color: 'var(--created-date-color)',
-                                                fontSize: '14px'
-                                            }}
-                                        >
-                                            {chunk[0].ReadCount}
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        </Box>
-
-                        <Box
-                            sx={{
-                                width: '185px',
-                                height: '214px',
-                                padding: '8px 8px 8px 3px',
-                                flexShrink: 0,
-                                overflow: 'hidden',
-                                position: 'relative'
-                            }}
-                        >
-                            <img
-                                src={covers[(chunkIndex * 2) % 20]}
-                                style={{
-                                    width: '100%',
-                                    borderRadius: '10px',
-                                    height: '100%'
-                                }}
-                            ></img>
-
-                            <Tooltip title={chunk[0].FullName}>
-                                <Avatar
-                                    src={chunk[0].AvatarPath ?? avatars[(chunkIndex * 2) % 20]}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: '15px',
-                                        right: '15px',
-                                        width: '40px',
-                                        height: '40px'
-                                    }}
-                                />
-                            </Tooltip>
-                        </Box>
-
-                        <Popper
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            placement='bottom'
-                            modifiers={[
-                                {
-                                    name: 'offset',
-                                    options: {
-                                        offset: [0, 4]
-                                    }
-                                }
-                            ]}
-                            sx={{
-                                zIndex: 2000,
-                                width: '150px',
-                                border: '1px solid var(--border-color)',
-                                borderRadius: '11px',
-                                position: 'relative'
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    padding: '7.5px',
-                                    transition: 'none',
-                                    backgroundImage:
-                                        'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODYpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAgMS44MTgxMmUtMDUpIHJvdGF0ZSgtNDUpIHNjYWxlKDEyMy4yNSkiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMDBCOEQ5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwQjhEOSIgc3RvcC1vcGFjaXR5PSIwIi8+CjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODcpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K)',
-                                    backgroundPosition: 'top right, bottom left',
-                                    backgroundSize: '50%, 50%',
-                                    backgroundRepeat: 'no-repeat',
-                                    backdropFilter: 'blur(20px)',
-                                    backgroundColor: 'var(--background-item)',
-                                    borderRadius: '10px'
-                                }}
-                            >
-                                <StyledMenuItem>
-                                    <VisibilityRoundedIcon
-                                        style={{
-                                            color: 'var(--text-color)',
-                                            width: '19px',
-                                            marginRight: '10px'
-                                        }}
-                                    />
-                                    {t('COMMON.STAT_NOTIFY.VIEW')}
-                                </StyledMenuItem>
-                                <StyledMenuItem>
-                                    <EditRoundedIcon
-                                        style={{ color: 'var(--text-color)', width: '20px', marginRight: '10px' }}
-                                    />
-                                    {t('COMMON.STAT_NOTIFY.UPDATE')}
-                                </StyledMenuItem>
-                                <StyledMenuItem
-                                    sx={{
-                                        color: '#FF5630'
-                                    }}
-                                >
-                                    <img
-                                        src='/images/trash.svg'
-                                        style={{
-                                            width: '20px',
-                                            height: '20px',
-                                            marginRight: '10px'
-                                        }}
-                                    />
-                                    {t('COMMON.STAT_NOTIFY.DELETE')}
-                                </StyledMenuItem>
-                            </Box>
-                        </Popper>
-                    </Paper>
-
-                    {chunk[1] && (
                         <Paper
                             sx={{
                                 display: 'flex',
-                                boxShadow: 'var(--box-shadow-paper)',
+                                height: '100%',
                                 borderRadius: '15px',
                                 overflow: 'hidden',
+                                boxShadow: 'var(--box-shadow-paper)',
                                 width: 'calc(100% / 2 - 12px)',
                                 backgroundColor: 'var(--background-item)',
                                 justifyContent: 'space-between'
@@ -444,8 +194,8 @@ function Page({ notifications }: Props) {
                                 sx={{
                                     display: 'flex',
                                     width: 'calc(100% - 185px)',
-                                    height: '214px',
                                     flexDirection: 'column',
+                                    height: '214px',
                                     padding: '24px 24px 16px'
                                 }}
                             >
@@ -453,7 +203,6 @@ function Page({ notifications }: Props) {
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        width: '100%',
                                         mb: '20px',
                                         justifyContent: 'space-between'
                                     }}
@@ -468,7 +217,7 @@ function Page({ notifications }: Props) {
                                             fontWeight: 'bold'
                                         }}
                                     >
-                                        {chunk[1].Type}
+                                        {chunk[0].Type}
                                     </Typography>
 
                                     <Typography
@@ -477,11 +226,11 @@ function Page({ notifications }: Props) {
                                             fontSize: '14px'
                                         }}
                                     >
-                                        {formatDateToTime(chunk[1].SentTime)}
+                                        {formatDateToTime(chunk[0].SentTime)}
                                     </Typography>
                                 </Box>
 
-                                <Box sx={{ width: '100%' }}>
+                                <Box>
                                     <Typography
                                         variant='h5'
                                         sx={{
@@ -495,7 +244,7 @@ function Page({ notifications }: Props) {
                                             whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {chunk[1].Title}
+                                        {chunk[0].Title}
                                     </Typography>
 
                                     <Typography
@@ -510,19 +259,20 @@ function Page({ notifications }: Props) {
                                             mt: '10px'
                                         }}
                                     >
-                                        {chunk[1].Content}
+                                        {chunk[0].Content}
                                     </Typography>
                                 </Box>
 
                                 <Box
                                     sx={{
+                                        marginTop: 'auto',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        mt: 'auto',
                                         justifyContent: 'space-between'
                                     }}
                                 >
                                     <Box
+                                        id={`${chunk[0].Id}`}
                                         sx={{
                                             display: 'flex',
                                             justifyContent: 'center',
@@ -577,7 +327,7 @@ function Page({ notifications }: Props) {
                                                     fontSize: '14px'
                                                 }}
                                             >
-                                                {chunk[1].ReceivedCount}
+                                                {chunk[0].ReceivedCount}
                                             </Typography>
                                         </Box>
                                         <Box
@@ -603,7 +353,7 @@ function Page({ notifications }: Props) {
                                                     fontSize: '14px'
                                                 }}
                                             >
-                                                {chunk[1].ReadCount}
+                                                {chunk[0].ReadCount}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -621,7 +371,7 @@ function Page({ notifications }: Props) {
                                 }}
                             >
                                 <img
-                                    src={covers[(chunkIndex * 2 + 1) % 20]}
+                                    src={covers[(chunkIndex * 2) % 20]}
                                     style={{
                                         width: '100%',
                                         borderRadius: '10px',
@@ -629,9 +379,9 @@ function Page({ notifications }: Props) {
                                     }}
                                 ></img>
 
-                                <Tooltip title={chunk[1].FullName}>
+                                <Tooltip title={chunk[0].FullName}>
                                     <Avatar
-                                        src={chunk[1].AvatarPath ?? avatars[(chunkIndex * 2 + 1) % 20]}
+                                        src={chunk[0].AvatarPath ?? avatars[(chunkIndex * 2) % 20]}
                                         sx={{
                                             position: 'absolute',
                                             top: '15px',
@@ -643,10 +393,304 @@ function Page({ notifications }: Props) {
                                 </Tooltip>
                             </Box>
                         </Paper>
-                    )}
+
+                        {chunk[1] && (
+                            <Paper
+                                sx={{
+                                    display: 'flex',
+                                    boxShadow: 'var(--box-shadow-paper)',
+                                    borderRadius: '15px',
+                                    overflow: 'hidden',
+                                    width: 'calc(100% / 2 - 12px)',
+                                    backgroundColor: 'var(--background-item)',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        width: 'calc(100% - 185px)',
+                                        height: '214px',
+                                        flexDirection: 'column',
+                                        padding: '24px 24px 16px'
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                            mb: '20px',
+                                            justifyContent: 'space-between'
+                                        }}
+                                    >
+                                        <Typography
+                                            variant='h6'
+                                            sx={{
+                                                padding: '2px 6px',
+                                                backgroundColor: '#f5f5f5',
+                                                borderRadius: '6px',
+                                                fontSize: '14px',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            {chunk[1].Type}
+                                        </Typography>
+
+                                        <Typography
+                                            sx={{
+                                                color: 'var(--created-date-color)',
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            {formatDateToTime(chunk[1].SentTime)}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box sx={{ width: '100%' }}>
+                                        <Typography
+                                            variant='h5'
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                fontWeight: 'bold',
+                                                width: '100%',
+                                                cursor: 'pointer',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {chunk[1].Title}
+                                        </Typography>
+
+                                        <Typography
+                                            sx={{
+                                                color: 'var(--text-label-color)',
+                                                fontSize: '14px',
+                                                display: '-webkit-box',
+                                                overflow: 'hidden',
+                                                WebkitBoxOrient: 'vertical',
+                                                WebkitLineClamp: 2,
+                                                textOverflow: 'ellipsis',
+                                                mt: '10px'
+                                            }}
+                                        >
+                                            {chunk[1].Content}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            mt: 'auto',
+                                            justifyContent: 'space-between'
+                                        }}
+                                    >
+                                        <Box
+                                            id={`${chunk[1].Id}`}
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                width: '38px',
+                                                height: '38px',
+                                                cursor: 'pointer',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--hover-color)'
+                                                },
+                                                borderRadius: '50%'
+                                            }}
+                                            onClick={event => handleClick(event)}
+                                        >
+                                            <EllipsisIcon
+                                                style={{
+                                                    color: 'var(--text-color)',
+                                                    width: '20px',
+                                                    height: '20px'
+                                                }}
+                                            />
+                                        </Box>
+
+                                        <Box
+                                            sx={{
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                display: 'flex',
+                                                gap: '15px'
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    display: 'flex',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                <Tooltip title={t('COMMON.STAT_NOTIFY.NUMBER_OF_RECIPIENTS')}>
+                                                    <PeopleRoundedIcon
+                                                        sx={{
+                                                            color: 'var(--created-date-color)',
+                                                            width: '18px',
+                                                            height: '18px'
+                                                        }}
+                                                    />
+                                                </Tooltip>
+                                                <Typography
+                                                    sx={{
+                                                        color: 'var(--created-date-color)',
+                                                        fontSize: '14px'
+                                                    }}
+                                                >
+                                                    {chunk[1].ReceivedCount}
+                                                </Typography>
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    display: 'flex',
+                                                    gap: '5px'
+                                                }}
+                                            >
+                                                <Tooltip title={t('COMMON.STAT_NOTIFY.READ')}>
+                                                    <VisibilityIcon
+                                                        sx={{
+                                                            color: 'var(--created-date-color)',
+                                                            width: '18px',
+                                                            height: '18px'
+                                                        }}
+                                                    />
+                                                </Tooltip>
+                                                <Typography
+                                                    sx={{
+                                                        color: 'var(--created-date-color)',
+                                                        fontSize: '14px'
+                                                    }}
+                                                >
+                                                    {chunk[1].ReadCount}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    </Box>
+                                </Box>
+
+                                <Box
+                                    sx={{
+                                        width: '185px',
+                                        height: '214px',
+                                        padding: '8px 8px 8px 3px',
+                                        flexShrink: 0,
+                                        overflow: 'hidden',
+                                        position: 'relative'
+                                    }}
+                                >
+                                    <img
+                                        src={covers[(chunkIndex * 2 + 1) % 20]}
+                                        style={{
+                                            width: '100%',
+                                            borderRadius: '10px',
+                                            height: '100%'
+                                        }}
+                                    ></img>
+
+                                    <Tooltip title={chunk[1].FullName}>
+                                        <Avatar
+                                            src={chunk[1].AvatarPath ?? avatars[(chunkIndex * 2 + 1) % 20]}
+                                            sx={{
+                                                position: 'absolute',
+                                                top: '15px',
+                                                right: '15px',
+                                                width: '40px',
+                                                height: '40px'
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Box>
+                            </Paper>
+                        )}
+                    </Box>
+                ))}
+            </Box>
+
+            <Popper
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                placement='bottom'
+                modifiers={[
+                    {
+                        name: 'offset',
+                        options: {
+                            offset: [0, 4]
+                        }
+                    }
+                ]}
+                sx={{
+                    zIndex: 2000,
+                    width: '150px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '11px',
+                    position: 'relative'
+                }}
+            >
+                <Box
+                    sx={{
+                        padding: '7.5px',
+                        transition: 'none',
+                        backgroundImage:
+                            'url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODYpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NiIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgxMjAgMS44MTgxMmUtMDUpIHJvdGF0ZSgtNDUpIHNjYWxlKDEyMy4yNSkiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMDBCOEQ5Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwQjhEOSIgc3RvcC1vcGFjaXR5PSIwIi8+CjwvcmFkaWFsR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==), url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSJ1cmwoI3BhaW50MF9yYWRpYWxfMjc0OV8xNDUxODcpIiBmaWxsLW9wYWNpdHk9IjAuMTIiLz4KPGRlZnM+CjxyYWRpYWxHcmFkaWVudCBpZD0icGFpbnQwX3JhZGlhbF8yNzQ5XzE0NTE4NyIgY3g9IjAiIGN5PSIwIiByPSIxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgZ3JhZGllbnRUcmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEyMCkgcm90YXRlKDEzNSkgc2NhbGUoMTIzLjI1KSI+CjxzdG9wIHN0b3AtY29sb3I9IiNGRjU2MzAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkY1NjMwIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K)',
+                        backgroundPosition: 'top right, bottom left',
+                        backgroundSize: '50%, 50%',
+                        backgroundRepeat: 'no-repeat',
+                        backdropFilter: 'blur(20px)',
+                        backgroundColor: 'var(--background-item)',
+                        borderRadius: '10px'
+                    }}
+                >
+                    <StyledMenuItem onClick={() => handleAction('view')} onMouseDown={e => e.stopPropagation()}>
+                        <VisibilityRoundedIcon
+                            style={{
+                                color: 'var(--text-color)',
+                                width: '19px',
+                                marginRight: '10px'
+                            }}
+                        />
+                        {t('COMMON.STAT_NOTIFY.VIEW')}
+                    </StyledMenuItem>
+                    <StyledMenuItem>
+                        <EditRoundedIcon style={{ color: 'var(--text-color)', width: '20px', marginRight: '10px' }} />
+                        {t('COMMON.STAT_NOTIFY.UPDATE')}
+                    </StyledMenuItem>
+                    <StyledMenuItem
+                        onClick={() => handleAction('remove')}
+                        onMouseDown={e => e.stopPropagation()}
+                        sx={{
+                            color: '#FF5630'
+                        }}
+                    >
+                        <img
+                            src='/images/trash.svg'
+                            style={{
+                                width: '20px',
+                                height: '20px',
+                                marginRight: '10px'
+                            }}
+                        />
+                        {t('COMMON.STAT_NOTIFY.DELETE')}
+                    </StyledMenuItem>
                 </Box>
-            ))}
-        </Box>
+            </Popper>
+
+            {notificationId && (
+                <NotificationModal
+                    notificationId={notificationId}
+                    open={!!notificationId}
+                    handleClose={() => setNotificationId(null)}
+                />
+            )}
+        </>
     )
 }
 

@@ -7,6 +7,7 @@ import ReactECharts from 'echarts-for-react'
 import { Box, FormControlLabel, Paper, Switch, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { SwitchProps } from '@mui/material/Switch'
+import { useGetHourlyAttendanceStatsQuery } from '@/services/TimekeepingService'
 
 const data = [
     // Thứ 2 (Mon)
@@ -131,6 +132,25 @@ const AttendanceHeatmap = () => {
     const { t } = useTranslation('common')
     const { theme } = useTheme()
     const [openLabel, setOpenLabel] = useState(false)
+    const currentDate = new Date()
+
+    // Lấy ngày trong tuần của ngày hiện tại (0 = Chủ Nhật, 6 = Thứ Bảy)
+    const currentDayOfWeek = currentDate.getDay()
+
+    // Tạo một mảng các tên ngày trong tuần (từ Chủ Nhật đến Thứ Bảy)
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+    // Dùng slice để tạo mảng các ngày bắt đầu từ ngày hiện tại và lùi dần
+    const reorderedDays = [
+        ...daysOfWeek.slice(currentDayOfWeek + 1), // Lấy các ngày từ hiện tại trở đi
+        ...daysOfWeek.slice(0, currentDayOfWeek + 1) // Lấy các ngày từ Chủ Nhật đến ngày trước hiện tại
+    ]
+
+    const { data: responseData } = useGetHourlyAttendanceStatsQuery(currentDate.toISOString().split('T')[0])
+
+    const data = responseData?.Data.DailyStats || []
+    const maxCount = responseData?.Data.MaxAttendance || 0
+    const minCount = responseData?.Data.MinAttendance || 0
 
     const handleToggle = () => {
         setOpenLabel(prev => !prev)
@@ -162,7 +182,7 @@ const AttendanceHeatmap = () => {
         },
         xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // Các ngày trong tuần
+            data: reorderedDays, // Các ngày trong tuần
             axisLine: {
                 show: false // Ẩn đường trục y
             },
@@ -179,7 +199,7 @@ const AttendanceHeatmap = () => {
         },
         yAxis: {
             type: 'category',
-            data: ['07:00', '09:00', '11:00', '13:00', '15:00', '17:00', '19:00'],
+            data: ['07:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
             axisLine: {
                 show: false // Ẩn đường trục y
             },
@@ -195,8 +215,8 @@ const AttendanceHeatmap = () => {
             }
         },
         visualMap: {
-            min: 0,
-            max: 100, // Tùy vào giá trị số lượng nhân viên
+            min: minCount,
+            max: maxCount, // Tùy vào giá trị số lượng nhân viên
             calculable: true,
             orient: 'vertical',
             left: 'right',

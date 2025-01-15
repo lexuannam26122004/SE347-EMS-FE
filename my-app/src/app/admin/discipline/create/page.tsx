@@ -25,6 +25,25 @@ import { useToast } from '@/hooks/useToast'
 import { useGetAllUsersQuery } from '@/services/AspNetUserService'
 import { IAspNetUserGetAll } from '@/models/AspNetUser'
 import Loading from '@/components/Loading'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
+import { toZonedTime, format } from 'date-fns-tz'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
+const convertToVietnamTime = (date: Date) => {
+    if (isNaN(date.getTime())) {
+        throw new Error('Invalid Date')
+    }
+
+    const timeZone = 'Asia/Ho_Chi_Minh'
+
+    const vietnamTime = toZonedTime(date, timeZone)
+
+    const formattedDate = format(vietnamTime, 'yyyy-MM-dd')
+
+    return formattedDate // Trả về thời gian đã được định dạng
+}
 
 function Page() {
     const { t } = useTranslation('common')
@@ -37,6 +56,7 @@ function Page() {
     const [reason, setReason] = useState('')
     const [note, setNote] = useState('')
     const [money, setMoney] = useState(0)
+    const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'))
 
     const [createDiscipline, { isSuccess, isLoading, isError }] = useCreateDisciplineMutation()
 
@@ -51,7 +71,8 @@ function Page() {
             UserId: userId,
             Reason: reason,
             Note: note,
-            Money: money
+            Money: money,
+            Date: date
         }
         await createDiscipline(data).unwrap()
         setIsSubmit(false)
@@ -290,63 +311,113 @@ function Page() {
                         />
                     </Box>
 
-                    <TextField
-                        variant='outlined'
-                        label='Lý do'
-                        id='fullWidth'
-                        fullWidth
+                    <Box
                         sx={{
-                            '& fieldset': {
-                                borderRadius: '8px',
-                                color: 'var(--text-color)',
-                                borderColor: 'var(--border-color)'
-                            },
-                            '& .MuiInputBase-root': {
-                                paddingRight: '3px'
-                            },
-                            '& .MuiInputBase-input': {
-                                scrollbarGutter: 'stable',
-                                '&::-webkit-scrollbar': {
-                                    width: '7px',
-                                    height: '7px'
-                                },
-                                '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: 'var(--scrollbar-color)',
-                                    borderRadius: '10px'
-                                },
-                                paddingRight: '4px',
-                                color: 'var(--text-color)',
-                                fontSize: '16px',
-                                '&::placeholder': {
-                                    color: 'var(--placeholder-color)',
-                                    opacity: 1
-                                }
-                            },
-                            '& .MuiOutlinedInput-root:hover fieldset': {
-                                borderColor: 'var(--hover-field-color)'
-                            },
-                            '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
-                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                            },
-                            '& .MuiOutlinedInput-root.Mui-error fieldset': {
-                                borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
-                            },
-                            '& .MuiOutlinedInput-root.Mui-focused fieldset': {
-                                borderColor: 'var(--selected-field-color)'
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: 'var(--text-label-color)'
-                            },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                                color: 'var(--selected-field-color)'
-                            },
-                            '& .MuiInputLabel-root.Mui-error': {
-                                color: 'var(--error-color)'
-                            }
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '24px',
+                            alignItems: 'center',
+                            width: '100%'
                         }}
-                        value={reason}
-                        onChange={e => setReason(e.target.value)}
-                    />
+                    >
+                        <TextField
+                            variant='outlined'
+                            label='Lý do'
+                            id='fullWidth'
+                            sx={{
+                                width: '65%',
+                                '& fieldset': {
+                                    borderRadius: '8px',
+                                    color: 'var(--text-color)',
+                                    borderColor: 'var(--border-color)'
+                                },
+                                '& .MuiInputBase-root': {
+                                    paddingRight: '3px'
+                                },
+                                '& .MuiInputBase-input': {
+                                    scrollbarGutter: 'stable',
+                                    '&::-webkit-scrollbar': {
+                                        width: '7px',
+                                        height: '7px'
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        backgroundColor: 'var(--scrollbar-color)',
+                                        borderRadius: '10px'
+                                    },
+                                    paddingRight: '4px',
+                                    color: 'var(--text-color)',
+                                    fontSize: '16px',
+                                    '&::placeholder': {
+                                        color: 'var(--placeholder-color)',
+                                        opacity: 1
+                                    }
+                                },
+                                '& .MuiOutlinedInput-root:hover fieldset': {
+                                    borderColor: 'var(--hover-field-color)'
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error:hover fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-error fieldset': {
+                                    borderColor: 'var(--error-color) !important' // Màu lỗi khi hover
+                                },
+                                '& .MuiOutlinedInput-root.Mui-focused fieldset': {
+                                    borderColor: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'var(--text-label-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: 'var(--selected-field-color)'
+                                },
+                                '& .MuiInputLabel-root.Mui-error': {
+                                    color: 'var(--error-color)'
+                                }
+                            }}
+                            value={reason}
+                            onChange={e => setReason(e.target.value)}
+                        />
+
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label={'Ngày kỷ luật'}
+                                value={dayjs(date)}
+                                onChange={value => {
+                                    setDate(convertToVietnamTime(value.toDate()))
+                                }}
+                                sx={{
+                                    flex: 1,
+                                    '& .MuiInputBase-root': {
+                                        color: 'var(--text-color)'
+                                    },
+                                    '& .MuiInputBase-input': {
+                                        padding: '16.5px 14px'
+                                    },
+                                    '& .MuiInputLabel-root': {
+                                        color: 'var(--text-label-color)'
+                                    },
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderRadius: '8px',
+                                        borderColor: 'var(--border-dialog)'
+                                    },
+                                    '& .MuiSvgIcon-root': {
+                                        color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                        }
+                                    },
+                                    '& .MuiInputLabel-root.Mui-focused': {
+                                        color: 'var(--selected-field-color)'
+                                    }
+                                }}
+                            />
+                        </LocalizationProvider>
+                    </Box>
 
                     <TextField
                         variant='outlined'

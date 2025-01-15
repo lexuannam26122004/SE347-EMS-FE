@@ -695,7 +695,7 @@ function ContractExpPage() {
                     page={page}
                     onChange={handleChangePage}
                     boundaryCount={1}
-                    siblingCount={2}
+                    siblingCount={0}
                     variant='outlined'
                     sx={{
                         color: 'var(--text-color)',

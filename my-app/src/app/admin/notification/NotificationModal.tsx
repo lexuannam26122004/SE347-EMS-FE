@@ -248,7 +248,7 @@ function NotificationModal({ notificationId, open, handleClose }: NotificationMo
 
                             <Typography
                                 variant='h6'
-                                sx={{ fontSize: '15px', mt: '10px', fontWeight: 'Bold', color: 'var(--text-color)' }}
+                                sx={{ fontSize: '15px', mt: '20px', fontWeight: 'Bold', color: 'var(--text-color)' }}
                             >
                                 {notificationData?.Title}
                             </Typography>
@@ -259,6 +259,7 @@ function NotificationModal({ notificationId, open, handleClose }: NotificationMo
                                 sx={{
                                     fontSize: '15px',
                                     mt: '10px',
+                                    mb: '6px',
                                     color: 'var(--text-color)',
                                     '& p': { marginBottom: '0.5rem' },
                                     '& ul': {

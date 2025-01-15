@@ -128,6 +128,12 @@ export const notificationsApi = createApi({
                 method: 'PUT',
                 body: { Id: id }
             })
+        }),
+        removeNotification: builder.mutation<NotificationsResponse, number>({
+            query: id => ({
+                url: `ChangeStatus/${id}`,
+                method: 'PUT'
+            })
         })
     })
 })
@@ -145,5 +151,6 @@ export const {
     useStatNotificationByMonthQuery,
     useStatNotificationByTypeQuery,
     useCountNotifyReadByUserQuery,
-    useUpdateNotificationMutation
+    useUpdateNotificationMutation,
+    useRemoveNotificationMutation
 } = notificationsApi

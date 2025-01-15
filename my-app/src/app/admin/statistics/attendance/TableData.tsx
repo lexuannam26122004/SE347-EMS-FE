@@ -13,7 +13,7 @@ import {
     TableSortLabel,
     Avatar
 } from '@mui/material'
-import { ClipboardCheck } from 'lucide-react'
+import { ClipboardCheck, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ITimekeeping } from '@/models/Timekeeping'
@@ -27,38 +27,31 @@ interface IGetAll extends ITimekeeping {
 interface IProps {
     attendanceData: IGetAll[]
     type?: number
+    handleSort?: (property: string) => void
+    order?: 'asc' | 'desc'
+    orderBy?: string
 }
 
-const avatars = [
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-1.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-2.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-4.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-5.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-6.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-7.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-8.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-9.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-10.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-11.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-12.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-13.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-14.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-15.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-16.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-17.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-18.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-19.webp'
-]
+function convertTimeFormat(time: string): string {
+    if (!time) return 'N/A'
+    // Tách chuỗi thời gian thành giờ, phút và giây
+    const [hours = 0, minutes = 0, seconds = 0] = time?.split(':').map(part => Math.floor(Number(part))) || [0, 0, 0]
 
-function TableErrorReport({ attendanceData }: IProps) {
+    // Format từng phần thành chuỗi 2 chữ số
+    const formattedHours = String(hours).padStart(2, '0')
+    const formattedMinutes = String(minutes).padStart(2, '0')
+    const formattedSeconds = String(seconds).padStart(2, '0')
+
+    // Kết quả format thành hh:mm:ss
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+}
+
+function TableErrorReport({ attendanceData, handleSort, order, orderBy }: IProps) {
     const { t } = useTranslation('common')
     // const router = useRouter()
     // const [selected, setSelected] = useState<number[]>([])
     // const [openDialog, setOpenDialog] = useState(false)
     // const [selectedRow, setSelectedRow] = useState<number | null>(null)
-    const [order, setOrder] = useState<'asc' | 'desc'>('asc')
-    const [orderBy, setOrderBy] = useState<string>('')
     // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
     //const [openModal, setOpenModal] = useState(false)
 
@@ -67,18 +60,12 @@ function TableErrorReport({ attendanceData }: IProps) {
     //     setOpenModal(true)
     // }
 
-    const handleSort = (property: string) => {
-        if (orderBy === property) {
-            setOrder(order === 'asc' ? 'desc' : 'asc')
-        } else {
-            setOrder('asc')
-        }
-        setOrderBy(property)
-    }
-
     return (
         <TableContainer
             sx={{
+                scrollbarGutter: 'stable',
+                paddingLeft: '7px',
+                maxHeight: '700px',
                 '&::-webkit-scrollbar': {
                     width: '7px',
                     height: '7px'
@@ -128,9 +115,9 @@ function TableErrorReport({ attendanceData }: IProps) {
 
                         <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                             <TableSortLabel
-                                active={'Department' === orderBy}
-                                direction={orderBy === 'Department' ? order : 'asc'}
-                                onClick={() => handleSort('Department')}
+                                active={'department' === orderBy}
+                                direction={orderBy === 'department' ? order : 'asc'}
+                                onClick={() => handleSort('department')}
                                 sx={{
                                     '& .MuiTableSortLabel-icon': {
                                         color: 'var(--text-color) !important'
@@ -191,30 +178,20 @@ function TableErrorReport({ attendanceData }: IProps) {
                         </TableCell>
 
                         <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                            <TableSortLabel
-                                active={'Reason' === orderBy}
-                                direction={orderBy === 'Reason' ? order : 'asc'}
-                                onClick={() => handleSort('Reason')}
+                            <Typography
                                 sx={{
-                                    '& .MuiTableSortLabel-icon': {
-                                        color: 'var(--text-color) !important'
-                                    }
+                                    fontWeight: 'bold',
+                                    color: 'var(--text-color)',
+                                    maxWidth: '400px',
+                                    textAlign: 'center',
+                                    fontSize: '16px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
                                 }}
                             >
-                                <Typography
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        color: 'var(--text-color)',
-                                        maxWidth: '400px',
-                                        fontSize: '16px',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    {t('COMMON.ATTENDANCE.CHECK_IN_&_OUT')}
-                                </Typography>
-                            </TableSortLabel>
+                                {t('COMMON.ATTENDANCE.CHECK_IN_&_OUT')}
+                            </Typography>
                         </TableCell>
 
                         <TableCell sx={{ borderColor: 'var(--border-color)' }}>
@@ -223,6 +200,8 @@ function TableErrorReport({ attendanceData }: IProps) {
                                     fontWeight: 'bold',
                                     color: 'var(--text-color)',
                                     fontSize: '16px',
+                                    padding: '0 30px 0 20px',
+                                    textAlign: 'center',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     whiteSpace: 'nowrap'
@@ -296,7 +275,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                                 mt: '-2px'
                                             }}
                                             src={
-                                                avatars[row.Id] ||
+                                                row.AvatarPath ||
                                                 'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                             }
                                         />
@@ -335,6 +314,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                         sx={{
                                             color: 'var(--text-color)',
                                             fontSize: '16px',
+                                            padding: '0px 20px',
                                             maxWidth: '280px',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
@@ -368,42 +348,79 @@ function TableErrorReport({ attendanceData }: IProps) {
                                 <TableCell
                                     sx={{
                                         borderStyle: 'dashed',
+                                        padding: '16px 30px',
                                         borderColor: 'var(--border-color)'
                                     }}
                                 >
-                                    <Typography
+                                    <Box
                                         sx={{
-                                            color: 'var(--text-color)',
-                                            fontSize: '16px',
-                                            maxWidth: '280px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
+                                            display: 'flex',
+                                            gap: '15px',
+                                            alignItems: 'center',
+                                            justifyContent: 'left'
                                         }}
                                     >
-                                        {row.CheckInTime} - {row.CheckOutTime}
-                                    </Typography>
+                                        <Clock size={24} color='var(--text-color)' />
+                                        <Box
+                                            sx={{
+                                                color: 'var(--text-color)',
+                                                fontSize: '16px',
+                                                maxWidth: '280px',
+                                                display: 'flex',
+                                                gap: '15px',
+                                                alignItems: 'center',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    color: '#ffbc42',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                {convertTimeFormat(row.CheckInTime)}
+                                            </Box>
+                                            -
+                                            <Box
+                                                sx={{
+                                                    color: '#ff7373',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            >
+                                                {convertTimeFormat(row.CheckOutTime)}
+                                            </Box>
+                                        </Box>
+                                    </Box>
                                 </TableCell>
 
                                 <TableCell
                                     sx={{
                                         borderStyle: 'dashed',
+                                        padding: '16px 30px',
                                         borderColor: 'var(--border-color)'
                                     }}
                                 >
                                     <Typography
                                         sx={{
-                                            color: 'var(--text-color)',
+                                            color: '#00ec84',
                                             fontSize: '16px',
-                                            maxWidth: '280px',
+                                            minWidth: '88px',
+                                            textAlign: 'center',
+                                            padding: '6px 5px',
+                                            borderRadius: '10px',
+                                            border: '1px solid var(--border-color)',
+                                            fontWeight: 'bold',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap'
                                         }}
                                     >
-                                        {(row.TotalHours * 60).toFixed(2) + ' ' + t('COMMON.ATTENDANCE.MINUTES')}
+                                        {row.TotalHours * 60} {t('COMMON.USER.MINUTES')}
                                     </Typography>
                                 </TableCell>
+
                                 <TableCell
                                     sx={{
                                         borderStyle: 'dashed',
@@ -411,7 +428,7 @@ function TableErrorReport({ attendanceData }: IProps) {
                                         padding: '11px'
                                     }}
                                 >
-                                    {row.IsValid === false ? (
+                                    {row.Status === false ? (
                                         <Box
                                             sx={{
                                                 borderRadius: '8px',

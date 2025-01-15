@@ -4,11 +4,27 @@ import { useTheme } from 'next-themes'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InputLabel } from '@mui/material'
+import { useGetAttendanceSummaryQuery } from '@/services/TimekeepingService'
+import Loading from '@/components/Loading'
+
+const getPeriod = (period: number) => {
+    if (period === 0) return 'day'
+    if (period === 1) return 'week'
+    if (period === 2) return 'month'
+    return 'year'
+}
 
 export default function Chart() {
     const { t } = useTranslation('common')
     const { theme } = useTheme()
     const [type, setType] = useState(0)
+
+    const { data: responseData, isLoading } = useGetAttendanceSummaryQuery({
+        period: getPeriod(type),
+        date: new Date().toISOString().split('T')[0]
+    })
+
+    const departmentData = responseData?.Data.DepartmentSummary || []
 
     const handleTypeChange = (event: SelectChangeEvent<number>) => {
         setType(event.target.value as number)
@@ -29,25 +45,19 @@ export default function Chart() {
         dataset: {
             source: [
                 ['department', t('COMMON.ATTENDANCE.JOIN'), t('COMMON.ATTENDANCE.STATUS_ABSENT')], // Cột đầu tiên là danh mục, sau đó là các giá trị
-                ['Human Resources', 5, 2],
-                ['Finance', 24, 5],
-                ['IT Services', 17, 8],
-                ['Marketing', 20, 2],
-                ['Sales', 5, 3],
-                ['Operations', 20, 4],
-                ['Customer Support', 14, 6]
+                ...departmentData
             ]
         },
         calculable: true,
         grid: {
             top: '2%',
             left: '0%',
-            right: '10%',
+            right: '9%',
             bottom: '4%',
             containLabel: true
         },
         xAxis: {
-            name: 'Số lượng',
+            name: 'Tỉ lệ (%)',
             type: 'value',
             axisLine: {
                 lineStyle: {
@@ -59,6 +69,9 @@ export default function Chart() {
                     type: 'dashed',
                     color: theme === 'light' ? '#e9ecee' : '#333d47'
                 }
+            },
+            nameTextStyle: {
+                fontFamily: 'Arial, sans-serif'
             }
         },
         yAxis: {
@@ -101,6 +114,10 @@ export default function Chart() {
                 }
             }
         ]
+    }
+
+    if (isLoading) {
+        return <Loading />
     }
 
     return (
@@ -169,7 +186,7 @@ export default function Chart() {
                     <InputLabel id='select-label'>{t('COMMON.STAT_NOTIFY.BY')}</InputLabel>
                     <Select
                         label={t('COMMON.STAT_NOTIFY.BY')}
-                        defaultValue={1}
+                        defaultValue={0}
                         value={type}
                         onChange={handleTypeChange}
                         sx={{
@@ -233,11 +250,21 @@ export default function Chart() {
                                 borderRadius: '6px'
                             }}
                         >
-                            {t('COMMON.USER.THIS_WEEK')}
+                            {t('COMMON.USER.TODAY')}
                         </MenuItem>
 
                         <MenuItem
                             value={1}
+                            sx={{
+                                mt: '3px',
+                                borderRadius: '6px'
+                            }}
+                        >
+                            {t('COMMON.USER.THIS_WEEK')}
+                        </MenuItem>
+
+                        <MenuItem
+                            value={2}
                             sx={{
                                 borderRadius: '6px',
                                 mt: '3px'
@@ -247,7 +274,7 @@ export default function Chart() {
                         </MenuItem>
 
                         <MenuItem
-                            value={2}
+                            value={3}
                             sx={{
                                 borderRadius: '6px',
                                 mt: '3px'
@@ -258,7 +285,7 @@ export default function Chart() {
                     </Select>
                 </FormControl>
             </Box>
-            <ReactECharts option={option} style={{ height: 450 }} />
+            <ReactECharts option={option} style={{ height: 470 }} />
         </Paper>
     )
 }
