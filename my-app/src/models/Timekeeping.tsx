@@ -7,7 +7,7 @@ export interface ITimekeeping {
     CheckInIP: string
     Note: string
     Agent: string
-    IsValid: boolean
+    Status: boolean
     Overtime: string
     TotalHours: number
 }
@@ -44,6 +44,16 @@ export interface IFilterTimekeeping {
     Year: number
 }
 
+export interface ITimekeepingFilter {
+    fullName?: string
+    pageSize?: number
+    pageNumber?: number
+    sortBy?: string
+    isDescending?: boolean
+    startDate?: string
+    endDate?: string
+}
+
 export interface IFilterAttendance {
     isHoliday?: boolean
     pageSize?: number
@@ -54,4 +64,9 @@ export interface IFilterAttendance {
     startDate?: string
     endDate?: string
     keyword?: string
+}
+
+export interface IFilterAttendanceSummary {
+    date: string
+    period: string
 }

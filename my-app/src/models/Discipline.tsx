@@ -16,6 +16,7 @@ export interface ICreateDiscipline {
     Reason?: string
     Note?: string
     Money?: number
+    Date: string
 }
 
 export interface IUpdateDiscipline extends ICreateDiscipline {

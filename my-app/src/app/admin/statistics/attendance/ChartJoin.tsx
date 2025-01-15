@@ -4,30 +4,29 @@ import ReactECharts from 'echarts-for-react'
 import { Box, Divider, Paper, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from 'next-themes'
+import { useGetTodayAttendanceSummaryQuery } from '@/services/TimekeepingService'
+import Loading from '@/components/Loading'
 //import { useGetEmployeeAttendanceQuery } from '@/services/AspNetUserService' // API mới để lấy dữ liệu tham gia
-
-const dataResponse = {
-    Data: {
-        Present: 89,
-        Absent: 27
-    }
-}
 
 const Chart = () => {
     //const { data } = useGetEmployeeAttendanceQuery() // API trả về số lượng nhân viên đã đi làm và chưa đi làm
     const { t } = useTranslation('common')
     const { theme } = useTheme()
+    const currentDate = new Date()
 
-    const attendanceData = dataResponse?.Data || { Present: 0, Absent: 0 } // API trả về dữ liệu: { Present, Absent }
+    const { data: dataResponse, isLoading } = useGetTodayAttendanceSummaryQuery(currentDate.toISOString().split('T')[0])
 
-    const totalEmployees = attendanceData.Present + attendanceData.Absent
+    const present = dataResponse?.Data?.CheckedIn || 0
+    const absent = dataResponse?.Data?.Absent || 0
+    const presentPercent = dataResponse?.Data?.AttendanceRate || 0
+    const absentRate = dataResponse?.Data?.AbsentRate || 0
 
     const chartData = [
-        { value: attendanceData.Present, name: t('COMMON.ATTENDANCE.JOIN') },
-        { value: attendanceData.Absent, name: t('COMMON.ATTENDANCE.STATUS_ABSENT') }
+        { value: present, name: t('COMMON.ATTENDANCE.JOIN') },
+        { value: absent, name: t('COMMON.ATTENDANCE.STATUS_ABSENT') }
     ]
 
-    const percent = 10
+    const percent = dataResponse?.Data?.AttendanceRateChange || 0
 
     const option = {
         animation: true, // Bật hiệu ứng chuyển tiếp
@@ -75,13 +74,6 @@ const Chart = () => {
                 label: {
                     show: false,
                     position: 'inside',
-                    formatter: (params: { value: number }) => {
-                        const value = params.value as number
-                        const percentage = ((value / totalEmployees) * 100).toFixed(1)
-
-                        const isMajority = value === Math.max(attendanceData.Present, attendanceData.Absent)
-                        return isMajority ? `${value} (${percentage}%)` : ''
-                    },
                     fontSize: 14,
                     fontWeight: 'bold',
                     color: theme === 'light' ? '#000' : '#fff'
@@ -91,6 +83,10 @@ const Chart = () => {
                 }
             }
         ]
+    }
+
+    if (isLoading) {
+        return <Loading />
     }
 
     return (
@@ -134,6 +130,7 @@ const Chart = () => {
             <Divider
                 sx={{
                     margin: '20px -24px 24px',
+                    borderStyle: 'dashed',
                     borderColor: 'var(--divider-color)'
                 }}
             />
@@ -170,19 +167,19 @@ const Chart = () => {
                                 fontSize: '28px'
                             }}
                         >
-                            {attendanceData.Present}
+                            {present}
                         </Typography>
 
                         <Box
                             sx={{
-                                padding: '2px 6px',
+                                padding: '3px 10px',
                                 borderRadius: '8px',
                                 background: '#1ebb7d',
                                 fontWeight: 'bold',
                                 color: 'white'
                             }}
                         >
-                            {((attendanceData.Present / totalEmployees) * 100).toFixed(1)}%
+                            {presentPercent}%
                         </Box>
                     </Box>
                     <Typography
@@ -218,19 +215,19 @@ const Chart = () => {
                                 fontSize: '28px'
                             }}
                         >
-                            {attendanceData.Absent}
+                            {absent}
                         </Typography>
 
                         <Box
                             sx={{
-                                padding: '2px 6px',
+                                padding: '3px 10px',
                                 borderRadius: '8px',
                                 background: '#fd7d5f',
                                 fontWeight: 'bold',
                                 color: 'white'
                             }}
                         >
-                            {((attendanceData.Absent / totalEmployees) * 100).toFixed(1)}%
+                            {absentRate}%
                         </Box>
                     </Box>
                     <Typography

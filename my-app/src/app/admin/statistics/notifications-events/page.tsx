@@ -757,7 +757,7 @@ function ContractExpPage() {
                     </Box> */}
                 </Box>
 
-                <ListNotify notifications={filteredData} totalRecords={totalRecords} />
+                <ListNotify notifications={filteredData} totalRecords={totalRecords} refetch={refetch} />
 
                 <Box display='flex' alignItems='center' justifyContent='space-between' padding='24px'>
                     <Box display='flex' alignItems='center'>

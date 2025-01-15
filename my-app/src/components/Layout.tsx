@@ -55,14 +55,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                                 active={pathname === '/admin/statistics/attendance'}
                             />
                         )}
-                        {menuLeft['/admin/statistics/benefits'].IsAllowView && (
+                        {/* {menuLeft['/admin/statistics/benefits'].IsAllowView && (
                             <SidebarItem
                                 icon={<ChartNoAxesCombined />}
                                 text={t('COMMON.SIDEBAR.BENEFITS')}
                                 route='/admin/statistics/benefits'
                                 active={pathname === '/admin/statistics/benefits'}
                             />
-                        )}
+                        )} */}
                         {menuLeft['/admin/statistics/salary'].IsAllowView && (
                             <SidebarItem
                                 icon={<ChartNoAxesCombined />}

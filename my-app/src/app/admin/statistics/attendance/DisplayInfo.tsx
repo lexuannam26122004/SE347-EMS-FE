@@ -4,6 +4,8 @@ import { Box, Paper, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import ReactECharts from 'echarts-for-react'
 import { useTheme } from 'next-themes'
+import { useStatsDisplayQuery } from '@/services/TimekeepingService'
+import Loading from '@/components/Loading'
 
 const getLastWeekDays = () => {
     const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -22,18 +24,22 @@ const colors = ['#00a76f', '#00b8d9', '#ff5630', '#f83696', '#ffab00', '#b863f0'
 
 function Page() {
     const { t } = useTranslation('common')
-    const onTime = 73
-    const early = 15
-    const late = 5
-    const timeOff = 10
-    const absent = 2
-    const invalid = 1
-    const onTimePercent = 10
-    const earlyPercent = 5
-    const latePercent = -20
-    const timeOffPercent = -25
-    const absentPercent = 100
-    const invalidPercent = -50
+    const currentDate = new Date()
+
+    const { data: responseData, isLoading } = useStatsDisplayQuery(currentDate.toISOString().split('T')[0])
+
+    const onTime = responseData?.Data?.StatsByDay[0]?.OnTime || 0
+    const early = responseData?.Data?.StatsByDay[0]?.LeftEarly || 0
+    const late = responseData?.Data?.StatsByDay[0]?.Late || 0
+    const timeOff = responseData?.Data?.StatsByDay[0]?.Leave || 0
+    const absent = responseData?.Data?.StatsByDay[0]?.Absent || 0
+    const invalid = responseData?.Data?.StatsByDay[0]?.Invalid || 0
+    const onTimePercent = responseData?.Data?.PercentageChange.OnTime
+    const earlyPercent = responseData?.Data?.PercentageChange.LeftEarly
+    const latePercent = responseData?.Data?.PercentageChange.Late
+    const timeOffPercent = responseData?.Data?.PercentageChange.Leave
+    const absentPercent = responseData?.Data?.PercentageChange.Absent
+    const invalidPercent = responseData?.Data?.PercentageChange.Invalid
     const { theme } = useTheme()
 
     const getOption = (data: number[], color: string) => {
@@ -89,13 +95,19 @@ function Page() {
         }
     }
 
-    const dataSet = {
-        OnTime: [120, 110, 115, 130, 125, 140, 135], // Số người đi đúng giờ trong 7 ngày gần nhất
-        Early: [15, 10, 12, 20, 18, 25, 22], // Số người đi sớm
-        Late: [5, 7, 6, 4, 8, 3, 5], // Số người đi trễ
-        Leave: [1, 4, 2, 3, 7, 6, 3], // Số người nghỉ phép
-        Absent: [2, 3, 4, 5, 1, 2, 3], // Số người vắng mặt
-        Invalid: [1, 2, 3, 1, 4, 5, 2] // Số không hợp lệ
+    const dataSet = responseData?.Data?.DataSet || {}
+
+    // const dataSet = {
+    //     OnTime: [120, 110, 115, 130, 125, 140, 135], // Số người đi đúng giờ trong 7 ngày gần nhất, ngày hiện tại là ngày cuối cùng
+    //     Early: [15, 10, 12, 20, 18, 25, 22], // Số người đi sớm
+    //     Late: [5, 7, 6, 4, 8, 3, 5], // Số người đi trễ
+    //     Leave: [1, 4, 2, 3, 7, 6, 3], // Số người nghỉ phép
+    //     Absent: [2, 3, 4, 5, 1, 2, 3], // Số người vắng mặt
+    //     Invalid: [1, 2, 3, 1, 4, 5, 2] // Số không hợp lệ
+    // }
+
+    if (isLoading) {
+        return <Loading />
     }
 
     return (

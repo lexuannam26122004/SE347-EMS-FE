@@ -16,6 +16,7 @@ export interface ICreateReward {
     Reason?: string
     Note?: string
     Money?: number
+    Date: string
 }
 
 export interface IFilterReward {
