@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 export default function SalaryCompare() {
     const { t } = useTranslation('common')
     const { theme } = useTheme()
-    const currentYear = new Date().getFullYear()
+    const currentYear = new Date().getFullYear()-1
     const [selectedYear, setSelectedYear] = useState(currentYear)
 
     const { data, refetch } = useGetIncomeByYearQuery({ year: selectedYear.toString() })

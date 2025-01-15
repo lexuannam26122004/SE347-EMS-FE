@@ -35,10 +35,11 @@ export default function EmployeeSalary() {
             <Paper
                 elevation={1}
                 sx={{
-                    width: 'calc(100% / 3 + 50px)',
+                    width: 'calc(100% / 3)',
                     borderRadius: '30px',
                     padding: '35px',
-                    backgroundColor: 'var(--attendance-bg1)'
+                    backgroundColor: 'var(--attendance-bg1)',
+                    position: 'fixed'
                 }}
             >
                 <Box>
@@ -89,20 +90,20 @@ export default function EmployeeSalary() {
                             {myData?.DepartmentName}
                         </Typography>
                     </Box>
-                    <Box sx={{ marginRight: '20px', marginTop: '15px', gap: '15px' }}>
+                    <Box sx={{ marginRight: '20px', marginTop: '10px', gap: '15px' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Smartphone size={'24px'} color='orange'></Smartphone>
                             <Typography fontSize={'14px'} color='var(--text-color)' style={{ marginLeft: '10px' }}>
                                 {myData?.PhoneNumber}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
                             <Mail size={'24px'} color='blue'></Mail>
                             <Typography fontSize={'14px'} color='var(--text-color)' style={{ marginLeft: '10px' }}>
                                 {myData?.Email}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
                             <MapPinHouse size={'24px'} color='green'></MapPinHouse>
                             <Typography fontSize={'14px'} color='var(--text-color)' style={{ marginLeft: '10px' }}>
                                 {myData?.Address}
@@ -118,7 +119,7 @@ export default function EmployeeSalary() {
                                 alignItems: 'center',
                                 padding: '20px 24px',
                                 borderRadius: '20px',
-                                mt: '30px'
+                                mt: '20px'
                             }}
                         >
                             <Box
@@ -153,7 +154,7 @@ export default function EmployeeSalary() {
                                 alignItems: 'center',
                                 padding: '20px 24px',
                                 borderRadius: '20px',
-                                mt: '30px'
+                                mt: '20px'
                             }}
                         >
                             <Box
@@ -188,7 +189,7 @@ export default function EmployeeSalary() {
                 sx={{
                     width: 'calc(100% / 3 * 2 - 50px)',
                     borderRadius: '30px',
-
+                    marginLeft: 'auto',
                     backgroundColor: 'var(--attendance-bg1)'
                 }}
             >

@@ -102,7 +102,6 @@ const DetailModal = () => {
                                     'https://localhost:44381/' + user?.AvatarPath ||
                                     'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                 }
-                                alt='Avatar'
                                 sx={{
                                     width: '100%',
                                     height: '100%',

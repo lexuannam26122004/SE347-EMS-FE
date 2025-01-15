@@ -1,6 +1,7 @@
 export interface ISalaryGetAll {
     Id: string
     FullName: string
+    EmployeeId: string
     UserId: string
     Date: Date
     BasicSalary: number

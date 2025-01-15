@@ -292,11 +292,11 @@ function GetAllSalaryPage() {
     }
 
     const paperRef = useRef(null)
-    const [paperHeight, setPaperHeight] = useState(500)
+    //const [paperHeight, setPaperHeight] = useState(500)
 
     useEffect(() => {
         if (paperRef.current && isLoading === false) {
-            setPaperHeight(paperRef.current.offsetHeight)
+            // setPaperHeight(paperRef.current.offsetHeight)
         }
     }, [isLoading, salaryData])
 
@@ -316,8 +316,9 @@ function GetAllSalaryPage() {
         >
             <Box
                 sx={{
-                    width: 'calc(100% / 5 + 30px)',
-                    height: { paperHeight },
+                    position: 'fixed',
+                    width: 'calc(100% / 6)',
+                    height: '85vh',
                     backgroundColor: 'var(--background-color)',
                     overflowY: 'auto',
                     scrollbarGutter: 'stable',
@@ -694,7 +695,9 @@ function GetAllSalaryPage() {
             <Box
                 sx={{
                     width: 'calc(100% / 5 * 4 - 30px)',
-                    height: '100%'
+                    height: '100%',
+                    display: 'flex',
+                    marginLeft: 'auto'
                 }}
             >
                 <Paper
@@ -1324,7 +1327,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.UserId}
+                                                    {row.EmployeeId}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>

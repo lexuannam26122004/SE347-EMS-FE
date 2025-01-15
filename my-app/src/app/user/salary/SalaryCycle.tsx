@@ -41,7 +41,7 @@ interface infoCycle {
 
 export default function SalaryCycle() {
     const { t } = useTranslation('common')
-    const currentYear = new Date().getFullYear()
+    const currentYear = new Date().getFullYear() - 1
     const [selectedYear, setSelectedYear] = useState(currentYear)
     const [openModal, setOpenModal] = useState(false)
     const [selectedSalary, setSelectedSalary] = useState<string | null>(null)
@@ -68,7 +68,6 @@ export default function SalaryCycle() {
             sx={{
                 width: '100%',
                 mt: '24px',
-
                 overflow: 'hidden',
                 borderRadius: '20px',
                 backgroundColor: 'var(--background-item)'
@@ -179,7 +178,7 @@ export default function SalaryCycle() {
                     gridTemplateColumns: 'repeat(2, 1fr)',
                     gap: '30px',
                     height: 'auto',
-                    maxHeight: '540px',
+                    //maxHeight: '540px',
                     padding: '0 28px 0 35px',
                     scrollbarGutter: 'stable',
                     '&::-webkit-scrollbar': {
