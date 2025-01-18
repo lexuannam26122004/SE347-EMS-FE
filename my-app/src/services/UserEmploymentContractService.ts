@@ -19,8 +19,9 @@ export const userEmploymentContractApi = createApi({
             query: () => ({
                 url: 'ExportContractPdf',
                 method: 'GET',
-                responseHandler: response => response.blob()
+                responseHandler: (response: Response) => response.blob()
             })
+            
         })
     })
 })

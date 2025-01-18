@@ -23,9 +23,9 @@ const Contract: React.FC<ContractProps> = ({ infoMe }) => {
     const { data, isLoading: isLoadingExport } = useExportContractPdfQuery()
 
     const handleDownload = () => {
+        
         if (data) {
             const url = window.URL.createObjectURL(new Blob([data]))
-
             const link = document.createElement('a')
             link.href = url
             link.setAttribute('download', 'Employment_Contract.pdf')
