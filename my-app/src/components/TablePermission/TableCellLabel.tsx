@@ -25,7 +25,6 @@ function TableCellLabel({ id, keyName }: Props) {
                 parentId: id
             })
         )
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataSelectorCol.allow, dispatch, id, keyName])
 
     const handleMouseOver = () => {

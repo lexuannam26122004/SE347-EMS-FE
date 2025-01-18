@@ -15,7 +15,6 @@ import {
     TableCell
 } from '@mui/material'
 import { X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
     open: boolean

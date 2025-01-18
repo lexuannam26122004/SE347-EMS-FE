@@ -7,26 +7,18 @@ import {
     MenuItem,
     SelectChangeEvent,
     Paper,
-    InputLabel,
-    FormControl,
     TextField,
-    InputAdornment,
-    Button
+    InputAdornment
 } from '@mui/material'
 import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import SearchIcon from '@mui/icons-material/Search'
-import { useRouter } from 'next/navigation'
 import TableReward from './TableReward'
-import { useGetAllDepartmentQuery } from '@/services/DepartmentService'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import { debounce } from 'lodash'
 import { useCallback } from 'react'
-import { IFilterRewardUser } from '@/models/Reward'
-import { useGetAllRewardsQuery } from '@/services/RewardService'
 import Loading from '@/components/Loading'
-import { CirclePlus } from 'lucide-react'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
 import dayjs from 'dayjs'
@@ -59,7 +51,6 @@ function a11yProps(index: number) {
 }
 
 function Page() {
-    const router = useRouter()
     const { t } = useTranslation('common')
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState('5')

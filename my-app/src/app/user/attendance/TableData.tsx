@@ -79,7 +79,7 @@ function TableErrorReport({ attendanceData }: IProps) {
     // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
     //const [openModal, setOpenModal] = useState(false)
 
-    const { data: responseGetMeData, isFetching: isFetchingGetMe } = useGetAuthMeQuery()
+    const { data: responseGetMeData } = useGetAuthMeQuery()
     const infoMe = responseGetMeData?.Data
 
     // const handleClickDetail = (config: IGetAllSysConfiguration) => {

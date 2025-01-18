@@ -18,7 +18,6 @@ import {
     TableBody,
     TableCell,
     TableContainer,
-    TableHead,
     TableRow,
     Typography
 } from '@mui/material'
@@ -55,7 +54,7 @@ import { useSearchAttendanceForUserQuery } from '@/services/UserAttendanceServic
 import { IFilterTimekeepingForUser } from '@/models/Timekeeping'
 import { useGetSummaryQuery } from '@/services/UserAttendanceService'
 import { useGetByDateQuery } from '@/services/UserAttendanceService'
-import { TextField, Dialog, DialogTitle, Switch, DialogContent } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent } from '@mui/material'
 
 const convertToVietnamTimeStart = (date: Date) => {
     if (isNaN(date.getTime())) {
@@ -139,11 +138,7 @@ function Page() {
     const [open, setOpen] = useState(false)
     const anchorRef = useRef<HTMLButtonElement>(null)
     const currentDate = new Date().toISOString().split('T')[0]
-    const {
-        data: responseDetail,
-        isFetching: isFetchingDetail,
-        refetch: refetchSummary
-    } = useGetByDateQuery(currentDate)
+    const { data: responseDetail, refetch: refetchSummary } = useGetByDateQuery(currentDate)
     const detail = responseDetail?.Data || []
 
     const handleDetailClick = () => {

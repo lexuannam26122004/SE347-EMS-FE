@@ -11,21 +11,16 @@ import {
     TableCell,
     TableHead,
     TableContainer,
-    TableSortLabel,
-    Avatar
+    TableSortLabel
 } from '@mui/material'
-import { ClipboardCheck, EyeIcon, Pencil, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { EyeIcon } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/navigation'
 import Loading from '@/components/Loading'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
 import { IFilterReward } from '@/models/Reward'
-import { useChangeStatusDisciplineMutation } from '@/services/DisciplineService'
-import AlertDialog from '@/components/AlertDialog'
 import DetailModal from '@/app/admin/discipline/DetailModal'
-import { useUpdateIsPenalizedMutation } from '@/services/DisciplineService'
 
 function getStatusBgColor(status: boolean): string {
     if (status === false) {
@@ -62,50 +57,17 @@ interface IProps {
     refetch: () => void
 }
 
-function TableErrorReport({ disciplinesData, setFilter, refetch }: IProps) {
+function TableErrorReport({ disciplinesData, setFilter }: IProps) {
     const { t } = useTranslation('common')
-    const router = useRouter()
-    const [openDialog, setOpenDialog] = useState(false)
-    const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
     const [orderBy, setOrderBy] = useState<string>('')
     const [selectedDiscipline, setSelectedDiscipline] = useState<IGetAllDiscipline | null>(null)
     const [openModal, setOpenModal] = useState(false)
-    const [changeDiscipline, { isSuccess: isSuccessChange }] = useChangeStatusDisciplineMutation()
-    const [updateIsPenalized, { isSuccess: isSuccessUpdateIsPenalized }] = useUpdateIsPenalizedMutation()
-
-    const handleButtonUpdateClick = (id: number) => {
-        router.push(`/admin/discipline/update?id=${id}`)
-    }
-
-    const handleConsiderClick = async (id: number) => {
-        await updateIsPenalized(id)
-    }
 
     const handleClickDetail = (discipline: IGetAllDiscipline) => {
         setSelectedDiscipline(discipline)
         setOpenModal(true)
     }
-
-    const handleDeleteClick = async (id: number) => {
-        setOpenDialog(true)
-        setSelectedRow(id)
-    }
-
-    const handleDeleteDiscipline = async () => {
-        if (selectedRow) {
-            await changeDiscipline(selectedRow)
-            setOpenDialog(false)
-            setSelectedRow(null)
-        }
-    }
-
-    useEffect(() => {
-        if (isSuccessChange || isSuccessUpdateIsPenalized) {
-            refetch()
-        }
-    }, [isSuccessChange, isSuccessUpdateIsPenalized])
-
     const handleSort = (property: string) => {
         setFilter(prev => ({
             ...prev,
@@ -457,17 +419,6 @@ function TableErrorReport({ disciplinesData, setFilter, refetch }: IProps) {
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            <AlertDialog
-                title={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.TITLE')}
-                content={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CONTENT')}
-                type='warning'
-                open={openDialog}
-                setOpen={setOpenDialog}
-                buttonCancel={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CANCEL')}
-                buttonConfirm={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.DELETE')}
-                onConfirm={() => handleDeleteDiscipline()}
-            />
 
             {selectedDiscipline && (
                 <DetailModal

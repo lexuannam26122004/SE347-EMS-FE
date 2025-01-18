@@ -13,7 +13,7 @@ import {
     //DialogActions
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Plus, SaveIcon, XIcon } from 'lucide-react'
+import { SaveIcon, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import LoadingButton from '@mui/lab/LoadingButton'
@@ -226,7 +226,7 @@ function Page() {
                             }}
                             options={employee}
                             getOptionLabel={option => `${option.EmployeeId}  ${option.FullName}`}
-                            renderOption={(props, option, { selected }) => {
+                            renderOption={(props, option) => {
                                 const { key, ...otherProps } = props
                                 return (
                                     <Box

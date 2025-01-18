@@ -17,7 +17,7 @@ import { ClipboardCheck, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ITimekeeping } from '@/models/Timekeeping'
-import { TextField, Dialog, DialogTitle, Switch, DialogContent } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent } from '@mui/material'
 
 interface IGetAll extends ITimekeeping {
     AvatarPath: string

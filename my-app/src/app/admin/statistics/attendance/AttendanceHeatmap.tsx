@@ -9,65 +9,6 @@ import { styled } from '@mui/material/styles'
 import { SwitchProps } from '@mui/material/Switch'
 import { useGetHourlyAttendanceStatsQuery } from '@/services/TimekeepingService'
 
-const data = [
-    // Thứ 2 (Mon)
-    [0, 0, 5],
-    [0, 1, 30],
-    [0, 2, 12],
-    [0, 3, 8],
-    [0, 4, 45],
-    [0, 5, 50],
-    [0, 6, 40],
-    // Thứ 3 (Tue)
-    [1, 0, 6],
-    [1, 1, 35],
-    [1, 2, 42],
-    [1, 3, 9],
-    [1, 4, 48],
-    [1, 5, 33],
-    [1, 6, 10],
-    // Thứ 4 (Wed)
-    [2, 0, 7],
-    [2, 1, 32],
-    [2, 2, 46],
-    [2, 3, 15],
-    [2, 4, 43],
-    [2, 5, 52],
-    [2, 6, 8],
-    // Thứ 5 (Thu)
-    [3, 0, 8],
-    [3, 1, 37],
-    [3, 2, 44],
-    [3, 3, 14],
-    [3, 4, 41],
-    [3, 5, 39],
-    [3, 6, 11],
-    // Thứ 6 (Fri)
-    [4, 0, 9],
-    [4, 1, 34],
-    [4, 2, 47],
-    [4, 3, 13],
-    [4, 4, 53],
-    [4, 5, 39],
-    [4, 6, 12],
-    // Thứ 7 (Sat)
-    [5, 0, 18],
-    [5, 1, 36],
-    [5, 2, 32],
-    [5, 3, 16],
-    [5, 4, 40],
-    [5, 5, 45],
-    [5, 6, 2],
-    // Chủ Nhật (Sun)
-    [6, 0, 0],
-    [6, 1, 0],
-    [6, 2, 0],
-    [6, 3, 0],
-    [6, 4, 0],
-    [6, 5, 0],
-    [6, 6, 0]
-]
-
 const IOSSwitch = styled((props: SwitchProps) => (
     <Switch focusVisibleClassName='.Mui-focusVisible' disableRipple {...props} />
 ))(({ theme }) => ({

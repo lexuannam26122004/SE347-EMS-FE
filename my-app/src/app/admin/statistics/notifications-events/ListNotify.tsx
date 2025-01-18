@@ -117,7 +117,7 @@ function Page({ notifications, refetch }: Props) {
         [anchorEl]
     )
 
-    const [removeNotification, resultDelete] = useRemoveNotificationMutation()
+    const [removeNotification] = useRemoveNotificationMutation()
 
     const handleAction = useCallback(
         async (action: string) => {
@@ -128,7 +128,7 @@ function Page({ notifications, refetch }: Props) {
                     await removeNotification(tempNotificationId).unwrap()
                     toast('Xóa thông báo thành công', 'success')
                     refetch()
-                } catch (error) {
+                } catch {
                     toast('Xóa thông báo thất bại', 'error')
                 }
             } else if (action === 'update' && tempNotificationId) {

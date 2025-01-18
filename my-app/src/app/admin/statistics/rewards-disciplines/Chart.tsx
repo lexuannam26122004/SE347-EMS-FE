@@ -1,7 +1,7 @@
 import { MenuItem, FormControl, Select, Box, Paper, Typography, SelectChangeEvent } from '@mui/material'
 import ReactECharts from 'echarts-for-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useStatsChartQuery } from '@/services/StatsRewardAndDisciplineService'
 
@@ -15,7 +15,7 @@ export default function Chart() {
         setSelectedYear(event.target.value as number)
     }
 
-    const { data: responseDate, isLoading } = useStatsChartQuery(selectedYear)
+    const { data: responseDate } = useStatsChartQuery(selectedYear)
 
     const percent = responseDate?.Data?.Percent || 0
     const rewardData = responseDate?.Data?.ListReward || []

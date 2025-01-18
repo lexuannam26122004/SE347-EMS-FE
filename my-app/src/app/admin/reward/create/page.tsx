@@ -13,7 +13,7 @@ import {
     //DialogActions
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Plus, SaveIcon, XIcon, Pencil, Ban, Trash2 } from 'lucide-react'
+import { SaveIcon, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import {
     useCreateRewardMutation
@@ -212,7 +212,7 @@ function Page() {
                             }}
                             options={employee}
                             getOptionLabel={option => `${option.EmployeeId}  ${option.FullName}`}
-                            renderOption={(props, option, { selected }) => {
+                            renderOption={(props, option) => {
                                 const { key, ...otherProps } = props
                                 return (
                                     <Box

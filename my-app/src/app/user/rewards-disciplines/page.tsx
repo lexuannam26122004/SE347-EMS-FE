@@ -9,23 +9,9 @@ import Discipline from './disciplines'
 import { Award, BadgeDollarSign, BadgeMinus, Download, OctagonAlert } from 'lucide-react'
 import Loading from '@/components/Loading'
 import { SelectChangeEvent } from '@mui/material'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useGetAuthMeQuery } from '@/services/AuthService'
-import { CircleArrowOutDownLeft, CircleArrowOutUpRight, ClockAlert, ScanBarcode } from 'lucide-react'
 import { useGetSummaryQuery } from '@/services/UserRewardService'
-
-interface info {
-    AvatarPath: string
-    FullName: string
-    RoleName: string[]
-    DepartmentName: string
-    PhoneNumber: string
-    Email: string
-    Address: string
-    StartDateWork: string
-    PayrollCycle: number
-    Birthday: string
-}
 
 const getType = (type: number) => {
     if (type === 0) return 'week'

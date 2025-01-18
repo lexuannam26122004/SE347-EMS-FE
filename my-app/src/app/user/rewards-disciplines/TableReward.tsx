@@ -11,21 +11,16 @@ import {
     TableCell,
     TableHead,
     TableContainer,
-    TableSortLabel,
-    Avatar
+    TableSortLabel
 } from '@mui/material'
-import { ClipboardCheck, EyeIcon, Pencil, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { EyeIcon } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/navigation'
 import Loading from '@/components/Loading'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
 import { IFilterReward } from '@/models/Reward'
-import { useChangeStatusRewardMutation } from '@/services/RewardService'
-import AlertDialog from '@/components/AlertDialog'
 import DetailModal from '@/app/admin/reward/DetailModal'
-import { useUpdateIsReceivedMutation } from '@/services/RewardService'
 
 function getStatusBgColor(status: boolean): string {
     if (status === false) {
@@ -62,49 +57,17 @@ interface IProps {
     refetch: () => void
 }
 
-function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
+function TableErrorReport({ rewardsData, setFilter }: IProps) {
     const { t } = useTranslation('common')
-    const router = useRouter()
-    const [openDialog, setOpenDialog] = useState(false)
-    const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
     const [orderBy, setOrderBy] = useState<string>('')
     const [selectedReward, setSelectedReward] = useState<IGetAllReward | null>(null)
     const [openModal, setOpenModal] = useState(false)
-    const [changeReward, { isSuccess: isSuccessChange }] = useChangeStatusRewardMutation()
-    const [updateIsReceived, { isSuccess: isSuccessUpdateIsReceived }] = useUpdateIsReceivedMutation()
-
-    const handleButtonUpdateClick = (id: number) => {
-        router.push(`/admin/reward/update?id=${id}`)
-    }
 
     const handleClickDetail = (reward: IGetAllReward) => {
         setSelectedReward(reward)
         setOpenModal(true)
     }
-
-    const handleDeleteClick = async (id: number) => {
-        setOpenDialog(true)
-        setSelectedRow(id)
-    }
-
-    const handleConsiderClick = async (id: number) => {
-        await updateIsReceived(id)
-    }
-
-    const handleDeleteReward = async () => {
-        if (selectedRow) {
-            await changeReward(selectedRow)
-            setOpenDialog(false)
-            setSelectedRow(null)
-        }
-    }
-
-    useEffect(() => {
-        if (isSuccessChange || isSuccessUpdateIsReceived) {
-            refetch()
-        }
-    }, [isSuccessChange, isSuccessUpdateIsReceived])
 
     const handleSort = (property: string) => {
         setFilter(prev => ({
@@ -455,17 +418,6 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            <AlertDialog
-                title={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.TITLE')}
-                content={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CONTENT')}
-                type='warning'
-                open={openDialog}
-                setOpen={setOpenDialog}
-                buttonCancel={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.CANCEL')}
-                buttonConfirm={t('COMMON.ALERT_DIALOG.CONFIRM_DELETE.DELETE')}
-                onConfirm={() => handleDeleteReward()}
-            />
 
             {selectedReward && (
                 <DetailModal handleToggle={() => setOpenModal(false)} open={openModal} reward={selectedReward} />

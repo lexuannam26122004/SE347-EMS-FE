@@ -1,8 +1,7 @@
 //import { IRewardGetAll } from "@/models/Reward";
-import { IFilterSysConfiguration } from '@/models/SysConfiguration'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { createBaseQuery } from './api'
-import { ICreateReward, IRewardGetAll, IUpdateReward } from '@/models/Reward'
+import { ICreateReward, IUpdateReward } from '@/models/Reward'
 import { IFilterReward } from '@/models/Reward'
 
 interface RewardResponse {

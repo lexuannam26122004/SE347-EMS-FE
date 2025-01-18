@@ -15,7 +15,6 @@ import {
     TableCell
 } from '@mui/material'
 import { X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
     open: boolean
@@ -37,7 +36,6 @@ interface IGetAllReward {
 }
 
 function DetailModal({ open, handleToggle, reward }: Props) {
-    const { t } = useTranslation('common')
     return (
         <Modal open={open} onClose={handleToggle}>
             <Paper
