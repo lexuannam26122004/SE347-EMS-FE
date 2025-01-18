@@ -6,7 +6,6 @@ import EmployeeSalaryChart from './EmployeeSalaryChart'
 import IncomeStructureChart from './IncomeStructureChart'
 import TotalIncomeChart from './TotalIncomeChart'
 import DepartmentChart from './DepartmentChart'
-import ErrorSalary from './ErrorSalary'
 import { useCreateSalaryMutation, useGetInfoForSalarySummaryQuery } from '@/services/SalaryService'
 import { useEffect } from 'react'
 import { useCreateNotificationMutation } from '@/services/NotificationsService'
@@ -298,7 +297,7 @@ function OverviewSalaryPage() {
                     gap: '24px'
                 }}
             >
-                <Box sx={{ width: 'calc(100% / 4 * 3)' }}>
+                <Box sx={{ width: '100%' }}>
                     <Box>
                         <Box
                             sx={{
@@ -455,9 +454,7 @@ function OverviewSalaryPage() {
                         </Box>
                     </Box>
                 </Box>
-                <Box sx={{ width: 'calc(100% / 4)', overflow: 'hidden' }}>
-                    <ErrorSalary />
-                </Box>
+                
             </Box>
         </Box>
     )

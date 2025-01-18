@@ -58,6 +58,7 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import { debounce } from 'lodash'
 import EmployeeSalaryModal from '@/app/admin/salary/detail/ModalDetail'
+import fomatMoney from '@/utils/formatNumberWithUnit'
 
 function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
     return (
@@ -1061,58 +1062,8 @@ function GetAllSalaryPage() {
                                             </Typography>
                                         </TableSortLabel>
                                     </TableCell>
-                                    <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                        <TableSortLabel
-                                            active={'Insurance' === orderBy}
-                                            direction={orderBy === 'Insurance' ? order : 'asc'}
-                                            onClick={() => handleSort('Insurance')}
-                                            sx={{
-                                                '& .MuiTableSortLabel-icon': {
-                                                    color: 'var(--text-color) !important'
-                                                }
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    fontWeight: 'bold',
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    overflow: 'hidden',
-                                                    maxWidth: '280px',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {t('COMMON.SALARY.INSURANCE')}
-                                            </Typography>
-                                        </TableSortLabel>
-                                    </TableCell>
-                                    <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                        <TableSortLabel
-                                            active={'Benefit' === orderBy}
-                                            direction={orderBy === 'Benefit' ? order : 'asc'}
-                                            onClick={() => handleSort('Benefit')}
-                                            sx={{
-                                                '& .MuiTableSortLabel-icon': {
-                                                    color: 'var(--text-color) !important'
-                                                }
-                                            }}
-                                        >
-                                            <Typography
-                                                sx={{
-                                                    fontWeight: 'bold',
-                                                    color: 'var(--text-color)',
-                                                    fontSize: '16px',
-                                                    overflow: 'hidden',
-                                                    maxWidth: '280px',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {t('COMMON.SALARY.BENEFIT')}
-                                            </Typography>
-                                        </TableSortLabel>
-                                    </TableCell>
+                                    
+                                    
                                     <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                         <TableSortLabel
                                             active={'Reward' === orderBy}
@@ -1354,7 +1305,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.BasicSalary}
+                                                    {fomatMoney(row.BasicSalary)}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>
@@ -1370,6 +1321,7 @@ function GetAllSalaryPage() {
                                                     {row.Timekeeping}
                                                 </Typography>
                                             </TableCell>
+                                            
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>
                                                 <Typography
                                                     sx={{
@@ -1381,22 +1333,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.Insurance}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                                <Typography
-                                                    sx={{
-                                                        color: 'var(--text-color)',
-                                                        fontSize: '16px',
-                                                        overflow: 'hidden',
-                                                        maxWidth: '280px',
-                                                        textAlign: 'center',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                >
-                                                    {row.Benefit}
+                                                    {fomatMoney(row.Reward)}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>
@@ -1410,7 +1347,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.Reward}
+                                                    {fomatMoney(row.Discipline)}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>
@@ -1424,7 +1361,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.Discipline}
+                                                    {fomatMoney(row.PITax)}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>
@@ -1438,21 +1375,7 @@ function GetAllSalaryPage() {
                                                         whiteSpace: 'nowrap'
                                                     }}
                                                 >
-                                                    {row.PITax}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ borderColor: 'var(--border-color)' }}>
-                                                <Typography
-                                                    sx={{
-                                                        color: 'var(--text-color)',
-                                                        fontSize: '16px',
-                                                        overflow: 'hidden',
-                                                        maxWidth: '280px',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap'
-                                                    }}
-                                                >
-                                                    {row.TotalSalary}
+                                                    {fomatMoney(row.TotalSalary)}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ borderColor: 'var(--border-color)' }}>

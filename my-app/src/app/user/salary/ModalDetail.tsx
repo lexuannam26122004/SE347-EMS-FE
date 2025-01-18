@@ -142,7 +142,10 @@ const EmployeeSalary: React.FC<ISalaryGetById & { handleToggle: () => void; open
                         >
                             <Avatar
                                 alt={FullName}
-                                src={AvatarPath}
+                                src={
+                                    AvatarPath ||
+                                    'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
+                                }
                                 sx={{
                                     width: 80,
                                     height: 80,

@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import Loading from '@/components/Loading'
 import { useRouter } from 'next/navigation'
+import { authSelector } from '@/redux/slices/authSlice'
+import { useSelector } from 'react-redux'
 import {
     Box,
     Select,
@@ -88,7 +90,9 @@ const EmployeeTable: React.FC = () => {
         }
     })
 
-    if (isContractsLoading || isUsersLoading) return <Loading />
+    const menuLeft = useSelector(authSelector)
+    if (isContractsLoading || isUsersLoading || menuLeft === null || Object.keys(menuLeft).length === 0)
+        return <Loading />
 
     const filteredUsers = users.filter(
         user =>
@@ -269,49 +273,54 @@ const EmployeeTable: React.FC = () => {
                         >
                             {t('COMMON.COUNT_ROWS_SELECTED', { countRows })}
                         </Typography>
-                        <Button
-                            variant='contained'
-                            startIcon={<Trash2 />}
-                            sx={{
-                                mr: '5px',
-                                height: '53px',
-                                visibility: countRows > 0 ? 'visible' : 'hidden',
-                                backgroundColor: 'var(--button-color)',
-                                width: 'auto',
-                                padding: '0px 30px',
-                                '&:hover': {
-                                    backgroundColor: 'var(--hover-button-color)'
-                                },
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                whiteSpace: 'nowrap',
-                                textTransform: 'none'
-                            }}
-                            onClick={() => handleDeleteManyClick()}
-                        >
-                            {t('COMMON.BUTTON.DELETE')}
-                        </Button>
 
-                        <Button
-                            variant='contained'
-                            startIcon={<CirclePlus />}
-                            sx={{
-                                height: '53px',
-                                backgroundColor: 'var(--button-color)',
-                                width: 'auto',
-                                padding: '0px 30px',
-                                '&:hover': {
-                                    backgroundColor: 'var(--hover-button-color)'
-                                },
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                whiteSpace: 'nowrap',
-                                textTransform: 'none'
-                            }}
-                            onClick={() => router.push('/admin/contract/create')}
-                        >
-                            {t('COMMON.BUTTON.CREATE')}
-                        </Button>
+                        {menuLeft['Contract'].IsAllowDelete && (
+                            <Button
+                                variant='contained'
+                                startIcon={<Trash2 />}
+                                sx={{
+                                    mr: '5px',
+                                    height: '53px',
+                                    visibility: countRows > 0 ? 'visible' : 'hidden',
+                                    backgroundColor: 'var(--button-color)',
+                                    width: 'auto',
+                                    padding: '0px 30px',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--hover-button-color)'
+                                    },
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    whiteSpace: 'nowrap',
+                                    textTransform: 'none'
+                                }}
+                                onClick={() => handleDeleteManyClick()}
+                            >
+                                {t('COMMON.BUTTON.DELETE')}
+                            </Button>
+                        )}
+
+                        {menuLeft['Contract'].IsAllowCreate && (
+                            <Button
+                                variant='contained'
+                                startIcon={<CirclePlus />}
+                                sx={{
+                                    height: '53px',
+                                    backgroundColor: 'var(--button-color)',
+                                    width: 'auto',
+                                    padding: '0px 30px',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--hover-button-color)'
+                                    },
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    whiteSpace: 'nowrap',
+                                    textTransform: 'none'
+                                }}
+                                onClick={() => router.push('/admin/contract/create')}
+                            >
+                                {t('COMMON.BUTTON.CREATE')}
+                            </Button>
+                        )}
                     </Box>
                 </Box>
 
@@ -799,46 +808,54 @@ const EmployeeTable: React.FC = () => {
                                                     <EyeIcon />
                                                 </Box>
                                             </Tooltip>
-                                            <Tooltip title={t('COMMON.BUTTON.EDIT')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: '#00d4ff',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
+
+                                            {menuLeft['Contract'].IsAllowEdit && (
+                                                <Tooltip title={t('COMMON.BUTTON.EDIT')}>
+                                                    <Box
+                                                        display='flex'
+                                                        alignItems='center'
+                                                        justifyContent='center'
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            color: '#00d4ff',
+                                                            borderRadius: '50%',
+                                                            width: '42px',
+                                                            height: '42px',
+                                                            '&:hover': {
+                                                                backgroundColor: 'var(--hover-color)'
+                                                            }
+                                                        }}
+                                                        onClick={() =>
+                                                            router.push(`/admin/contract/update?id=${user.Id}`)
                                                         }
-                                                    }}
-                                                    onClick={() => router.push(`/admin/contract/update?id=${user.Id}`)}
-                                                >
-                                                    <Pencil />
-                                                </Box>
-                                            </Tooltip>
-                                            <Tooltip title={t('COMMON.BUTTON.DELETE')}>
-                                                <Box
-                                                    display='flex'
-                                                    alignItems='center'
-                                                    justifyContent='center'
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        color: 'red',
-                                                        borderRadius: '50%',
-                                                        width: '42px',
-                                                        height: '42px',
-                                                        '&:hover': {
-                                                            backgroundColor: 'var(--hover-color)'
-                                                        }
-                                                    }}
-                                                    onClick={() => handleDeleteClick(user.Id)}
-                                                >
-                                                    <Trash2 />
-                                                </Box>
-                                            </Tooltip>
+                                                    >
+                                                        <Pencil />
+                                                    </Box>
+                                                </Tooltip>
+                                            )}
+
+                                            {menuLeft['Contract'].IsAllowDelete && (
+                                                <Tooltip title={t('COMMON.BUTTON.DELETE')}>
+                                                    <Box
+                                                        display='flex'
+                                                        alignItems='center'
+                                                        justifyContent='center'
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            color: 'red',
+                                                            borderRadius: '50%',
+                                                            width: '42px',
+                                                            height: '42px',
+                                                            '&:hover': {
+                                                                backgroundColor: 'var(--hover-color)'
+                                                            }
+                                                        }}
+                                                        onClick={() => handleDeleteClick(user.Id)}
+                                                    >
+                                                        <Trash2 />
+                                                    </Box>
+                                                </Tooltip>
+                                            )}
                                         </Box>
                                     </TableCell>
                                 </TableRow>

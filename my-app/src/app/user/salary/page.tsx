@@ -54,7 +54,7 @@ export default function EmployeeSalary() {
                         <Avatar
                             src={
                                 myData?.AvatarPath ||
-                                'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                                'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                             }
                             sx={{
                                 width: '120px',

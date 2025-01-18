@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGetMeInfoCycleQuery } from '@/services/UserSalaryService'
 import EmployeeSalaryModal from './ModalDetail'
+import fomatMoney from '@/utils/formatNumberWithUnit'
 
 function getContractBgColor(IsPaid: boolean): string {
     if (IsPaid) {
@@ -325,7 +326,7 @@ export default function SalaryCycle() {
                                         {t('COMMON.SALARY.TOTAL_SALARY')}
                                     </Typography>
                                     <Typography sx={{ color: '#FFCC99', marginTop: '10px' }}>
-                                        {period?.TotalSalary}
+                                        {fomatMoney(period?.TotalSalary)}
                                     </Typography>
                                 </Box>
                             </Box>

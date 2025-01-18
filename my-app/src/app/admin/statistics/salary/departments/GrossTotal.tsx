@@ -72,6 +72,8 @@ export default function GrossTotalByAreas() {
                 }
             },
             axisLabel: {
+                rotate: 45, // Xoay nhãn 45 độ
+
                 formatter: function (value: number) {
                     if (value >= 1e9) {
                         return (value / 1e9).toFixed(0) + 'B' // "B" cho tỷ
