@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import ErrorPage from '@/app/user/requests/ErrorPage'
 import { formatDate } from '@/utils/formatDate'
 import { Download, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { useExportContractPdfQuery } from '@/services/AuthService'
 
 interface EmployeeProps {
     infoMe
@@ -13,6 +14,26 @@ const Employee: React.FC<EmployeeProps> = ({ infoMe }) => {
     const { t } = useTranslation('common')
     const [openErrorReport, setopenErrorReport] = useState(false)
     const prevOpen = useRef(open)
+
+    const { data, isLoading: isLoadingExport } = useExportContractPdfQuery()
+
+    const handleDownload = () => {
+        if (data) {
+            const url = window.URL.createObjectURL(new Blob([data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', 'Employee.pdf')
+
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            window.URL.revokeObjectURL(url)
+        } else {
+            console.error('No data available for download')
+        }
+    }
+
     useEffect(() => {
         prevOpen.current = open
     }, [open])
@@ -88,6 +109,7 @@ const Employee: React.FC<EmployeeProps> = ({ infoMe }) => {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}
+                        onClick={handleDownload}
                     >
                         <Download size={20} />
                         {t('COMMON.ATTENDANCE.DOWNLOAD_INFO')}

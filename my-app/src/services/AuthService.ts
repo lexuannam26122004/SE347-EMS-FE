@@ -15,11 +15,19 @@ export const AuthApi = createApi({
             return headers
         }
     }),
+
     endpoints: builder => ({
         getAuthMe: builder.query<IUser, void>({
             query: () => '/Me'
+        }),
+        exportContractPdf: builder.query<Blob, void>({
+            query: () => ({
+                url: 'ExportContractPdf',
+                method: 'GET',
+                responseHandler: (response: Response) => response.blob()
+            })
         })
     })
 })
 
-export const { useGetAuthMeQuery } = AuthApi
+export const { useGetAuthMeQuery, useExportContractPdfQuery } = AuthApi

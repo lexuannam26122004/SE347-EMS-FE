@@ -21,7 +21,6 @@ export const userEmploymentContractApi = createApi({
                 method: 'GET',
                 responseHandler: (response: Response) => response.blob()
             })
-            
         })
     })
 })
