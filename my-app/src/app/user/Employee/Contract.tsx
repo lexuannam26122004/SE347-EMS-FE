@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import ErrorPage from '@/app/user/requests/ErrorPage'
 import { Download, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react'
 
-import { useSearchUserQuery } from '@/services/UserEmploymentContractService'
+import { useSearchUserQuery, useExportContractPdfQuery } from '@/services/UserEmploymentContractService'
 
 import { formatDate } from '@/utils/formatDate'
 
@@ -20,6 +20,26 @@ const Contract: React.FC<ContractProps> = ({ infoMe }) => {
 
     const { data: contractResponse, isFetching, isLoading } = useSearchUserQuery()
 
+    const { data, isLoading: isLoadingExport } = useExportContractPdfQuery()
+
+    const handleDownload = () => {
+        if (data) {
+            const url = window.URL.createObjectURL(new Blob([data]))
+
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', 'Employment_Contract.pdf')
+
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            window.URL.revokeObjectURL(url)
+        } else {
+            console.error('No data available for download')
+        }
+    }
+
     const contract = contractResponse?.Data
 
     const [openDetail, setOpenDetail] = useState(false)
@@ -33,7 +53,7 @@ const Contract: React.FC<ContractProps> = ({ infoMe }) => {
         prevOpen.current = open
     }, [open])
 
-    if (isLoading || !contract || isFetching) {
+    if (isLoading || !contract || isFetching || isLoadingExport) {
         return <Loading />
     }
 
@@ -102,6 +122,7 @@ const Contract: React.FC<ContractProps> = ({ infoMe }) => {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}
+                        onClick={handleDownload}
                     >
                         <Download size={20} />
                         {t('COMMON.ATTENDANCE.DOWNLOAD_INFO')}

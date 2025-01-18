@@ -14,8 +14,15 @@ export const userEmploymentContractApi = createApi({
     endpoints: builder => ({
         searchUser: builder.query<EmploymentContractResponse, void>({
             query: () => 'SearchUser'
+        }),
+        exportContractPdf: builder.query<Blob, void>({
+            query: () => ({
+                url: 'ExportContractPdf',
+                method: 'GET',
+                responseHandler: response => response.blob()
+            })
         })
     })
 })
 
-export const { useSearchUserQuery } = userEmploymentContractApi
+export const { useSearchUserQuery, useExportContractPdfQuery } = userEmploymentContractApi
