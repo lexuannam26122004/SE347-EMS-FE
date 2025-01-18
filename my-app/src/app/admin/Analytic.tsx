@@ -1,5 +1,4 @@
 'use client'
-import { IFilterEmploymentContract } from '@/models/EmploymentContract'
 import {
     Box,
     Select,
@@ -9,11 +8,16 @@ import {
     Paper,
     Button,
     FormControl,
-    InputLabel
+    InputLabel,
+    LinearProgress
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useGetContractsExpiringSoonQuery } from '@/services/EmploymentContractService'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { useGetAllMessageToAnalyticsQuery } from '@/services/MessageService'
+
+// Access your API key as an environment variable (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI('AIzaSyAGW_ofMFvk9YoadeM9eq9j931Bb_58l5s')
 
 // function getContractBgColor(contractEnd: string): string {
 //     const today = new Date()
@@ -49,99 +53,89 @@ import { useGetContractsExpiringSoonQuery } from '@/services/EmploymentContractS
 
 function Page() {
     const { t } = useTranslation('common')
-    const [filter, setFilter] = useState<IFilterEmploymentContract>({
-        pageSize: 5,
-        pageNumber: 1,
-        daysUntilExpiration: 180
-    })
 
-    const [type, setType] = useState(0)
+    const [type, setType] = useState<number>(0)
+    const [overallAnalysis, setOverallAnalysis] = useState<string>()
+
     const handleTypeChange = (event: SelectChangeEvent<number>) => {
         setType(event.target.value as number)
     }
 
-    const { data: responseData, isFetching, refetch } = useGetContractsExpiringSoonQuery(filter)
+    const { data: messageResponse, refetch, isFetching } = useGetAllMessageToAnalyticsQuery(type)
 
-    // const handleClickDetail = (config: IGetAllSysConfiguration) => {
-    //     setSelectedConfig(config)
-    //     setOpenModal(true)
-    // }
+    const messages = messageResponse?.Data
 
-    // const contractData = responseData?.Data.Records
-
-    // const contracts = contractData?.map((item: any) => {
-    //     return {
-    //         FullName: item.User.FullName,
-    //         ContractType: item.Contract.TypeContract,
-    //         ContractName: item.Contract.ContractName,
-    //         ContractStart: item.Contract.StartDate,
-    //         ContractEnd: item.Contract.EndDate,
-    //         AvatarPath: item.User.AvatarPath
-    //     }
-    // })
-
-    // const totalRecords = (responseData?.Data.TotalRecords as number) || 0
-
-    // const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
-    //     setPage(newPage)
-    //     setFilter(prev => {
-    //         return {
-    //             ...prev,
-    //             pageNumber: newPage
-    //         }
-    //     })
-    // }
-
-    // const handleChangeRowsPerPage = (event: SelectChangeEvent) => {
-    //     setPage(1)
-    //     setRowsPerPage(event.target.value as string)
-    //     setFilter(prev => {
-    //         return {
-    //             ...prev,
-    //             pageSize: Number(event.target.value),
-    //             pageNumber: 1
-    //         }
-    //     })
-    // }
-
-    // const handleSearchKeyword = () => {
-    //     setPage(1)
-    //     setFilter(prev => {
-    //         return {
-    //             ...prev,
-    //             keyword: keyword,
-    //             pageNumber: 1
-    //         }
-    //     })
-    // }
-
-    // useEffect(() => {
-    //     if (!isFetching && responseData?.Data) {
-    //         const from = (page - 1) * Number(rowsPerPage) + Math.min(1, contractData.length)
-    //         setFrom(from)
-
-    //         const to = Math.min(contractData.length + (page - 1) * Number(rowsPerPage), totalRecords)
-    //         setTo(to)
-    //     }
-    // }, [isFetching, responseData, page, rowsPerPage])
+    const [isLoadingAnalyzing, setIsLoadingAnalyzing] = useState<boolean>(false)
 
     useEffect(() => {
         refetch()
-    }, [filter])
+    }, [type])
 
-    // const handleSort = (property: string) => {
-    //     setFilter(prev => ({
-    //         ...prev,
-    //         sortBy: property,
-    //         isDescending: orderBy === property && order === 'asc' ? true : false
-    //     }))
-    //     if (orderBy === property) {
-    //         setOrder(order === 'asc' ? 'desc' : 'asc')
-    //     } else {
-    //         setOrder('asc')
-    //     }
-    //     setOrderBy(property)
-    // }
+    useEffect(() => {
+        handleSendMessage(messages)
+    }, [messages])
+
+    const handleSendMessage = async messages => {
+        try {
+            if (messages === undefined || messages.length === 0) {
+                return
+            }
+            // Tổng hợp phân tích từ danh sách câu hỏi
+            setOverallAnalysis(await analyzeOverallMessages(messages))
+        } catch (error) {
+            console.error('Lỗi khi gửi tin nhắn:', error)
+            if (error instanceof Error) {
+                console.error('Lỗi chi tiết:', error.message)
+            } else {
+                console.error('Lỗi không xác định', error)
+            }
+            // Có thể thêm logic hiển thị lỗi cho người dùng
+        }
+    }
+
+    // Hàm phân tích tổng hợp cảm xúc từ danh sách tin nhắn
+    const analyzeOverallMessages = async messages => {
+        const prompt = `
+                Dựa trên các câu hỏi sau, hãy tổng hợp và phân tích để tạo ra giải pháp quản lý việc đọc và giúp đỡ nhân viên, bao gồm:
+                - Tổng quan về các câu hỏi liên quan đến việc đọc và hỗ trợ nhân viên.
+                - Các vấn đề nổi bật hoặc mối quan tâm chung liên quan đến việc đọc và sự hỗ trợ cho nhân viên.
+                - Nguyên nhân có thể hoặc ngữ cảnh liên quan đến việc đọc và giúp đỡ nhân viên.
+                - Những giải pháp có thể giúp nâng cao hiệu quả quản lý việc đọc và hỗ trợ nhân viên.
+                - Kết luận về phương pháp cải thiện việc giúp đỡ nhân viên trong công việc.
+        
+                Trả lời khoảng 6 - 7 câu thôi.
+
+                Danh sách các câu hỏi: ${messages?.map(msg => `"${msg}"`).join(', ')}
+        
+                Trả lời bằng tiếng Việt theo định dạng:
+            "Các câu hỏi nêu trên liên quan đến
+            [tổng quan nội dung về việc đọc và hỗ trợ nhân viên].
+            Gặp vấn đề về
+            [vấn đề nổi bật].
+            Nguyên nhân có thể là
+            [ngữ cảnh hoặc nguyên nhân của vấn đề].
+            Giải pháp có thể bao gồm
+            [các giải pháp nâng cao việc đọc và giúp đỡ nhân viên].
+            Kết luận cho các vấn đề này là
+            [kết luận về việc cải thiện việc hỗ trợ nhân viên]."
+            `
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+        try {
+            setIsLoadingAnalyzing(true)
+            const result = await model.generateContent(prompt)
+            const response = await result.response
+            console.log('Phân tích tổng hợp:', response.text())
+            const analysis = response.text().trim()
+            return analysis
+        } catch (error) {
+            console.error('Lỗi phân tích tổng hợp:', error)
+            return 'Không thể phân tích thông điệp lúc này.'
+        } finally {
+            setIsLoadingAnalyzing(false)
+        }
+    }
 
     return (
         <Box>
@@ -149,6 +143,7 @@ function Page() {
                 elevation={0}
                 sx={{
                     width: '100%',
+                    padding: '24px',
                     overflow: 'hidden',
                     boxShadow: 'var(--box-shadow-paper)',
                     borderRadius: '15px',
@@ -156,21 +151,27 @@ function Page() {
                 }}
             >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography
-                        sx={{
-                            userSelect: 'none',
-                            color: 'var(--text-color)',
-                            fontWeight: 'bold',
-                            fontSize: '18px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: '24px'
-                        }}
-                    >
-                        {t('COMMON.DASHBOARD.Analysis')}
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '24px' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <img
+                            src='/images/market-trends.png'
+                            width='50px'
+                            style={{
+                                marginBottom: '-5px'
+                            }}
+                        />
+                        <Typography
+                            sx={{
+                                color: 'var(--text-color)',
+                                fontWeight: 'bold',
+                                fontSize: '18px',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            {t('COMMON.DASHBOARD.Analysis')}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
                         <FormControl
                             sx={{
                                 width: '140px',
@@ -308,6 +309,7 @@ function Page() {
                         </FormControl>
                         <Button
                             variant='outlined'
+                            onClick={() => refetch()}
                             sx={{
                                 color: '#ffffff',
                                 padding: '7.5px 20px',
@@ -325,6 +327,74 @@ function Page() {
                             {t('COMMON.CALENDAR.REFRESH')}
                         </Button>
                     </Box>
+                </Box>
+                <Box
+                    sx={{
+                        color: 'var(--text-color)',
+                        mt: '24px'
+                    }}
+                >
+                    {isFetching || isLoadingAnalyzing || messages === undefined || messages.length === 0 ? (
+                        <Box
+                            sx={{
+                                width: '100%',
+                                height: '350px',
+                                display: 'flex', // Sử dụng flexbox để căn giữa
+                                alignItems: 'center', // Căn giữa theo trục dọc
+                                justifyContent: 'center' // Căn giữa theo trục ngang
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: '40%',
+                                    textAlign: 'center',
+                                    position: 'relative'
+                                }}
+                            >
+                                <LinearProgress
+                                    sx={{
+                                        height: 4,
+                                        backgroundColor: 'var(--button-alert-color)',
+                                        borderRadius: '2px',
+                                        '& .MuiLinearProgress-bar': {
+                                            backgroundColor: 'var(--text-color)'
+                                        }
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                    ) : (
+                        overallAnalysis
+                            ?.replaceAll('**', '')
+                            .split('.')
+                            .map((sentence, index) => {
+                                return (
+                                    sentence.trim() && (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                '&:not(:first-of-type)': {
+                                                    mt: '8px'
+                                                },
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '15px'
+                                            }}
+                                        >
+                                            <img src='/images/finger.png' width='20px' />
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '16px',
+                                                    lineHeight: '24px'
+                                                }}
+                                            >
+                                                {sentence}.
+                                            </Typography>
+                                        </Box>
+                                    )
+                                )
+                            })
+                    )}
                 </Box>
             </Paper>
         </Box>

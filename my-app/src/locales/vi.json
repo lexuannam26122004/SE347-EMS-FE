@@ -654,7 +654,7 @@
             "ABSENT": "Số nhân viên vắng mặt",
             "MINUTES": "phút",
             "LEAVE": "Số nhân viên nghỉ phép",
-            "EARLY": "Số nhân viên đi sớm",
+            "EARLY": "Số nhân viên về sớm",
             "INVALID": "Số chấm công không hợp lệ",
             "YESTERDAY": "so với hôm qua",
             "CELL_VALUE": "Giá trị ô",

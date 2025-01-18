@@ -28,8 +28,17 @@ export const messageApi = createApi({
         getMeMessage: builder.query<IMessageResponse, void>({
             query: () => `GetMeMessage`,
             providesTags: ['Message']
+        }),
+        getAllMessageToAnalytics: builder.query<IMessageResponse, number>({
+            query: type => `GetAllMessage?type=${type}`,
+            providesTags: ['Message']
         })
     })
 })
 
-export const { useGetAllMessageQuery, useCreateMessageMutation, useGetMeMessageQuery } = messageApi
+export const {
+    useGetAllMessageQuery,
+    useCreateMessageMutation,
+    useGetMeMessageQuery,
+    useGetAllMessageToAnalyticsQuery
+} = messageApi

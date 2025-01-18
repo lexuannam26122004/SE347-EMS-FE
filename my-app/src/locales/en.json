@@ -701,7 +701,7 @@
             "LATE": "Number of employees late",
             "ABSENT": "Number of employees absent",
             "LEAVE": "Number of employees leave",
-            "EARLY": "Number of employees early",
+            "EARLY": "Number of employees leaving early",
             "INVALID": "Number of employees invalid",
             "YESTERDAY": "from yesterday",
             "CELL_VALUE": "Cell value",
