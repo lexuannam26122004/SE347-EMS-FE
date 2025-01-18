@@ -13,7 +13,6 @@ import JobHistory from './detail/JobHistory'
 import Employee from './detail/Employee'
 import Contract from './detail/Contract'
 import Reward from './detail/Reward'
-import Benefit from './detail/Benefit'
 import Discipline from './detail/Discipline'
 interface Props {
     open: boolean
@@ -59,10 +58,8 @@ function DetailModal({ open, handleToggle, aspnetuser, randomIndex }: Props) {
             case 1:
                 return <Contract aspnetUserId={aspnetuser?.Id} />
             case 2:
-                return <Benefit aspnetUserId={aspnetuser?.Id} />
-            case 3:
                 return <Reward aspnetUserId={aspnetuser?.Id} />
-            case 4:
+            case 3:
                 return <Discipline aspnetUserId={aspnetuser?.Id} />
             default:
                 return <JobHistory aspnetUserId={aspnetuser?.Id} />
@@ -295,7 +292,6 @@ function DetailModal({ open, handleToggle, aspnetuser, randomIndex }: Props) {
                         >
                             <Tab label={t('COMMON.SIDEBAR.EMPLOYEE')} />
                             <Tab label={t('COMMON.SIDEBAR.CONTRACT')} />
-                            <Tab label={t('COMMON.SIDEBAR.BENEFIT')} />
                             <Tab label={t('COMMON.SIDEBAR.REWARD')} />
                             <Tab label={t('COMMON.SIDEBAR.DISCIPLINE')} />
                             <Tab label={t('COMMON.SIDEBAR.WORKHISTORY')} />

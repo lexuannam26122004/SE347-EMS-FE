@@ -15,7 +15,7 @@ const Employee: React.FC<EmployeeProps> = ({ infoMe }) => {
     const [openErrorReport, setopenErrorReport] = useState(false)
     const prevOpen = useRef(open)
 
-    const { data, isLoading: isLoadingExport } = useExportContractPdfQuery()
+    const { data } = useExportContractPdfQuery()
 
     const handleDownload = () => {
         if (data) {
