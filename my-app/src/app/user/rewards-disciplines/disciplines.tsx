@@ -30,6 +30,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { toZonedTime, format } from 'date-fns-tz'
 import { DatePicker } from '@mui/x-date-pickers'
 import { SearchIcon } from 'lucide-react'
+import { IFilterReward } from '@/models/Reward'
+import { useGetMeDisciplineInfoQuery } from '@/services/UserDisciplineService'
 
 const convertToVietnamTime = (date: Date) => {
     if (isNaN(date.getTime())) {
@@ -58,7 +60,7 @@ function Page() {
     const [rowsPerPage, setRowsPerPage] = useState('5')
     const [from, setFrom] = useState(1)
     const [to, setTo] = useState(5)
-    const [filter, setFilter] = useState<IFilterRewardUser>({
+    const [filter, setFilter] = useState<IFilterReward>({
         pageSize: 5,
         startDate: dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'), // Đầu tháng với giờ
         endDate: dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'), // Cuối tháng với giờ
@@ -66,7 +68,7 @@ function Page() {
     })
     const [keyword, setKeyword] = useState('')
 
-    const { data: responseDiscipline, isLoading, isFetching, refetch } = useGetAllDisciplinesQuery(filter)
+    const { data: responseDiscipline, isLoading, isFetching, refetch } = useGetMeDisciplineInfoQuery(filter)
 
     const disciplineData = responseDiscipline?.Data.Records
 

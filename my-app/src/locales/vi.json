@@ -384,6 +384,7 @@
             "DELETE_ERROR": "Xóa thông báo thất bại"
         },
         "DASHBOARD": {
+            "Analysis": "Phân tích vấn đề, thách thức và cảm xúc của nhân viên",
             "TOTAL_EMPLOYEES": "Tổng số nhân viên",
             "TOTAL_NEW_EMPLOYEES": "Số nhân viên mới",
             "TOTAL_LAYOFF_EMPLOYEES": "Số nhân nghỉ việc",
@@ -579,6 +580,7 @@
             "CONSIDER": "Xem xét"
         },
         "CALENDAR": {
+            "REFRESH": "Làm mới",
             "CALENDAR": "Lịch làm việc",
             "ADD_EVENT": "Thêm sự kiện",
             "TITLE": "Tiêu đề",

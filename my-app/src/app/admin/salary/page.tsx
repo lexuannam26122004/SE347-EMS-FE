@@ -10,11 +10,11 @@ import ErrorSalary from './ErrorSalary'
 import { useCreateSalaryMutation, useGetInfoForSalarySummaryQuery } from '@/services/SalaryService'
 import { useEffect } from 'react'
 import { useCreateNotificationMutation } from '@/services/NotificationsService'
-import { userSentNotificationId } from '@/utils/globalVariables'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useRouter } from 'next/navigation'
+import { useGetAuthMeQuery } from '@/services/AuthService'
 
 function OverviewSalaryPage() {
     const { t } = useTranslation()
@@ -22,6 +22,10 @@ function OverviewSalaryPage() {
     const [createSalaries, { isSuccess, isError }] = useCreateSalaryMutation()
     const [createNotification] = useCreateNotificationMutation()
     const menuLeft = useSelector(authSelector)
+
+    const { data: responseGetMe } = useGetAuthMeQuery()
+    const userSentNotificationId = responseGetMe?.Data?.Id
+
     const handleNotify = async () => {
         try {
             const data = {
@@ -357,15 +361,15 @@ function OverviewSalaryPage() {
                                                 {total > 1000000
                                                     ? (total / 1000000).toFixed(2)
                                                     : total > 1000
-                                                      ? (total / 1000).toFixed(2)
-                                                      : total}
+                                                    ? (total / 1000).toFixed(2)
+                                                    : total}
                                             </Typography>
                                             <Typography fontSize={'16px'} style={{ marginLeft: '5px' }}>
                                                 {total > 1000000
                                                     ? t('COMMON.SALARY.TB')
                                                     : total > 1000
-                                                      ? t('COMMON.SALARY.B')
-                                                      : t('COMMON.SALARY.M')}
+                                                    ? t('COMMON.SALARY.B')
+                                                    : t('COMMON.SALARY.M')}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -376,17 +380,17 @@ function OverviewSalaryPage() {
                                                 {PITax > 1000000000
                                                     ? (PITax / 1000000000).toFixed(2)
                                                     : PITax > 1000000
-                                                      ? (PITax / 1000000).toFixed(2)
-                                                      : PITax > 1000
-                                                        ? (PITax / 1000).toFixed(2)
-                                                        : PITax}
+                                                    ? (PITax / 1000000).toFixed(2)
+                                                    : PITax > 1000
+                                                    ? (PITax / 1000).toFixed(2)
+                                                    : PITax}
                                             </Typography>
                                             <Typography fontSize={'16px'} style={{ marginLeft: '5px' }}>
                                                 {PITax > 1000000
                                                     ? t('COMMON.SALARY.TB')
                                                     : PITax > 1000
-                                                      ? t('COMMON.SALARY.B')
-                                                      : t('COMMON.SALARY.M')}
+                                                    ? t('COMMON.SALARY.B')
+                                                    : t('COMMON.SALARY.M')}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -397,15 +401,15 @@ function OverviewSalaryPage() {
                                                 {totalInsurance > 1000000
                                                     ? (totalInsurance / 1000000).toFixed(2)
                                                     : totalInsurance > 1000
-                                                      ? (totalInsurance / 1000).toFixed(2)
-                                                      : totalInsurance}
+                                                    ? (totalInsurance / 1000).toFixed(2)
+                                                    : totalInsurance}
                                             </Typography>
                                             <Typography fontSize={'16px'} style={{ marginLeft: '5px' }}>
                                                 {totalInsurance > 1000000
                                                     ? t('COMMON.SALARY.TB')
                                                     : totalInsurance > 1000
-                                                      ? t('COMMON.SALARY.B')
-                                                      : t('COMMON.SALARY.M')}
+                                                    ? t('COMMON.SALARY.B')
+                                                    : t('COMMON.SALARY.M')}
                                             </Typography>
                                         </Box>
                                     </Box>

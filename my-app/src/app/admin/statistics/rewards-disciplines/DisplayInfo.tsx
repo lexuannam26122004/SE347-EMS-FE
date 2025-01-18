@@ -3,13 +3,25 @@
 import { Box, Paper, Typography } from '@mui/material'
 import { TrendingDown, TrendingUp } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
+import { useStatsDisplayQuery } from '@/services/StatsRewardAndDisciplineService'
+import Loading from '@/components/Loading'
 
 function Page() {
     const { t } = useTranslation('common')
-    const totalReward = 29
-    const rewardPercent = 25.5
-    const totalDis = 12
-    const disPercent = -20.5
+
+    const month = new Date().getMonth() + 1
+    const year = new Date().getFullYear()
+
+    const { data: responseDate, isLoading } = useStatsDisplayQuery({ month, year })
+
+    const totalReward = responseDate?.Data?.currentReward
+    const rewardPercent = responseDate?.Data?.rewardPercent
+    const totalDis = responseDate?.Data?.currentDiscipline
+    const disPercent = responseDate?.Data?.disciplinePercent
+
+    if (isLoading) {
+        return <Loading />
+    }
 
     return (
         <Box

@@ -1,25 +1,18 @@
 'use client'
 import { Avatar, Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Typography } from '@mui/material'
 import React from 'react'
+import { formatNumberToMoney } from '@/utils/formatNumberWithUnit'
 import { useTranslation } from 'react-i18next'
 import Detail from './Reward'
 import { formatDate } from '@/utils/formatDate'
 import Discipline from './Disciplines'
-import { Download } from 'lucide-react'
+import { Award, BadgeDollarSign, BadgeMinus, Download, OctagonAlert } from 'lucide-react'
 import Loading from '@/components/Loading'
 import { SelectChangeEvent } from '@mui/material'
 import { useState, useRef, useEffect } from 'react'
 import { useGetAuthMeQuery } from '@/services/AuthService'
-import {
-    AlignJustify,
-    CircleArrowOutDownLeft,
-    CircleArrowOutUpRight,
-    ClockAlert,
-    Filter,
-    LayoutGrid,
-    ListCollapse,
-    ScanBarcode
-} from 'lucide-react'
+import { CircleArrowOutDownLeft, CircleArrowOutUpRight, ClockAlert, ScanBarcode } from 'lucide-react'
+import { useGetSummaryQuery } from '@/services/UserRewardService'
 
 interface info {
     AvatarPath: string
@@ -33,17 +26,31 @@ interface info {
     PayrollCycle: number
     Birthday: string
 }
+
+const getType = (type: number) => {
+    if (type === 0) return 'week'
+    if (type === 1) return 'month'
+    return 'year'
+}
+
 export default function Page() {
     const { t } = useTranslation()
     const { data: responseGetMeData, isFetching: isFetchingGetMe } = useGetAuthMeQuery()
     const infoMe = responseGetMeData?.Data
     const [type, setType] = useState(0)
+    const { data: responseGetSummary, isLoading: isLoadingSummary, refetch } = useGetSummaryQuery(getType(type))
+
+    const getSummary = responseGetSummary?.Data
 
     const handleTypeChange = (event: SelectChangeEvent<number>) => {
         setType(event.target.value as number)
     }
 
-    if (isFetchingGetMe) {
+    useEffect(() => {
+        refetch()
+    }, [type])
+
+    if (isFetchingGetMe || isLoadingSummary) {
         return <Loading />
     }
 
@@ -136,7 +143,6 @@ export default function Page() {
                             <InputLabel id='select-label'>{t('COMMON.STAT_NOTIFY.BY')}</InputLabel>
                             <Select
                                 label={t('COMMON.STAT_NOTIFY.BY')}
-                                defaultValue={1}
                                 value={type}
                                 onChange={handleTypeChange}
                                 sx={{
@@ -255,7 +261,11 @@ export default function Page() {
                     }}
                 >
                     <Avatar
-                        src='https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                        src={
+                            infoMe.AvatarPath
+                                ? 'https://localhost:44381' + infoMe.AvatarPath
+                                : 'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                        }
                         sx={{
                             width: '120px',
                             height: '120px'
@@ -423,11 +433,11 @@ export default function Page() {
                                 backgroundColor: 'var(--attendance-bg3)'
                             }}
                         >
-                            <ScanBarcode size={28} />
+                            <Award size={28} />
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                5
+                                {getSummary?.CountReward}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
                                 Số lần nhận thưởng
@@ -457,11 +467,11 @@ export default function Page() {
                                 backgroundColor: 'var(--attendance-bg3)'
                             }}
                         >
-                            <CircleArrowOutDownLeft size={28} />
+                            <BadgeDollarSign size={28} />
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                7:53
+                                {getSummary?.TotalMoneyReward && formatNumberToMoney(getSummary?.TotalMoneyReward)}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
                                 Tổng số tiền thưởng
@@ -491,11 +501,11 @@ export default function Page() {
                                 backgroundColor: 'var(--attendance-bg3)'
                             }}
                         >
-                            <CircleArrowOutUpRight size={28} />
+                            <OctagonAlert size={28} />
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                18:05
+                                {getSummary?.CountDiscipline}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
                                 Số lần bị kỷ luật
@@ -525,11 +535,11 @@ export default function Page() {
                                 alignItems: 'center'
                             }}
                         >
-                            <ClockAlert size={28} />
+                            <BadgeMinus size={28} />
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                5
+                                {getSummary?.TotalDiscipline && formatNumberToMoney(getSummary?.TotalDiscipline)}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
                                 Tổng số tiền phạt

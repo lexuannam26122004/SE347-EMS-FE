@@ -77,4 +77,5 @@ export interface INotificationGetById {
     ListFile?: string[]
     ListUser?: string[]
     ListUserRead?: string[]
+    ListUserId?: string[]
 }

@@ -14,6 +14,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import NotificationModal from '@/app/admin/notification/NotificationModal'
 import { useRemoveNotificationMutation } from '@/services/NotificationsService'
 import { useToast } from '@/hooks/useToast'
+import { useRouter } from 'next/navigation'
 
 interface Props {
     notifications: INotificationGetById[]
@@ -76,7 +77,29 @@ const StyledMenuItem = styled(MenuItem)(() => ({
     }
 }))
 
+const convertTypeToLanguage = (type: string, t) => {
+    if (type === 'Public') {
+        return t('COMMON.NOTIFICATION_TYPE.PUBLIC')
+    }
+    if (type === 'Salary') {
+        return t('COMMON.NOTIFICATION_TYPE.SALARY')
+    }
+    if (type === 'Reward') {
+        return t('COMMON.NOTIFICATION_TYPE.REWARD')
+    }
+    if (type === 'Discipline') {
+        return t('COMMON.NOTIFICATION_TYPE.DISCIPLINE')
+    }
+    if (type === 'Event') {
+        return t('COMMON.NOTIFICATION_TYPE.EVENT')
+    }
+    if (type === 'Attendance') {
+        return t('COMMON.NOTIFICATION_TYPE.ATTENDANCE')
+    }
+}
+
 function Page({ notifications, refetch }: Props) {
+    const route = useRouter()
     const toast = useToast()
     const { t } = useTranslation('common')
     const [notificationId, setNotificationId] = useState<number | null>(null)
@@ -108,6 +131,8 @@ function Page({ notifications, refetch }: Props) {
                 } catch (error) {
                     toast('Xóa thông báo thất bại', 'error')
                 }
+            } else if (action === 'update' && tempNotificationId) {
+                route.push(`/admin/notification/update?id=${tempNotificationId}`)
             }
             setAnchorEl(null)
         },
@@ -217,7 +242,7 @@ function Page({ notifications, refetch }: Props) {
                                             fontWeight: 'bold'
                                         }}
                                     >
-                                        {chunk[0].Type}
+                                        {convertTypeToLanguage(chunk[0].Type, t)}
                                     </Typography>
 
                                     <Typography
@@ -434,7 +459,7 @@ function Page({ notifications, refetch }: Props) {
                                                 fontWeight: 'bold'
                                             }}
                                         >
-                                            {chunk[1].Type}
+                                            {convertTypeToLanguage(chunk[1].Type, t)}
                                         </Typography>
 
                                         <Typography
@@ -659,7 +684,7 @@ function Page({ notifications, refetch }: Props) {
                         />
                         {t('COMMON.STAT_NOTIFY.VIEW')}
                     </StyledMenuItem>
-                    <StyledMenuItem>
+                    <StyledMenuItem onClick={() => handleAction('update')} onMouseDown={e => e.stopPropagation()}>
                         <EditRoundedIcon style={{ color: 'var(--text-color)', width: '20px', marginRight: '10px' }} />
                         {t('COMMON.STAT_NOTIFY.UPDATE')}
                     </StyledMenuItem>

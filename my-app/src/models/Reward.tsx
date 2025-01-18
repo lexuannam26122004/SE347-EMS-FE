@@ -24,6 +24,8 @@ export interface IFilterReward {
     keyword?: string
     pageSize?: number
     pageNumber?: number
+    startDate?: string
+    endDate?: string
     sortBy?: string
     isDescending?: boolean
 }

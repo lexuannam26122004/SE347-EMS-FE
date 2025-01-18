@@ -9,6 +9,7 @@ import LeaveApplication from './LeaveApplication'
 import EmployeeCountChart from './EmployeeCountChart'
 import AgeDistributionChart from './AgeChart'
 import ErrorReport from './ErrorReport'
+import Analytics from './Analytic'
 
 const AdminPage = () => {
     return (
@@ -109,6 +110,8 @@ const AdminPage = () => {
             </Box>
 
             <ContractExpPage />
+
+            <Analytics />
         </Box>
     )
 }

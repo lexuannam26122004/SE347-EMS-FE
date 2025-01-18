@@ -14,6 +14,12 @@ import {
     Paper,
     Popper,
     Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
     Typography
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +32,7 @@ import {
     AlignJustify,
     CircleArrowOutDownLeft,
     CircleArrowOutUpRight,
+    Clock,
     ClockAlert,
     Download,
     Filter,
@@ -46,6 +53,9 @@ import MenuList from '@mui/material/MenuList'
 import DisplayInfo from './DisplayInfo'
 import { useSearchAttendanceForUserQuery } from '@/services/UserAttendanceService'
 import { IFilterTimekeepingForUser } from '@/models/Timekeeping'
+import { useGetSummaryQuery } from '@/services/UserAttendanceService'
+import { useGetByDateQuery } from '@/services/UserAttendanceService'
+import { TextField, Dialog, DialogTitle, Switch, DialogContent } from '@mui/material'
 
 const convertToVietnamTimeStart = (date: Date) => {
     if (isNaN(date.getTime())) {
@@ -87,6 +97,26 @@ const convertToVietnamTimeEnd = (date: Date) => {
     return formattedDate // Trả về thời gian đã được định dạng
 }
 
+function convertTimeFormat(time: string): string {
+    if (!time) return 'N/A'
+    // Tách chuỗi thời gian thành giờ, phút và giây
+    const [hours = 0, minutes = 0, seconds = 0] = time?.split(':').map(part => Math.floor(Number(part))) || [0, 0, 0]
+
+    // Format từng phần thành chuỗi 2 chữ số
+    const formattedHours = String(hours).padStart(2, '0')
+    const formattedMinutes = String(minutes).padStart(2, '0')
+    const formattedSeconds = String(seconds).padStart(2, '0')
+
+    // Kết quả format thành hh:mm:ss
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+}
+
+const getType = (type: number) => {
+    if (type === 0) return 'week'
+    if (type === 1) return 'month'
+    return 'year'
+}
+
 function Page() {
     const { t } = useTranslation('common')
     const [type, setType] = useState(0)
@@ -105,8 +135,21 @@ function Page() {
         IsOnTime: true
     })
     const [typeDisplay, setTypeDisplay] = useState(1)
+    const [showDetail, setShowDetail] = useState(false)
     const [open, setOpen] = useState(false)
     const anchorRef = useRef<HTMLButtonElement>(null)
+    const currentDate = new Date().toISOString().split('T')[0]
+    const {
+        data: responseDetail,
+        isFetching: isFetchingDetail,
+        refetch: refetchSummary
+    } = useGetByDateQuery(currentDate)
+    const detail = responseDetail?.Data || []
+
+    const handleDetailClick = () => {
+        refetchSummary()
+        setShowDetail(true)
+    }
 
     const [checkedItems, setCheckedItems] = useState({
         late: true,
@@ -196,6 +239,9 @@ function Page() {
 
     const { data: responseData, isFetching: isFetchingGetAttendance, refetch } = useSearchAttendanceForUserQuery(filter)
 
+    const { data: responseGetSummary, isLoading: isLoadingGetSummary } = useGetSummaryQuery(getType(type))
+    const summary = responseGetSummary?.Data
+
     useEffect(() => {
         refetch()
     }, [filter])
@@ -213,7 +259,7 @@ function Page() {
         }
     }, [isFetchingGetAttendance, responseData, page, rowsPerPage])
 
-    if (isFetchingGetMe || !infoMe) {
+    if (isFetchingGetMe || !infoMe || isLoadingGetSummary) {
         return <Loading />
     }
 
@@ -425,7 +471,11 @@ function Page() {
                     }}
                 >
                     <Avatar
-                        src='https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                        src={
+                            infoMe.AvatarPath
+                                ? 'https://localhost:44381' + infoMe.AvatarPath
+                                : 'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp'
+                        }
                         sx={{
                             width: '120px',
                             height: '120px'
@@ -597,7 +647,7 @@ function Page() {
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                5
+                                {summary?.CountAttendance || 0}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
                                 {t('COMMON.USER.TOTAL_ATTENDANCE')}
@@ -699,10 +749,10 @@ function Page() {
                         </Box>
                         <Box>
                             <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--text-color)' }}>
-                                5
+                                {summary?.CountLogin || 0}
                             </Typography>
                             <Typography sx={{ fontSize: '15px', mt: '5px', color: 'var(--text-color)' }}>
-                                {t('COMMON.USER.TOTAL_LATE')}
+                                {'Số lần đăng nhập'}
                             </Typography>
                         </Box>
                     </Box>
@@ -775,6 +825,7 @@ function Page() {
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}
+                            onClick={handleDetailClick}
                         >
                             <ListCollapse size={20} />
                             {t('COMMON.USER.DETAIL')}
@@ -1260,6 +1311,311 @@ function Page() {
                     />
                 </Box>
             </Paper>
+
+            <Dialog
+                open={showDetail}
+                sx={{
+                    '& .MuiDialog-container': {
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    },
+                    '& .MuiDialog-paper': {
+                        backgroundColor: 'var(--background-dialog)',
+                        width: '600px',
+                        margin: 0,
+                        borderRadius: '16px',
+                        maxWidth: 'none',
+                        maxHeight: '88vh'
+                    }
+                }}
+                onClose={() => setShowDetail(false)}
+            >
+                <DialogTitle
+                    sx={{
+                        padding: '24px',
+                        fontSize: '18px',
+                        fontWeight: 'bold',
+                        color: 'var(--text-color)',
+                        backgroundColor: 'var(--header-dialog)'
+                    }}
+                >
+                    {'Chi tiết chấm công hôm nay'}
+                </DialogTitle>
+                {detail && (
+                    <DialogContent
+                        sx={{
+                            pr: '17px',
+                            pb: '24px',
+                            scrollbarGutter: 'stable',
+                            '&::-webkit-scrollbar': {
+                                width: '7px',
+                                height: '7px'
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'var(--scrollbar-color)',
+                                borderRadius: '10px'
+                            }
+                        }}
+                    >
+                        <TableContainer>
+                            <Table>
+                                <TableBody>
+                                    {detail.map((row, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell
+                                                sx={{
+                                                    borderStyle: 'dashed',
+                                                    borderColor: 'var(--border-color)'
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        gap: '15px',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'left'
+                                                    }}
+                                                >
+                                                    <Clock size={24} color='var(--text-color)' />
+                                                    <Box
+                                                        sx={{
+                                                            color: 'var(--text-color)',
+                                                            fontSize: '16px',
+                                                            maxWidth: '280px',
+                                                            display: 'flex',
+                                                            gap: '15px',
+                                                            alignItems: 'center',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            sx={{
+                                                                color: '#ffbc42',
+                                                                fontWeight: 'bold'
+                                                            }}
+                                                        >
+                                                            {convertTimeFormat(row.CheckInTime)}
+                                                        </Box>
+                                                        -
+                                                        <Box
+                                                            sx={{
+                                                                color: '#ff7373',
+                                                                fontWeight: 'bold'
+                                                            }}
+                                                        >
+                                                            {convertTimeFormat(row.CheckOutTime)}
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                            </TableCell>
+
+                                            <TableCell
+                                                sx={{
+                                                    borderStyle: 'dashed',
+                                                    borderColor: 'var(--border-color)'
+                                                }}
+                                            >
+                                                <Typography
+                                                    sx={{
+                                                        color: '#00ec84',
+                                                        fontSize: '16px',
+                                                        width: '88px',
+                                                        textAlign: 'center',
+                                                        padding: '8px 10px',
+                                                        borderRadius: '10px',
+                                                        border: '1px solid var(--border-color)',
+                                                        fontWeight: 'bold',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                >
+                                                    {(row.TotalHours * 60).toFixed(0)} {t('COMMON.USER.MINUTES')}
+                                                </Typography>
+                                            </TableCell>
+
+                                            <TableCell
+                                                sx={{
+                                                    borderStyle: 'dashed',
+                                                    width: '70px',
+                                                    borderColor: 'var(--border-color)',
+                                                    padding: '11px'
+                                                }}
+                                            >
+                                                {row.Status === false ? (
+                                                    <Box
+                                                        sx={{
+                                                            borderRadius: '8px',
+                                                            padding: '5px 10px',
+                                                            display: 'flex',
+                                                            minWidth: '100px',
+                                                            justifyContent: 'center',
+                                                            backgroundColor: 'var(--bg-danger-color)'
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '15px',
+                                                                overflow: 'hidden',
+                                                                color: 'var(--text-danger-color)',
+                                                                width: 'auto',
+                                                                fontWeight: 'bold',
+                                                                display: 'inline-block',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}
+                                                        >
+                                                            {t('COMMON.ATTENDANCE.STATUS_INVALID')}
+                                                        </Typography>
+                                                    </Box>
+                                                ) : row.CheckInTime > '08:00:00' ? (
+                                                    row.CheckOutTime < '17:00' ? (
+                                                        <Box>
+                                                            <Box
+                                                                sx={{
+                                                                    borderRadius: '8px',
+                                                                    padding: '5px 10px',
+                                                                    display: 'flex',
+                                                                    minWidth: '100px',
+                                                                    justifyContent: 'center',
+                                                                    backgroundColor: 'var(--bg-warning-color)'
+                                                                }}
+                                                            >
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontSize: '15px',
+                                                                        overflow: 'hidden',
+                                                                        color: 'var(--text-warning-color)',
+                                                                        width: 'auto',
+                                                                        fontWeight: 'bold',
+                                                                        display: 'inline-block',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap'
+                                                                    }}
+                                                                >
+                                                                    {t('COMMON.ATTENDANCE.STATUS_LATE')}
+                                                                </Typography>
+                                                            </Box>
+
+                                                            <Box
+                                                                sx={{
+                                                                    mt: '10px',
+                                                                    borderRadius: '8px',
+                                                                    padding: '5px 10px',
+                                                                    display: 'flex',
+                                                                    minWidth: '100px',
+                                                                    justifyContent: 'center',
+                                                                    backgroundColor: 'var(--bg-closed-color)'
+                                                                }}
+                                                            >
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontSize: '15px',
+                                                                        overflow: 'hidden',
+                                                                        color: 'var(--text-closed-color)',
+                                                                        width: 'auto',
+                                                                        fontWeight: 'bold',
+                                                                        display: 'inline-block',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap'
+                                                                    }}
+                                                                >
+                                                                    {t('COMMON.ATTENDANCE.STATUS_EARLY')}
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    ) : (
+                                                        <Box
+                                                            sx={{
+                                                                borderRadius: '8px',
+                                                                padding: '5px 10px',
+                                                                display: 'flex',
+                                                                minWidth: '100px',
+                                                                justifyContent: 'center',
+                                                                backgroundColor: 'var(--bg-warning-color)'
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                sx={{
+                                                                    fontSize: '15px',
+                                                                    overflow: 'hidden',
+                                                                    color: 'var(--text-warning-color)',
+                                                                    width: 'auto',
+                                                                    fontWeight: 'bold',
+                                                                    display: 'inline-block',
+                                                                    textOverflow: 'ellipsis',
+                                                                    whiteSpace: 'nowrap'
+                                                                }}
+                                                            >
+                                                                {t('COMMON.ATTENDANCE.STATUS_LATE')}
+                                                            </Typography>
+                                                        </Box>
+                                                    )
+                                                ) : row.CheckOutTime < '17:00' ? (
+                                                    <Box
+                                                        sx={{
+                                                            borderRadius: '8px',
+                                                            padding: '5px 10px',
+                                                            display: 'flex',
+                                                            minWidth: '100px',
+                                                            justifyContent: 'center',
+                                                            backgroundColor: 'var(--bg-closed-color)'
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '15px',
+                                                                overflow: 'hidden',
+                                                                color: 'var(--text-closed-color)',
+                                                                width: 'auto',
+                                                                fontWeight: 'bold',
+                                                                display: 'inline-block',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}
+                                                        >
+                                                            {t('COMMON.ATTENDANCE.STATUS_EARLY')}
+                                                        </Typography>
+                                                    </Box>
+                                                ) : (
+                                                    <Box
+                                                        sx={{
+                                                            borderRadius: '8px',
+                                                            padding: '5px 10px',
+                                                            display: 'flex',
+                                                            minWidth: '100px',
+                                                            justifyContent: 'center',
+                                                            backgroundColor: 'var(--bg-success-color)'
+                                                        }}
+                                                    >
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '15px',
+                                                                overflow: 'hidden',
+                                                                color: 'var(--text-success-color)',
+                                                                width: 'auto',
+                                                                fontWeight: 'bold',
+                                                                display: 'inline-block',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}
+                                                        >
+                                                            {t('COMMON.ATTENDANCE.STATUS_ON_TIME')}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </DialogContent>
+                )}
+            </Dialog>
         </Box>
     )
 }

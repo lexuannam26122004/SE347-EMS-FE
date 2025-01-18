@@ -4,6 +4,8 @@ import Tab from '@mui/material/Tab'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Star } from 'lucide-react'
+import { useTopUserByMonthQuery } from '@/services/StatsRewardAndDisciplineService'
+import Loading from '@/components/Loading'
 
 function a11yProps(index: number) {
     return {
@@ -12,189 +14,22 @@ function a11yProps(index: number) {
     }
 }
 
-const nthUsers = [
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Lê Xuân Nam',
-        count: 30,
-        employeeID: 'CC-001',
-        role: 'Leader'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Lê Xuân Thanh',
-        count: 24,
-        employeeID: 'CC-022',
-        role: 'Leader'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Lê Thị Tuyết Phương',
-        count: 20,
-        employeeID: 'CC-053',
-        role: 'Manager'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Hùng Bùi Vỹ',
-        count: 19,
-        employeeID: 'CC-042',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Lê Tuấn Khang',
-        count: 15,
-        employeeID: 'CC-065',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Bùi Thị Thanh Hằng',
-        count: 14,
-        employeeID: 'CC-088',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Bùi Thị Thanh Hằng',
-        count: 12,
-        employeeID: 'CC-096',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Bùi Thị Thanh Hằng',
-        count: 11,
-        employeeID: 'CC-006',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Bùi Thị Thanh Hằng',
-        count: 9,
-        employeeID: 'CC-006',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Bùi Thị Thanh Hằng',
-        count: 7,
-        employeeID: 'CC-006',
-        role: 'Employee'
-    }
-]
-
-const nthUsers1 = [
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Nguyễn Văn Anh',
-        count: 30,
-        employeeID: 'CC-001',
-        role: 'Leader'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Phạm Minh Hoàng',
-        count: 24,
-        employeeID: 'CC-022',
-        role: 'Leader'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Trần Thị Thanh Hà',
-        count: 20,
-        employeeID: 'CC-053',
-        role: 'Manager'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Đỗ Quang Huy',
-        count: 19,
-        employeeID: 'CC-042',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Lê Thị Ngọc Mai',
-        count: 15,
-        employeeID: 'CC-065',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Vũ Thanh Tùng',
-        count: 14,
-        employeeID: 'CC-088',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Hoàng Văn Cường',
-        count: 12,
-        employeeID: 'CC-096',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Trần Ngọc Anh',
-        count: 11,
-        employeeID: 'CC-013',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Phạm Huy Hoàng',
-        count: 9,
-        employeeID: 'CC-021',
-        role: 'Employee'
-    },
-    {
-        avatarPath: '/images/workforce.png',
-        fullname: 'Nguyễn Hoài Nam',
-        count: 7,
-        employeeID: 'CC-033',
-        role: 'Employee'
-    }
-]
-
-const avatars = [
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-1.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-2.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-3.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-4.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-5.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-6.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-7.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-8.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-9.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-10.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-11.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-12.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-13.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-14.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-15.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-16.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-17.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-18.webp',
-    'https://api-prod-minimal-v620.pages.dev/assets/images/avatar/avatar-19.webp'
-]
-
 function Page() {
     const { t } = useTranslation('common')
     const [currentTab, setCurrentTab] = useState(0)
 
-    const nameTop1 = 'Nam'
-    const nameTop2 = 'Thanh'
-    const nameTop3 = 'Phương'
+    const month = new Date().getMonth() + 1
+    const year = new Date().getFullYear()
 
-    const countTop1 = 30
-    const countTop2 = 24
-    const countTop3 = 19
+    const { data: topUserByMonth, isLoading } = useTopUserByMonthQuery({ month, year })
 
-    // const employeeIDTop1 = 'EMP001'
-    // const employeeIDTop2 = 'EMP002'
-    // const employeeIDTop3 = 'EMP003'
+    const nthUsersReward = topUserByMonth?.Data.TopRewards || []
+
+    const nthUsersDiscipline = topUserByMonth?.Data.TopDisciplines || []
+
+    if (isLoading) {
+        return <Loading />
+    }
 
     return (
         <Box width='100%'>
@@ -354,89 +189,95 @@ function Page() {
                                                 backgroundRepeat: 'no-repeat'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    position: 'absolute',
-                                                    left: 'calc(50%)',
-                                                    borderRadius: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    top: '-145px',
-                                                    border: '2px solid #00D95F',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: '#00D95F', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"2"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[2]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '55px',
-                                                        height: '55px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    fontWeight: 'bold',
-                                                    color: 'white',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {nameTop2}
-                                            </Typography>
-
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop2 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                            {nthUsersReward[1] && (
+                                                <>
+                                                    {' '}
+                                                    <Box
+                                                        sx={{
+                                                            width: '60px',
+                                                            height: '60px',
+                                                            position: 'absolute',
+                                                            left: 'calc(50%)',
+                                                            borderRadius: '50%',
+                                                            transform: 'translateX(-50%)',
+                                                            top: '-145px',
+                                                            border: '2px solid #00D95F',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: '#00D95F', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"2"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersReward[1]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '55px',
+                                                                height: '55px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            fontWeight: 'bold',
+                                                            color: 'white',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[1]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[1]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
 
                                         <Box
@@ -451,101 +292,107 @@ function Page() {
                                                 position: 'relative'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '70px',
-                                                    height: '70px',
-                                                    position: 'absolute',
-                                                    left: '50%',
-                                                    borderRadius: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    top: '-155px',
-                                                    border: '2px solid #FFAA00',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: '#FFAA00', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"1"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[1]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '65px',
-                                                        height: '65px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
+                                            {nthUsersReward[0] && (
+                                                <>
+                                                    <Box
+                                                        sx={{
+                                                            width: '70px',
+                                                            height: '70px',
+                                                            position: 'absolute',
+                                                            left: '50%',
+                                                            borderRadius: '50%',
+                                                            transform: 'translateX(-50%)',
+                                                            top: '-155px',
+                                                            border: '2px solid #FFAA00',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: '#FFAA00', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"1"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersReward[0]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '65px',
+                                                                height: '65px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
 
-                                            <img
-                                                src='/images/leader-board.svg'
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '-175px',
-                                                    left: 'calc(50% - 30px)',
-                                                    transform: 'translateX(-50%) rotate(324deg)',
-                                                    zIndex: 1
-                                                }}
-                                            />
+                                                    <img
+                                                        src='/images/leader-board.svg'
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '-175px',
+                                                            left: 'calc(50% - 30px)',
+                                                            transform: 'translateX(-50%) rotate(324deg)',
+                                                            zIndex: 1
+                                                        }}
+                                                    />
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    fontWeight: 'bold',
-                                                    color: 'white',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {nameTop1}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            fontWeight: 'bold',
+                                                            color: 'white',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[0]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop1 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[0]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
 
                                         <Box
@@ -560,90 +407,96 @@ function Page() {
                                                 position: 'relative'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    position: 'absolute',
-                                                    borderRadius: '50%',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-145px',
-                                                    border: '2px solid red',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: 'red', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"3"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[3]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '55px',
-                                                        height: '55px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
+                                            {nthUsersReward[2] && (
+                                                <>
+                                                    <Box
+                                                        sx={{
+                                                            width: '60px',
+                                                            height: '60px',
+                                                            position: 'absolute',
+                                                            borderRadius: '50%',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-145px',
+                                                            border: '2px solid red',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: 'red', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"3"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersReward[2]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '55px',
+                                                                height: '55px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    color: 'white',
-                                                    fontWeight: 'bold',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {nameTop3}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            color: 'white',
+                                                            fontWeight: 'bold',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[2]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop3 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersReward[2]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
                                     </Box>
                                 </Box>
@@ -682,7 +535,7 @@ function Page() {
                                             }
                                         }}
                                     >
-                                        {nthUsers.map((user, index) => (
+                                        {nthUsersReward?.map((user, index) => (
                                             <Box
                                                 key={index}
                                                 sx={{
@@ -715,10 +568,10 @@ function Page() {
                                                                 index === 0
                                                                     ? '1px solid #FFAA00'
                                                                     : index === 1
-                                                                      ? '1px solid #00D95F'
-                                                                      : index === 2
-                                                                        ? '1px solid red'
-                                                                        : '1px solid rgb(59, 59, 59)',
+                                                                    ? '1px solid #00D95F'
+                                                                    : index === 2
+                                                                    ? '1px solid red'
+                                                                    : '1px solid rgb(59, 59, 59)',
                                                             width: '20px',
                                                             height: '20px',
                                                             display: 'flex',
@@ -726,10 +579,10 @@ function Page() {
                                                                 index === 0
                                                                     ? '#FFAA00'
                                                                     : index === 1
-                                                                      ? '#00D95F'
-                                                                      : index === 2
-                                                                        ? 'red'
-                                                                        : 'rgb(59, 59, 59)',
+                                                                    ? '#00D95F'
+                                                                    : index === 2
+                                                                    ? 'red'
+                                                                    : 'rgb(59, 59, 59)',
                                                             justifyContent: 'center',
                                                             alignItems: 'center',
                                                             marginRight: '15px'
@@ -746,7 +599,7 @@ function Page() {
                                                             height: '45px'
                                                         }}
                                                         src={
-                                                            avatars[index + 1] ||
+                                                            user.AvatarPath ||
                                                             'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                                         }
                                                     />
@@ -759,7 +612,7 @@ function Page() {
                                                             fontSize: '16px'
                                                         }}
                                                     >
-                                                        {user.fullname}
+                                                        {user.FullName}
                                                     </Typography>
                                                     <Typography
                                                         sx={{
@@ -767,7 +620,7 @@ function Page() {
                                                             fontSize: '14px'
                                                         }}
                                                     >
-                                                        {user.employeeID}
+                                                        {user.EmployeeId}
                                                     </Typography>
                                                 </Box>
                                                 <Box
@@ -794,7 +647,7 @@ function Page() {
                                                             marginRight: '6px'
                                                         }}
                                                     />
-                                                    {user.count}
+                                                    {user.Count}
                                                 </Box>
                                             </Box>
                                         ))}
@@ -841,89 +694,95 @@ function Page() {
                                                 backgroundRepeat: 'no-repeat'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    position: 'absolute',
-                                                    left: 'calc(50%)',
-                                                    borderRadius: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    top: '-145px',
-                                                    border: '2px solid #00D95F',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: '#00D95F', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"2"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[9]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '55px',
-                                                        height: '55px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    fontWeight: 'bold',
-                                                    color: 'white',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {'Hoàng'}
-                                            </Typography>
+                                            {nthUsersDiscipline[1] && (
+                                                <>
+                                                    <Box
+                                                        sx={{
+                                                            width: '60px',
+                                                            height: '60px',
+                                                            position: 'absolute',
+                                                            left: 'calc(50%)',
+                                                            borderRadius: '50%',
+                                                            transform: 'translateX(-50%)',
+                                                            top: '-145px',
+                                                            border: '2px solid #00D95F',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: '#00D95F', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"2"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersDiscipline[1]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '55px',
+                                                                height: '55px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            fontWeight: 'bold',
+                                                            color: 'white',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[1]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop2 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[1]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
 
                                         <Box
@@ -938,101 +797,107 @@ function Page() {
                                                 position: 'relative'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '70px',
-                                                    height: '70px',
-                                                    position: 'absolute',
-                                                    left: '50%',
-                                                    borderRadius: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    top: '-155px',
-                                                    border: '2px solid #FFAA00',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: '#FFAA00', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"1"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[8]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '65px',
-                                                        height: '65px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
+                                            {nthUsersDiscipline[0] && (
+                                                <>
+                                                    <Box
+                                                        sx={{
+                                                            width: '70px',
+                                                            height: '70px',
+                                                            position: 'absolute',
+                                                            left: '50%',
+                                                            borderRadius: '50%',
+                                                            transform: 'translateX(-50%)',
+                                                            top: '-155px',
+                                                            border: '2px solid #FFAA00',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: '#FFAA00', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"1"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersDiscipline[0]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '65px',
+                                                                height: '65px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
 
-                                            <img
-                                                src='/images/leader-board.svg'
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '-175px',
-                                                    left: 'calc(50% - 30px)',
-                                                    transform: 'translateX(-50%) rotate(324deg)',
-                                                    zIndex: 1
-                                                }}
-                                            />
+                                                    <img
+                                                        src='/images/leader-board.svg'
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '-175px',
+                                                            left: 'calc(50% - 30px)',
+                                                            transform: 'translateX(-50%) rotate(324deg)',
+                                                            zIndex: 1
+                                                        }}
+                                                    />
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    fontWeight: 'bold',
-                                                    color: 'white',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {'Anh'}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            fontWeight: 'bold',
+                                                            color: 'white',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[0]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop1 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[0]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
 
                                         <Box
@@ -1047,90 +912,96 @@ function Page() {
                                                 position: 'relative'
                                             }}
                                         >
-                                            <Box
-                                                sx={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    position: 'absolute',
-                                                    borderRadius: '50%',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-145px',
-                                                    border: '2px solid red',
-                                                    zIndex: 1,
-                                                    overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
-                                                    // Thêm ::after để tạo hình vuông
-                                                    '&::after': {
-                                                        content: '""',
-                                                        position: 'absolute',
-                                                        bottom: '-8px', // Đặt hình vuông vào cuối avatar
-                                                        left: '50%', // Căn giữa hình vuông
-                                                        width: '17px', // Kích thước hình vuông
-                                                        height: '17px',
-                                                        borderRadius: '4px', // Bo tròn hình vuông
-                                                        backgroundColor: 'red', // Màu nền của hình vuông
-                                                        transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
-                                                        zIndex: 2 // Đặt hình vuông phía sau avatar
-                                                    },
-                                                    '&::before': {
-                                                        content: '"3"', // Nội dung hiển thị số 1
-                                                        position: 'absolute',
-                                                        bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
-                                                        left: '50%', // Căn giữa số 1
-                                                        transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
-                                                        zIndex: 3, // Đặt số 1 lên trên hình vuông
-                                                        display: 'flex', // Sử dụng flex để căn giữa
-                                                        justifyContent: 'center', // Căn giữa theo chiều ngang
-                                                        alignItems: 'center', // Căn giữa theo chiều dọc
-                                                        fontSize: '10px', // Kích thước chữ
-                                                        color: 'white', // Màu chữ
-                                                        fontWeight: 'bold' // Đậm chữ
-                                                    }
-                                                }}
-                                            >
-                                                <Avatar
-                                                    src={avatars[10]}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        width: '55px',
-                                                        height: '55px',
-                                                        top: '0.5px',
-                                                        left: '0.5px'
-                                                    }}
-                                                ></Avatar>
-                                            </Box>
+                                            {nthUsersDiscipline[2] && (
+                                                <>
+                                                    <Box
+                                                        sx={{
+                                                            width: '60px',
+                                                            height: '60px',
+                                                            position: 'absolute',
+                                                            borderRadius: '50%',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-145px',
+                                                            border: '2px solid red',
+                                                            zIndex: 1,
+                                                            overflow: 'visible', // Cho phép phần tử con thoát ra ngoài
+                                                            // Thêm ::after để tạo hình vuông
+                                                            '&::after': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                bottom: '-8px', // Đặt hình vuông vào cuối avatar
+                                                                left: '50%', // Căn giữa hình vuông
+                                                                width: '17px', // Kích thước hình vuông
+                                                                height: '17px',
+                                                                borderRadius: '4px', // Bo tròn hình vuông
+                                                                backgroundColor: 'red', // Màu nền của hình vuông
+                                                                transform: 'translateX(-50%) rotate(45deg)', // Xoay hình vuông 45 độ
+                                                                zIndex: 2 // Đặt hình vuông phía sau avatar
+                                                            },
+                                                            '&::before': {
+                                                                content: '"3"', // Nội dung hiển thị số 1
+                                                                position: 'absolute',
+                                                                bottom: '-5px', // Đặt số 1 vào cùng vị trí với hình vuông
+                                                                left: '50%', // Căn giữa số 1
+                                                                transform: 'translateX(-50%)', // Đảm bảo số 1 không bị xoay
+                                                                zIndex: 3, // Đặt số 1 lên trên hình vuông
+                                                                display: 'flex', // Sử dụng flex để căn giữa
+                                                                justifyContent: 'center', // Căn giữa theo chiều ngang
+                                                                alignItems: 'center', // Căn giữa theo chiều dọc
+                                                                fontSize: '10px', // Kích thước chữ
+                                                                color: 'white', // Màu chữ
+                                                                fontWeight: 'bold' // Đậm chữ
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            src={nthUsersDiscipline[2]?.AvatarPath}
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                width: '55px',
+                                                                height: '55px',
+                                                                top: '0.5px',
+                                                                left: '0.5px'
+                                                            }}
+                                                        ></Avatar>
+                                                    </Box>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    transform: 'translateX(50%)',
-                                                    fontSize: '15px',
-                                                    color: 'white',
-                                                    fontWeight: 'bold',
-                                                    top: '-70px'
-                                                }}
-                                            >
-                                                {'Hà'}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            transform: 'translateX(50%)',
+                                                            fontSize: '15px',
+                                                            color: 'white',
+                                                            fontWeight: 'bold',
+                                                            top: '-70px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[2]?.FullName.toString().split(' ').pop()}
+                                                    </Typography>
 
-                                            <Typography
-                                                sx={{
-                                                    position: 'absolute',
-                                                    right: '50%',
-                                                    fontSize: '16px',
-                                                    color: 'white',
-                                                    borderRadius: '8px',
-                                                    padding: '4px 7px',
-                                                    whiteSpace: 'nowrap',
-                                                    backgroundColor: '#9087E5',
-                                                    fontWeight: 'bold',
-                                                    transform: 'translateX(50%)',
-                                                    top: '-40px'
-                                                }}
-                                            >
-                                                {countTop3 + ' ' + t('COMMON.REWARD_DISCIPLINE.TIMES')}
-                                            </Typography>
+                                                    <Typography
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            right: '50%',
+                                                            fontSize: '16px',
+                                                            color: 'white',
+                                                            borderRadius: '8px',
+                                                            padding: '4px 7px',
+                                                            whiteSpace: 'nowrap',
+                                                            backgroundColor: '#9087E5',
+                                                            fontWeight: 'bold',
+                                                            transform: 'translateX(50%)',
+                                                            top: '-40px'
+                                                        }}
+                                                    >
+                                                        {nthUsersDiscipline[2]?.Count +
+                                                            ' ' +
+                                                            t('COMMON.REWARD_DISCIPLINE.TIMES')}
+                                                    </Typography>
+                                                </>
+                                            )}
                                         </Box>
                                     </Box>
                                 </Box>
@@ -1169,7 +1040,7 @@ function Page() {
                                             }
                                         }}
                                     >
-                                        {nthUsers1.map((user, index) => (
+                                        {nthUsersDiscipline?.map((user, index) => (
                                             <Box
                                                 key={index}
                                                 sx={{
@@ -1202,10 +1073,10 @@ function Page() {
                                                                 index === 0
                                                                     ? '1px solid #FFAA00'
                                                                     : index === 1
-                                                                      ? '1px solid #00D95F'
-                                                                      : index === 2
-                                                                        ? '1px solid red'
-                                                                        : '1px solid rgb(59, 59, 59)',
+                                                                    ? '1px solid #00D95F'
+                                                                    : index === 2
+                                                                    ? '1px solid red'
+                                                                    : '1px solid rgb(59, 59, 59)',
                                                             width: '20px',
                                                             height: '20px',
                                                             display: 'flex',
@@ -1213,10 +1084,10 @@ function Page() {
                                                                 index === 0
                                                                     ? '#FFAA00'
                                                                     : index === 1
-                                                                      ? '#00D95F'
-                                                                      : index === 2
-                                                                        ? 'red'
-                                                                        : 'rgb(59, 59, 59)',
+                                                                    ? '#00D95F'
+                                                                    : index === 2
+                                                                    ? 'red'
+                                                                    : 'rgb(59, 59, 59)',
                                                             justifyContent: 'center',
                                                             alignItems: 'center',
                                                             marginRight: '15px'
@@ -1233,7 +1104,7 @@ function Page() {
                                                             height: '45px'
                                                         }}
                                                         src={
-                                                            avatars[index + 8] ||
+                                                            user.AvatarPath ||
                                                             'https://localhost:44381/avatars/aa1678f0-75b0-48d2-ae98-50871178e9bd.jfif'
                                                         }
                                                     />
@@ -1246,7 +1117,7 @@ function Page() {
                                                             fontSize: '16px'
                                                         }}
                                                     >
-                                                        {user.fullname}
+                                                        {user.FullName}
                                                     </Typography>
                                                     <Typography
                                                         sx={{
@@ -1254,7 +1125,7 @@ function Page() {
                                                             fontSize: '14px'
                                                         }}
                                                     >
-                                                        {user.employeeID}
+                                                        {user.EmployeeId}
                                                     </Typography>
                                                 </Box>
                                                 <Box
@@ -1281,7 +1152,7 @@ function Page() {
                                                             marginRight: '6px'
                                                         }}
                                                     />
-                                                    {user.count}
+                                                    {user.Count}
                                                 </Box>
                                             </Box>
                                         ))}

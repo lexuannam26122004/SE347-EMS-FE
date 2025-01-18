@@ -39,6 +39,8 @@ import { userDisciplineApi } from '@/services/UserDisciplineService'
 import { WorkingRulesApi } from '@/services/WorkingRulesService'
 import { userEmploymentContractApi } from '@/services/UserEmploymentContractService'
 import { userWorkingRulesApi } from '@/services/UserWorkingRulesService'
+import { statsRewardAndDisciplineApi } from '@/services/StatsRewardAndDisciplineService'
+
 export const store = configureStore({
     reducer: {
         [userApi.reducerPath]: userApi.reducer,
@@ -80,7 +82,8 @@ export const store = configureStore({
         [userDisciplineApi.reducerPath]: userDisciplineApi.reducer,
         [userEmploymentContractApi.reducerPath]: userEmploymentContractApi.reducer,
         [WorkingRulesApi.reducerPath]: WorkingRulesApi.reducer,
-        [userWorkingRulesApi.reducerPath]: userWorkingRulesApi.reducer
+        [userWorkingRulesApi.reducerPath]: userWorkingRulesApi.reducer,
+        [statsRewardAndDisciplineApi.reducerPath]: statsRewardAndDisciplineApi.reducer
     },
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware().concat(
@@ -115,7 +118,8 @@ export const store = configureStore({
             userDisciplineApi.middleware,
             userEmploymentContractApi.middleware,
             WorkingRulesApi.middleware,
-            userWorkingRulesApi.middleware
+            userWorkingRulesApi.middleware,
+            statsRewardAndDisciplineApi.middleware
         )
 })
 

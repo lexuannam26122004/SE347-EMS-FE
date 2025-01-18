@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useStatsChartQuery } from '@/services/StatsRewardAndDisciplineService'
 
 export default function Chart() {
     const { t } = useTranslation('common')
@@ -14,9 +15,11 @@ export default function Chart() {
         setSelectedYear(event.target.value as number)
     }
 
-    useEffect(() => {}, [selectedYear])
+    const { data: responseDate, isLoading } = useStatsChartQuery(selectedYear)
 
-    const percent = 43
+    const percent = responseDate?.Data?.Percent || 0
+    const rewardData = responseDate?.Data?.ListReward || []
+    const disciplineData = responseDate?.Data?.ListDiscipline || []
 
     const option = {
         animation: true, // Bật hiệu ứng chuyển tiếp
@@ -90,7 +93,7 @@ export default function Chart() {
             {
                 name: t('COMMON.REWARD_DISCIPLINE.DISCIPLINE'),
                 type: 'bar',
-                data: [76, 75, 19, 48, 78, 31, 51, 78, 20, 6, 30, 70],
+                data: disciplineData,
                 markPoint: {
                     data: [
                         { type: 'max', name: 'Max' },
@@ -114,7 +117,7 @@ export default function Chart() {
             {
                 name: t('COMMON.REWARD_DISCIPLINE.REWARD'),
                 type: 'bar',
-                data: [49, 31, 53, 88, 16, 74, 85, 73, 68, 93, 62, 89],
+                data: rewardData,
                 barWidth: '22%', // Điều chỉnh độ rộng của cột
                 itemStyle: {
                     color: '#00a76f',

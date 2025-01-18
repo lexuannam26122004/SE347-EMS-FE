@@ -17,7 +17,7 @@ import {
 import { ClipboardCheck, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Loading from './Loading'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
@@ -65,6 +65,7 @@ interface IProps {
 function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
     const { t } = useTranslation('common')
     const router = useRouter()
+    const pathName = usePathname()
     const [openDialog, setOpenDialog] = useState(false)
     const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
@@ -544,7 +545,7 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                                                     </Box>
                                                 </Tooltip>
                                             )}
-                                            {menuLeft['Reward'].IsAllowEdit && (
+                                            {menuLeft['Reward'].IsAllowEdit && !pathName.includes('statistics') && (
                                                 <Tooltip title={t('COMMON.BUTTON.EDIT')}>
                                                     <Box
                                                         display='flex'
@@ -566,7 +567,7 @@ function TableErrorReport({ rewardsData, setFilter, refetch }: IProps) {
                                                     </Box>
                                                 </Tooltip>
                                             )}
-                                            {menuLeft['Reward'].IsAllowDelete && (
+                                            {menuLeft['Reward'].IsAllowDelete && !pathName.includes('statistics') && (
                                                 <Tooltip title={t('COMMON.BUTTON.DELETE')}>
                                                     <Box
                                                         display='flex'

@@ -1,5 +1,4 @@
 'use client'
-import { IFilterEmploymentContract } from '@/models/EmploymentContract'
 import {
     Box,
     Select,
@@ -11,16 +10,44 @@ import {
     InputLabel,
     FormControl,
     TextField,
-    InputAdornment
+    InputAdornment,
+    Button
 } from '@mui/material'
-import { useState, useMemo, useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import SearchIcon from '@mui/icons-material/Search'
-// import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import TableDiscipline from '@/components/TableDiscipline'
-
+import { useGetAllDepartmentQuery } from '@/services/DepartmentService'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
+import { debounce } from 'lodash'
+import { useCallback } from 'react'
+import { IFilterReward } from '@/models/Reward'
+import { useGetAllDisciplinesQuery } from '@/services/DisciplineService'
+import Loading from '@/components/Loading'
+import { CirclePlus } from 'lucide-react'
+import { authSelector } from '@/redux/slices/authSlice'
+import { useSelector } from 'react-redux'
+import { toZonedTime, format } from 'date-fns-tz'
+import dayjs from 'dayjs'
+import { DatePicker } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+
+const convertToVietnamTime = (date: Date) => {
+    if (isNaN(date.getTime())) {
+        throw new Error('Invalid Date')
+    }
+
+    const timeZone = 'Asia/Ho_Chi_Minh'
+
+    const vietnamTime = toZonedTime(date, timeZone)
+
+    const formattedDate = format(vietnamTime, "yyyy-MM-dd'T'HH:mm:ss")
+
+    return formattedDate // Trả về thời gian đã được định dạng
+}
 
 function a11yProps(index: number) {
     return {
@@ -29,178 +56,42 @@ function a11yProps(index: number) {
     }
 }
 
-interface IGetAllDiscipline {
-    Id: number
-    FullName: string
-    AvatarPath: string
-    EmployeeId: string
-    Department: string
-    Money?: number
-    Date: string
-    Reason: string
-    Note: string
-    IsPenalized: boolean
-}
-
-const responseData = {
-    Data: {
-        TotalRecords: 10,
-        Records: [
-            {
-                Id: 1,
-                UserId: 'CC-001',
-                EmployeeId: 'Lê Xuân Nam',
-                AvatarPath: '/images/avatar1.jpg',
-                Department: 'Human Resources',
-                Date: '2024-11-27',
-                Reason: 'Đi làm muộn',
-                Note: 'Cảnh cáo vì vi phạm nội quy',
-                IsPenalized: true,
-                Money: 500000 // Số tiền phạt (đơn vị: VNĐ)
-            },
-            {
-                Id: 2,
-                FullName: 'Nguyễn Văn Thành',
-                EmployeeId: 'CC-002',
-                AvatarPath: '/images/avatar2.jpg',
-                Date: '2024-11-28',
-                Department: 'Human Resources',
-                Reason: 'Không đeo thẻ nhân viên',
-                Note: 'Nhắc nhở lần đầu',
-                IsPenalized: false,
-                Money: null // Không bị phạt
-            },
-            {
-                Id: 3,
-                FullName: 'Trần Thị Hải Yến',
-                EmployeeId: 'CC-003',
-                AvatarPath: '/images/avatar3.jpg',
-                Date: '2024-11-29',
-                Department: 'IT Services',
-                Reason: 'Nghỉ không báo trước',
-                Note: 'Cắt thưởng tháng',
-                IsPenalized: true,
-                Money: 1005000
-            },
-            {
-                Id: 4,
-                FullName: 'Lê Văn Việt',
-                EmployeeId: 'CC-004',
-                AvatarPath: '/images/avatar4.jpg',
-                Date: '2024-11-30',
-                Department: 'Finance',
-                Reason: 'Sử dụng điện thoại trong giờ làm',
-                Note: 'Nhắc nhở lần đầu',
-                IsPenalized: false,
-                Money: null
-            },
-            {
-                Id: 5,
-                FullName: 'Nguyễn Trọng Tất Thành',
-                EmployeeId: 'CC-005',
-                AvatarPath: '/images/avatar5.jpg',
-                Department: 'IT Services',
-                Date: '2024-12-01',
-                Reason: 'Gây mất trật tự trong công ty',
-                Note: 'Cảnh cáo lần 2',
-                IsPenalized: true,
-                Money: 800000
-            },
-            {
-                Id: 6,
-                FullName: 'Lê Minh Vũ Nam',
-                EmployeeId: 'CC-006',
-                AvatarPath: '/images/avatar6.jpg',
-                Date: '2024-12-02',
-                Department: 'Customer Support',
-                Reason: 'Không hoàn thành công việc đúng hạn',
-                Note: 'Giảm KPI tháng',
-                IsPenalized: true,
-                Money: 1200000
-            },
-            {
-                Id: 7,
-                FullName: 'Trần Thị Tuyết Phương',
-                EmployeeId: 'CC-007',
-                AvatarPath: '/images/avatar7.jpg',
-                Department: 'Finance',
-                Date: '2024-12-03',
-                Reason: 'Đi trễ nhiều lần',
-                Note: 'Cắt thưởng cuối năm',
-                IsPenalized: true,
-                Money: 2000000
-            },
-            {
-                Id: 8,
-                FullName: 'Nguyen Thi K',
-                EmployeeId: 'CC-008',
-                AvatarPath: '/images/avatar8.jpg',
-                Department: 'Customer Support',
-                Date: '2024-12-04',
-                Reason: 'Không đúng trang phục quy định',
-                Note: 'Nhắc nhở',
-                IsPenalized: false,
-                Money: null
-            },
-            {
-                Id: 9,
-                FullName: 'Hoang Thi M',
-                EmployeeId: 'CC-009',
-                AvatarPath: '/images/avatar9.jpg',
-                Date: '2024-12-05',
-                Department: 'Customer Support',
-                Reason: 'Làm sai quy trình sản xuất',
-                Note: 'Cảnh cáo và đào tạo lại',
-                IsPenalized: true,
-                Money: 1500000
-            },
-            {
-                Id: 10,
-                FullName: 'Le Van N',
-                EmployeeId: 'CC-010',
-                AvatarPath: '/images/avatar10.jpg',
-                Date: '2024-12-06',
-                Department: 'Customer Support',
-                Reason: 'Không tham gia họp đúng giờ',
-                Note: 'Nhắc nhở',
-                IsPenalized: false,
-                Money: null
-            }
-        ]
-    }
-}
-
 function Page() {
+    const router = useRouter()
     const { t } = useTranslation('common')
-    // const router = useRouter()
-    // const [selected, setSelected] = useState<number[]>([])
     const [page, setPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState('5')
-    const [from] = useState(1)
-    const [to] = useState(5)
-    const [filter, setFilter] = useState<IFilterEmploymentContract>({
+    const [from, setFrom] = useState(1)
+    const [to, setTo] = useState(5)
+    const [filter, setFilter] = useState<IFilterReward>({
         pageSize: 5,
         pageNumber: 1,
-        daysUntilExpiration: 60
+        startDate: dayjs().startOf('month').format('YYYY-MM-DD'),
+        endDate: dayjs().endOf('month').format('YYYY-MM-DD')
     })
     const [keyword, setKeyword] = useState('')
-    // const [openDialog, setOpenDialog] = useState(false)
-    // const [selectedRow, setSelectedRow] = useState<number | null>(null)
-    // const [order, setOrder] = useState<'asc' | 'desc'>('asc')
-    // const [orderBy, setOrderBy] = useState<string>('')
-    // const [selectedConfig, setSelectedConfig] = useState<IGetAllSysConfiguration | null>(null)
-    // const [openModal, setOpenModal] = useState(false)
 
-    // const { data: responseD, isFetching, refetch } = useGetContractsExpiringSoonQuery(filter)
+    const { data: responseDept } = useGetAllDepartmentQuery({})
 
-    // const handleClickDetail = (config: IGetAllSysConfiguration) => {
-    //     setSelectedConfig(config)
-    //     setOpenModal(true)
-    // }
+    const departmentData = responseDept?.Data?.Records
+    const [department, setDepartment] = useState(t('COMMON.ALL'))
 
-    const disciplineData = responseData?.Data.Records as IGetAllDiscipline[]
+    const { data: responseDiscipline, isLoading, isFetching, refetch } = useGetAllDisciplinesQuery(filter)
 
-    const totalRecords = (responseData?.Data.TotalRecords as number) || 0
+    const handleDepartmentChange = value => {
+        setDepartment(value)
+        setFilter(prev => {
+            return {
+                ...prev,
+                department: value === t('COMMON.ALL') ? undefined : value, // Sử dụng trực tiếp value
+                pageNumber: 1
+            }
+        })
+    }
+
+    const disciplineData = responseDiscipline?.Data.Records
+
+    const totalRecords = (responseDiscipline?.Data.TotalRecords as number) || 0
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
         setPage(newPage)
@@ -224,44 +115,36 @@ function Page() {
         })
     }
 
-    const handleSearchKeyword = () => {
-        setPage(1)
-        setFilter(prev => {
-            return {
+    const debouncedSetFilter = useCallback(
+        debounce(value => {
+            setFilter(prev => ({
                 ...prev,
-                keyword: keyword,
+                keyword: value,
                 pageNumber: 1
-            }
-        })
+            }))
+        }, 100),
+        []
+    )
+
+    const handleSearchKeyword = value => {
+        setPage(1)
+        setKeyword(value)
+        debouncedSetFilter(value)
     }
 
-    // useEffect(() => {
-    //     if (!isFetching && responseData?.Data) {
-    //         const from = (page - 1) * Number(rowsPerPage) + Math.min(1, DisciplineData.length)
-    //         setFrom(from)
+    useEffect(() => {
+        if (!isFetching && responseDiscipline?.Data) {
+            const from = (page - 1) * Number(rowsPerPage) + Math.min(1, disciplineData?.length)
+            setFrom(from)
 
-    //         const to = Math.min(DisciplineData.length + (page - 1) * Number(rowsPerPage), totalRecords)
-    //         setTo(to)
-    //     }
-    // }, [isFetching, responseData, page, rowsPerPage])
+            const to = Math.min(disciplineData?.length + (page - 1) * Number(rowsPerPage), totalRecords)
+            setTo(to)
+        }
+    }, [isFetching, responseDiscipline, page, rowsPerPage])
 
     useEffect(() => {
-        //refetch()
+        refetch()
     }, [filter])
-
-    // const handleSort = (property: string) => {
-    //     setFilter(prev => ({
-    //         ...prev,
-    //         sortBy: property,
-    //         isDescending: orderBy === property && order === 'asc' ? true : false
-    //     }))
-    //     if (orderBy === property) {
-    //         setOrder(order === 'asc' ? 'desc' : 'asc')
-    //     } else {
-    //         setOrder('asc')
-    //     }
-    //     setOrderBy(property)
-    // }
 
     const [currentTab, setCurrentTab] = useState(0)
 
@@ -271,9 +154,9 @@ function Page() {
             case 0: // All
                 return disciplineData
             case 1: // Pending
-                return disciplineData.filter(item => item.IsPenalized === false)
+                return disciplineData?.filter(item => item.IsPenalized === false)
             case 2: // In Progress
-                return disciplineData.filter(item => item.IsPenalized === true)
+                return disciplineData?.filter(item => item.IsPenalized === true)
             default:
                 return disciplineData
         }
@@ -281,12 +164,18 @@ function Page() {
 
     const counts = useMemo(
         () => ({
-            0: disciplineData.length,
-            1: disciplineData.filter(item => item.IsPenalized === false).length,
-            2: disciplineData.filter(item => item.IsPenalized === true).length
+            0: disciplineData?.length,
+            1: disciplineData?.filter(item => item.IsPenalized === false).length,
+            2: disciplineData?.filter(item => item.IsPenalized === true).length
         }),
         [disciplineData]
     )
+
+    const menuLeft = useSelector(authSelector)
+
+    if (isLoading || menuLeft === null || Object.keys(menuLeft).length === 0) {
+        return <Loading />
+    }
 
     const badgeStyle: React.CSSProperties = {
         fontSize: '12px',
@@ -309,8 +198,8 @@ function Page() {
             <Paper
                 sx={{
                     width: '100%',
-                    boxShadow: 'var(--box-shadow-paper)',
                     overflow: 'hidden',
+                    boxShadow: 'var(--box-shadow-paper)',
                     borderRadius: '20px',
                     backgroundColor: 'var(--background-item)'
                 }}
@@ -386,7 +275,7 @@ function Page() {
                             }}
                             label={
                                 <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {t('COMMON.REWARD_DISCIPLINE.UNPROCESSED')}
+                                    Chưa xử lý
                                     <Box
                                         style={{
                                             ...badgeStyle,
@@ -418,7 +307,7 @@ function Page() {
                             }}
                             label={
                                 <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {t('COMMON.REWARD_DISCIPLINE.PROCESSED')}
+                                    Đã xử lý
                                     <Box
                                         style={{
                                             ...badgeStyle,
@@ -441,7 +330,7 @@ function Page() {
                     </Tabs>
                 </Box>
 
-                <Box display='flex' alignItems='center' gap='24px' margin='20px 24px'>
+                <Box display='flex' alignItems='center' gap='24px' margin='24px'>
                     <Box sx={{ position: 'relative', width: '40%', height: '55px' }}>
                         <TextField
                             id='location-search'
@@ -450,7 +339,7 @@ function Page() {
                             variant='outlined'
                             required
                             value={keyword}
-                            onChange={e => setKeyword(e.target.value)}
+                            onChange={e => handleSearchKeyword(e.target.value)}
                             sx={{
                                 color: 'var(--text-color)',
                                 padding: '0px',
@@ -475,9 +364,6 @@ function Page() {
                                 '& .MuiOutlinedInput-root.Mui-focused fieldset': {
                                     borderColor: 'var(--selected-field-color)'
                                 }
-                            }}
-                            onKeyDown={() => {
-                                handleSearchKeyword()
                             }}
                             slotProps={{
                                 input: {
@@ -505,10 +391,10 @@ function Page() {
                         />
                     </Box>
 
-                    <Box>
+                    <Box width='20%'>
                         <FormControl
                             sx={{
-                                width: '140px',
+                                width: '100%',
                                 height: '53px',
                                 '& fieldset': {
                                     borderRadius: '8px',
@@ -554,11 +440,8 @@ function Page() {
 
                             <Select
                                 labelId='select-label'
-                                // open={openSelectType}
-                                // onClose={handleCloseSelectType}
-                                // onOpen={handleOpenSelectType}
-                                // value={typeNotification}
-                                // onChange={handleChange}
+                                value={department} // Quản lý giá trị qua state
+                                onChange={e => handleDepartmentChange(e.target.value)} // Cập nhật giá trị khi chọn
                                 label={t('COMMON.REWARD_DISCIPLINE.DEPARTMENT')}
                                 autoFocus={false}
                                 sx={{
@@ -598,14 +481,15 @@ function Page() {
                                             border: '1px solid var(--border-color)',
                                             '& .MuiMenuItem-root': {
                                                 borderRadius: '6px',
+                                                '&:not(:first-of-type)': {
+                                                    mt: '3px'
+                                                },
                                                 '&:hover': {
                                                     backgroundColor: 'var(--hover-color)'
                                                 },
                                                 '&.Mui-selected': {
-                                                    backgroundColor: 'var(--selected-color)',
-                                                    '&:hover': {
-                                                        backgroundColor: 'var(--hover-color)'
-                                                    }
+                                                    backgroundColor: 'var(--background-selected-item)',
+                                                    '&:hover': { backgroundColor: 'var(--hover-color)' }
                                                 }
                                             }
                                         },
@@ -613,20 +497,110 @@ function Page() {
                                     }
                                 }}
                             >
-                                <MenuItem value={'Public'}>{t('COMMON.NOTIFICATION_TYPE.PUBLIC')}</MenuItem>
-                                <MenuItem value={'Benefit'}>{t('COMMON.NOTIFICATION_TYPE.BENEFIT')}</MenuItem>
-                                <MenuItem value={'Salary'}>{t('COMMON.NOTIFICATION_TYPE.SALARY')}</MenuItem>
-                                <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.Discipline')}</MenuItem>
-                                <MenuItem value={'Insurance'}>{t('COMMON.NOTIFICATION_TYPE.INSURANCE')}</MenuItem>
-                                <MenuItem value={'Holiday'}>{t('COMMON.NOTIFICATION_TYPE.HOLIDAY')}</MenuItem>
-                                <MenuItem value={'Discipline'}>{t('COMMON.NOTIFICATION_TYPE.DISCIPLINE')}</MenuItem>
-                                <MenuItem value={'Timekeeping'}>{t('COMMON.NOTIFICATION_TYPE.TIMEKEEPING')}</MenuItem>
+                                <MenuItem key={'all'} value={t('COMMON.ALL')}>
+                                    {t('COMMON.ALL')}
+                                </MenuItem>
+                                {departmentData?.map((item, index) => (
+                                    <MenuItem key={index} value={item.Name}>
+                                        {item.Name}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label={'Từ ngày'}
+                            value={dayjs(filter.startDate)}
+                            onChange={value => {
+                                setFilter({
+                                    ...filter,
+                                    startDate: convertToVietnamTime(value?.toDate() || new Date())
+                                })
+                                setPage(1)
+                            }}
+                            sx={{
+                                width: '20%',
+                                mt: '-2px',
+                                '& .MuiInputBase-root': {
+                                    color: 'var(--text-color)'
+                                },
+                                '& .MuiInputBase-input': {
+                                    padding: '15px 0 15px 14px !important'
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'var(--text-label-color)'
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderRadius: '8px',
+                                    borderColor: 'var(--border-dialog)'
+                                },
+                                '& .MuiSvgIcon-root': {
+                                    color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                    }
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: 'var(--selected-field-color)'
+                                }
+                            }}
+                        />
+                    </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label={'Đến ngày'}
+                            value={dayjs(filter.endDate)}
+                            onChange={value => {
+                                setFilter({
+                                    ...filter,
+                                    endDate: convertToVietnamTime(value?.toDate() || new Date())
+                                })
+                                setPage(1)
+                            }}
+                            sx={{
+                                width: '20%',
+                                mt: '-2px',
+                                '& .MuiInputBase-root': {
+                                    color: 'var(--text-color)'
+                                },
+                                '& .MuiInputBase-input': {
+                                    padding: '15px 0 15px 14px !important'
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'var(--text-label-color)'
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderRadius: '8px',
+                                    borderColor: 'var(--border-dialog)'
+                                },
+                                '& .MuiSvgIcon-root': {
+                                    color: 'var(--text-label-color)' // Màu của icon (lịch)
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'var(--hover-field-color)' // Màu viền khi hover
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'var(--selected-field-color) !important' // Màu viền khi focus, thêm !important để ghi đè
+                                    }
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': {
+                                    color: 'var(--selected-field-color)'
+                                }
+                            }}
+                        />
+                    </LocalizationProvider>
                 </Box>
 
-                <TableDiscipline disciplineData={filteredData} totalRecords={totalRecords} type={currentTab} />
+                <TableDiscipline disciplinesData={filteredData} setFilter={setFilter} refetch={refetch} />
 
                 <Box display='flex' alignItems='center' justifyContent='space-between' padding='24px'>
                     <Box display='flex' alignItems='center'>
@@ -709,12 +683,13 @@ function Page() {
                             {t('COMMON.PAGINATION.FROM_TO', { from, to, totalRecords })}
                         </Typography>
                     </Box>
+
                     <Pagination
-                        count={Math.ceil(totalRecords / Number(rowsPerPage))}
+                        count={Math.ceil(totalRecords / (rowsPerPage ? Number(rowsPerPage) : 1))}
                         page={page}
                         onChange={handleChangePage}
-                        boundaryCount={1}
-                        siblingCount={2}
+                        boundaryCount={2}
+                        siblingCount={0}
                         variant='outlined'
                         sx={{
                             color: 'var(--text-color)',

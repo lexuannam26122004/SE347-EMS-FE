@@ -65,6 +65,8 @@ export const disciplineApi = createApi({
                     if (filter.isDescending !== undefined) params.append('IsDescending', filter.isDescending.toString())
                     if (filter.sortBy) params.append('SortBy', filter.sortBy)
                     if (filter.department) params.append('Department', filter.department)
+                    if (filter.startDate) params.append('StartDate', filter.startDate)
+                    if (filter.endDate) params.append('EndDate', filter.endDate)
                 }
 
                 return `Search?${params.toString()}`
