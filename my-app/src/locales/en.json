@@ -435,6 +435,7 @@
             "DELETE_ERROR": "Delete Notification error"
         },
         "DASHBOARD": {
+            "Analysis": "Analyzing employees' issues, challenges, and emotions",
             "TOTAL_EMPLOYEES": "Employees",
             "TOTAL_NEW_EMPLOYEES": "New Employees",
             "TOTAL_LAYOFF_EMPLOYEES": "Layoff Employees",
@@ -507,6 +508,7 @@
         },
         "CALENDAR": {
             "CALENDAR": "Calendar",
+            "REFRESH": "Refresh",
             "ADD_EVENT": "Add Event",
             "TITLE": "Title",
             "START_DATE": "Start Date",

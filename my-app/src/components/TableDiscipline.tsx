@@ -17,7 +17,7 @@ import {
 import { ClipboardCheck, EyeIcon, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Loading from './Loading'
 import { authSelector } from '@/redux/slices/authSlice'
 import { useSelector } from 'react-redux'
@@ -65,6 +65,7 @@ interface IProps {
 function TableErrorReport({ disciplinesData, setFilter, refetch }: IProps) {
     const { t } = useTranslation('common')
     const router = useRouter()
+    const pathName = usePathname()
     const [openDialog, setOpenDialog] = useState(false)
     const [selectedRow, setSelectedRow] = useState<number | null>(null)
     const [order, setOrder] = useState<'asc' | 'desc'>('asc')
@@ -544,7 +545,7 @@ function TableErrorReport({ disciplinesData, setFilter, refetch }: IProps) {
                                                 </Tooltip>
                                             )}
 
-                                            {menuLeft['Discipline'].IsAllowEdit && (
+                                            {menuLeft['Discipline'].IsAllowEdit && !pathName.includes('statistics') && (
                                                 <Tooltip title={t('COMMON.BUTTON.EDIT')}>
                                                     <Box
                                                         display='flex'
@@ -566,28 +567,29 @@ function TableErrorReport({ disciplinesData, setFilter, refetch }: IProps) {
                                                     </Box>
                                                 </Tooltip>
                                             )}
-                                            {menuLeft['Discipline'].IsAllowDelete && (
-                                                <Tooltip title={t('COMMON.BUTTON.DELETE')}>
-                                                    <Box
-                                                        display='flex'
-                                                        alignItems='center'
-                                                        justifyContent='center'
-                                                        sx={{
-                                                            cursor: 'pointer',
-                                                            color: 'red',
-                                                            borderRadius: '50%',
-                                                            width: '42px',
-                                                            height: '42px',
-                                                            '&:hover': {
-                                                                backgroundColor: 'var(--hover-color)'
-                                                            }
-                                                        }}
-                                                        onClick={() => handleDeleteClick(row.Id)}
-                                                    >
-                                                        <Trash2 />
-                                                    </Box>
-                                                </Tooltip>
-                                            )}
+                                            {menuLeft['Discipline'].IsAllowDelete &&
+                                                !pathName.includes('statistics') && (
+                                                    <Tooltip title={t('COMMON.BUTTON.DELETE')}>
+                                                        <Box
+                                                            display='flex'
+                                                            alignItems='center'
+                                                            justifyContent='center'
+                                                            sx={{
+                                                                cursor: 'pointer',
+                                                                color: 'red',
+                                                                borderRadius: '50%',
+                                                                width: '42px',
+                                                                height: '42px',
+                                                                '&:hover': {
+                                                                    backgroundColor: 'var(--hover-color)'
+                                                                }
+                                                            }}
+                                                            onClick={() => handleDeleteClick(row.Id)}
+                                                        >
+                                                            <Trash2 />
+                                                        </Box>
+                                                    </Tooltip>
+                                                )}
                                         </Box>
                                     </TableCell>
                                 </TableRow>

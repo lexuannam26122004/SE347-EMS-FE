@@ -28,7 +28,6 @@ export interface IContractExp {
     ContractEnd: string
     AvatarPath: string | null
 }
-
 export interface IFilterEmploymentContract {
     isActive?: boolean
     createdDate?: Date

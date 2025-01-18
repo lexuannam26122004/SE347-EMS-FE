@@ -34,6 +34,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { toZonedTime, format } from 'date-fns-tz'
 import { DatePicker } from '@mui/x-date-pickers'
+import { useGetMeRewardInfoQuery } from '@/services/UserRewardService'
+import { IFilterReward } from '@/models/Reward'
 
 const convertToVietnamTime = (date: Date) => {
     if (isNaN(date.getTime())) {
@@ -63,7 +65,7 @@ function Page() {
     const [rowsPerPage, setRowsPerPage] = useState('5')
     const [from, setFrom] = useState(1)
     const [to, setTo] = useState(5)
-    const [filter, setFilter] = useState<IFilterRewardUser>({
+    const [filter, setFilter] = useState<IFilterReward>({
         pageSize: 5,
         startDate: dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'), // Đầu tháng với giờ
         endDate: dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'), // Cuối tháng với giờ
@@ -71,23 +73,7 @@ function Page() {
     })
     const [keyword, setKeyword] = useState('')
 
-    const { data: responseDept } = useGetAllDepartmentQuery({})
-
-    const departmentData = responseDept?.Data?.Records
-    const [department, setDepartment] = useState(t('COMMON.ALL'))
-
-    const { data: responseReward, isLoading, isFetching, refetch } = useGetAllRewardsQuery(filter)
-
-    const handleDepartmentChange = value => {
-        setDepartment(value)
-        setFilter(prev => {
-            return {
-                ...prev,
-                department: value === t('COMMON.ALL') ? undefined : value, // Sử dụng trực tiếp value
-                pageNumber: 1
-            }
-        })
-    }
+    const { data: responseReward, isLoading, isFetching, refetch } = useGetMeRewardInfoQuery(filter)
 
     const rewardData = responseReward?.Data.Records
 

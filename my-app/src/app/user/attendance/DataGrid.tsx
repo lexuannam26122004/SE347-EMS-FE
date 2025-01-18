@@ -91,7 +91,7 @@ function DataGrid(props: DataGridProps) {
                             </Typography> */}
                         </Box>
                         <Box>
-                            {row.IsValid === false ? (
+                            {row.Status === false ? (
                                 <Box
                                     sx={{
                                         borderRadius: '8px',
@@ -203,7 +203,15 @@ function DataGrid(props: DataGridProps) {
                             <Typography sx={{ fontSize: '14px', color: 'var(--sub-title-color)' }}>
                                 {t('COMMON.USER.CHECK_IN_TIME')}
                             </Typography>
-                            <Typography sx={{ mt: '5px', fontSize: '16px', color: '#ffbc42', fontWeight: 'bold' }}>
+                            <Typography
+                                sx={{
+                                    mt: '5px',
+                                    fontSize: '16px',
+                                    textAlign: 'center',
+                                    color: '#ffbc42',
+                                    fontWeight: 'bold'
+                                }}
+                            >
                                 {convertTimeFormat(row.CheckInTime)}
                             </Typography>
                         </Box>
@@ -211,26 +219,39 @@ function DataGrid(props: DataGridProps) {
                             <Typography sx={{ fontSize: '14px', color: 'var(--sub-title-color)' }}>
                                 {t('COMMON.USER.CHECK_OUT_TIME')}
                             </Typography>
-                            <Typography sx={{ mt: '5px', fontSize: '16px', color: '#ff7373', fontWeight: 'bold' }}>
-                                {convertTimeFormat(row.CheckOutTime)}
-                            </Typography>
-                        </Box>
-                        {/* <Box>
-                            <Typography sx={{ fontSize: '14px', color: 'var(--sub-title-color)' }}>
-                                {t('COMMON.USER.OVERTIME')}
-                            </Typography>
                             <Typography
                                 sx={{
                                     mt: '5px',
-                                    color: '#2ef2d2',
                                     fontSize: '16px',
-                                    fontStyle: 'italic',
+                                    textAlign: 'center',
+                                    color: '#ff7373',
                                     fontWeight: 'bold'
                                 }}
                             >
-                                {convertTimeFormat(row.Overtime)}
+                                {convertTimeFormat(row.CheckOutTime)}
                             </Typography>
-                        </Box> */}
+                        </Box>
+                        <Box>
+                            <Typography sx={{ fontSize: '14px', color: 'var(--sub-title-color)' }}>
+                                {t('COMMON.USER.WORKING_HOURS')}
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    color: '#00ec84',
+                                    fontSize: '16px',
+                                    mt: '5px',
+                                    width: '88px',
+                                    textAlign: 'center',
+                                    borderRadius: '10px',
+                                    fontWeight: 'bold',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {(row.TotalHours * 60).toFixed(0)} {t('COMMON.USER.MINUTES')}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Box>
             ))}

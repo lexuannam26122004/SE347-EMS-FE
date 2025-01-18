@@ -39,7 +39,7 @@ const colors = ['#00a76f', '#00b8d9', '#ff5630', '#f83696', '#ffab00', '#b863f0'
 function Page() {
     const { t } = useTranslation('common')
 
-    const currentDate = '2025-01-08'
+    const currentDate = new Date().toISOString().split('T')[0]
 
     const { data: responseStat } = useStatsQuery(currentDate)
     const stats = responseStat?.Data

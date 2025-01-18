@@ -18,11 +18,11 @@ import {
     Avatar
 } from '@mui/material'
 import { SaveIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useCreateNotificationMutation } from '@/services/NotificationsService'
+import { useUpdateNotificationMutation } from '@/services/NotificationsService'
 import Radio from '@mui/material/Radio'
 import SpecificUsersModal from './SpecificUsersModal'
 import {
@@ -38,15 +38,18 @@ import {
 import { selectedRolesToNotifySelector, selectedRolesToNotifySlice } from '@/redux/slices/selectedRolesToNotifySlice'
 import UploadFiles from './UploadFiles'
 import { useToast } from '@/hooks/useToast'
+import { useSearchParams } from 'next/navigation'
+import Loading from '@/components/Loading'
+import { useGetNotificationByIdQuery } from '@/services/NotificationsService'
 import { useGetAuthMeQuery } from '@/services/AuthService'
 
-function CreateNotification() {
+function Page() {
     const toast = useToast()
     const { t } = useTranslation('common')
     const router = useRouter()
     const [typeNotification, setTypeNotification] = useState<string>('')
     const [openSelectType, setOpenSelectType] = useState(false)
-    const [createNotification, { isLoading }] = useCreateNotificationMutation()
+    const [updateNotification, { isLoading }] = useUpdateNotificationMutation()
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [files, setFiles] = useState<number[]>([])
@@ -59,12 +62,31 @@ function CreateNotification() {
     const selectedDepartment = useSelector(selectedDepartmentsToNotifySelector)
     const selectedRole = useSelector(selectedRolesToNotifySelector)
 
-    const { data: responseGetMe } = useGetAuthMeQuery()
-    const userSentNotificationId = responseGetMe?.Data?.Id
+    const searchParams = useSearchParams()
+    const id = searchParams.get('id') ? parseInt(searchParams.get('id') as string) : 0
+
+    const { data: responseData, isLoading: isLoadingNotification } = useGetNotificationByIdQuery(id)
+
+    const notification = responseData?.Data || {}
+
+    useEffect(() => {
+        if (isLoadingNotification === false && notification) {
+            setTitle(notification.Title)
+            setContent(notification.Content)
+            setTypeNotification(notification.Type)
+            setFiles(notification.ListFileId)
+            setTypeReceiveNotify(notification.TypeToNotify === 1 ? 'All' : 'Specific_Users')
+            dispatch(selectedUsersToNotifySlice.actions.updateSelectedUsersToNotifySlice(notification.ListUserId))
+        }
+    }, [notification, isLoadingNotification])
 
     const handleCloseSpecificUsersModal = () => {
         setOpenSpecificUsersModal(false)
     }
+
+    const { data: responseGetMe } = useGetAuthMeQuery()
+    const userSentNotificationId = responseGetMe?.Data?.Id
+
     const handleCloseDepartmentAndRolesModal = () => {
         setOpenDepartmentAndRolesModal(false)
     }
@@ -100,6 +122,7 @@ function CreateNotification() {
             Title: title,
             ListUser: selectedUsers.map(x => x.Id),
             ListFile: files,
+            Id: id,
             UserId: userSentNotificationId,
             ListDept: selectedDepartment.map(x => x.Id),
             ListRole: selectedRole.map(x => x.Id),
@@ -107,7 +130,7 @@ function CreateNotification() {
         }
 
         try {
-            await createNotification(data).unwrap()
+            await updateNotification(data).unwrap()
         } catch (error) {
             if (error.status === 403) {
                 toast('Bạn không có quyền tạo. Vui lòng tải lại trang', 'error')
@@ -136,6 +159,7 @@ function CreateNotification() {
             Title: title,
             ListUser: selectedUsers.map(x => x.Id),
             ListFile: files,
+            Id: id,
             UserId: userSentNotificationId,
             ListDept: selectedDepartment.map(x => x.Id),
             ListRole: selectedRole.map(x => x.Id),
@@ -143,8 +167,7 @@ function CreateNotification() {
         }
 
         try {
-            await createNotification(data).unwrap()
-            toast('Tạo thông báo thành công', 'success')
+            await updateNotification(data).unwrap()
         } catch (error) {
             if (error.status === 403) {
                 toast('Bạn không có quyền tạo. Vui lòng tải lại trang', 'error')
@@ -176,6 +199,10 @@ function CreateNotification() {
                 selectedDepartment.filter(temp => temp.Id !== id)
             )
         )
+    }
+
+    if (isLoadingNotification) {
+        return <Loading />
     }
 
     return (
@@ -488,7 +515,7 @@ function CreateNotification() {
                         <RadioGroup
                             aria-labelledby='demo-row-radio-buttons-group-label'
                             name='row-radio-buttons-group'
-                            defaultValue={'All'}
+                            value={typeReceiveNotify}
                             onChange={e => setTypeReceiveNotify(e.target.value)}
                         >
                             <FormControlLabel
@@ -720,10 +747,10 @@ function CreateNotification() {
                 </Box>
 
                 <Box sx={{ mt: '5px' }}>
-                    <UploadFiles files={files} setFiles={setFiles} />
+                    <UploadFiles files={files} initialFiles={notification.ListFile} setFiles={setFiles} />
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', mt: '20px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', mt: '25px' }}>
                     <LoadingButton
                         variant='contained'
                         {...(isLoading && { loading: true })}
@@ -803,4 +830,4 @@ function CreateNotification() {
     )
 }
 
-export default CreateNotification
+export default Page

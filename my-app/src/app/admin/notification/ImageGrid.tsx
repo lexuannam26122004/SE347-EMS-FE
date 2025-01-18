@@ -4,7 +4,7 @@ import Lightbox from 'yet-another-react-lightbox'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import 'yet-another-react-lightbox/styles.css'
 import './ImageGrid.css'
-import { Description, PictureAsPdf } from '@mui/icons-material'
+import { Description, PictureAsPdf, InsertDriveFile } from '@mui/icons-material'
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded'
 interface ImageGridProps {
     files: string[]
@@ -29,18 +29,24 @@ export default function ImageGrid({ files }: ImageGridProps) {
             {documentFiles.map((file, index) => {
                 const fileName = file.split('/').pop() || file
                 const fileExtension = file.split('.').pop()?.toLowerCase()
+
+                console.log('fileExtension:', fileExtension)
+
                 const getIcon = () => {
                     switch (fileExtension) {
                         case 'pdf':
-                            return <PictureAsPdf sx={{ color: 'red' }} /> // Icon PDF
+                            return <PictureAsPdf sx={{ color: '#ff2e2e' }} /> // Icon PDF
                         case 'doc':
                         case 'docx':
-                            return <Description fontSize='small' sx={{ color: 'blue' }} />
+                            return <Description fontSize='small' sx={{ color: '#2cb5ff' }} /> // Icon Word
                         case 'xls':
                         case 'xlsx':
-                            return <Description fontSize='small' sx={{ color: 'green' }} />
+                            return <Description fontSize='small' sx={{ color: '#46ff46' }} /> // Icon Excel
+                        default:
+                            return <InsertDriveFile sx={{ color: '#888' }} /> // Icon mặc định cho các file khác
                     }
                 }
+
                 return (
                     <Box
                         key={index}

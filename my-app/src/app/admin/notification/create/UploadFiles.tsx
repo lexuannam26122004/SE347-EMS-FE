@@ -59,19 +59,19 @@ function UploadFiles({ setFiles }: Props) {
 
     const getFileIcon = (fileType: string) => {
         if (fileType === 'application/pdf') {
-            return <PictureAsPdf fontSize='large' sx={{ color: 'red' }} />
+            return <PictureAsPdf fontSize='large' sx={{ color: '#ff2e2e' }} />
         }
         if (
             fileType === 'application/vnd.ms-excel' ||
             fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ) {
-            return <Description fontSize='large' sx={{ color: 'green' }} />
+            return <Description fontSize='large' sx={{ color: '#46ff46' }} />
         }
         if (
             fileType === 'application/msword' ||
             fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ) {
-            return <Description fontSize='large' sx={{ color: 'blue' }} />
+            return <Description fontSize='large' sx={{ color: '#2cb5ff' }} />
         }
         return <InsertDriveFile fontSize='large' />
     }

@@ -7,8 +7,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { Box, Typography, Snackbar, Alert, Avatar } from '@mui/material'
 import { INotificationsForUser } from '@/models/Notifications'
 import { notificationsSelector, notificationsSlice } from '@/redux/slices/notificationsSlice'
-import { userId } from '@/utils/globalVariables'
 import { iconsForNotification, getTimeDifferenceText } from '@/utils/calcForNotification'
+import { useGetAuthMeQuery } from '@/services/AuthService'
 
 interface INotificationAlert {
     Title: string
@@ -20,6 +20,9 @@ interface INotificationAlert {
 function NotificationRealTime() {
     const { t } = useTranslation('common')
     const dispatch = useDispatch()
+
+    const { data: responseGetMe } = useGetAuthMeQuery()
+    const userId = responseGetMe?.Data?.Id
 
     const [notificationAlert, setNotificationAlert] = useState<INotificationAlert[]>([])
     const [open, setOpen] = useState(false)
@@ -72,6 +75,7 @@ function NotificationRealTime() {
     const connectionRef = useRef<signalR.HubConnection | null>(null)
 
     useEffect(() => {
+        if (userId == null) return
         const connection = new signalR.HubConnectionBuilder()
             .withUrl('https://localhost:44381/notificationHub', {
                 accessTokenFactory: () => userId
@@ -92,7 +96,7 @@ function NotificationRealTime() {
                 connectionRef.current.stop()
             }
         }
-    }, [])
+    }, [userId])
 
     return (
         currentNotificationAlert && (

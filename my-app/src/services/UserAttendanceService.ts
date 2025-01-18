@@ -50,6 +50,9 @@ export const userAttendanceApi = createApi({
                 method: 'PUT',
                 body: { Id: value }
             })
+        }),
+        getSummary: builder.query<AttendanceResponse, string>({
+            query: type => `GetSummary?type=${type}`
         })
     })
 })
@@ -59,5 +62,6 @@ export const {
     useCreateAttendanceUserMutation,
     useStatsQuery,
     useCheckoutMutation,
-    useGetByDateQuery
+    useGetByDateQuery,
+    useGetSummaryQuery
 } = userAttendanceApi
